@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{ED22FF7B-6D0D-4802-B3AE-82DF55EB6543}</ProjectGuid>
+    <ProjectGuid>{B76AC1D5-7AAA-487C-B9CE-AE9699546696}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SMTPileIt</RootNamespace>
