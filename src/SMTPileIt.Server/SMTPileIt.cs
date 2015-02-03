@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using SMTPileIt.Server.IO;
 
 namespace SMTPileIt.Server
 {
@@ -14,69 +15,45 @@ namespace SMTPileIt.Server
     {
         public const int DefaultSmtpPort = 25;
 
-        private readonly TcpListener _listener;
-        private readonly List<TcpClient> _clients;
+        private readonly IMailClientListener _listener;
+        private readonly List<IMailClient> _clients;
         private readonly Dictionary<int, SmtpConversation> _conversations;
 
 
         public SMTPileIt(string ipString, int ipPort)
         {
-            IPAddress addr = IPAddress.Parse(ipString);
-            _listener = new TcpListener(addr, ipPort);
-            _clients = new List<TcpClient>();
+            _listener = new TcpClientListener(ipString, ipPort);
+
+            _clients = new List<IMailClient>();
             _conversations = new Dictionary<int, SmtpConversation>();
         }
 
         public void Run()
         {
-            _listener.Start();
-
             while(true)
             {
-                if (_listener.Pending())
+                if (_listener.ClientPending)
                 {
-                    var c = _listener.AcceptTcpClient();
+                    var c = _listener.AcceptClient();
                     _clients.Add(c);
-                    _conversations[c.Client.Handle.ToInt32()] = new SmtpConversation();
-                    Write(c.GetStream(), "220 ");
+                    _conversations[c.ClientId] = new SmtpConversation();
+                    c.Write("220 ");
                 }
 
                 foreach(var client in _clients)
                 {
-                    if(client.Available > 0)
+                    string input = client.Read();
+                    if(!String.IsNullOrEmpty(input))
                     {
-                        var stream = client.GetStream();
+                        var element = ConversationElement.Parse(input);
 
-                        string line = Read(stream);
-
-                        var element = ConversationElement.Parse(line);
-
-                        _conversations[client.Client.Handle.ToInt32()].AddElement(element);
+                        _conversations[client.ClientId].AddElement(element);
 
                         Console.WriteLine(element.Command);
 
-                        Write(stream, "250 OK");
+                        client.Write("250 OK");
                     }
                 }
-            }
-        }
-
-        public string Read(Stream stream)
-        {
-            using (var reader = new StreamReader(stream, Encoding.ASCII, false, 2048, true))
-            {
-                string line = reader.ReadLine();
-                Console.WriteLine(line);
-                return line;
-            }
-        }
-
-        public void Write(Stream s, string message)
-        {
-            using(var writer = new StreamWriter(s, Encoding.ASCII, 2048, true))
-            {
-                writer.WriteLine(message);
-                writer.Flush();
             }
         }
     }
