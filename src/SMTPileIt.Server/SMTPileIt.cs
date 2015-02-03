@@ -37,7 +37,7 @@ namespace SMTPileIt.Server
                     var c = _listener.AcceptClient();
                     _clients.Add(c);
                     _conversations[c.ClientId] = new SmtpConversation();
-                    c.Write("220 ");
+                    c.Write(new SmtpReply(SmtpReplyCode.Code220).ToString());
                 }
 
                 foreach(var client in _clients)
@@ -51,7 +51,7 @@ namespace SMTPileIt.Server
 
                         Console.WriteLine(element.Command);
 
-                        client.Write("250 OK");
+                        client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
                     }
                 }
             }

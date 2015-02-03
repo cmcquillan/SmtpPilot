@@ -44,6 +44,7 @@
     <Compile Include="Conversation\ConversationElement.cs" />
     <Compile Include="Conversation\SmtpCommand.cs" />
     <Compile Include="Conversation\SmtpConversation.cs" />
+    <Compile Include="Conversation\SmtpReply.cs" />
     <Compile Include="IO\IMailClientListener.cs" />
     <Compile Include="IO\IMailClient.cs" />
     <Compile Include="IO\TcpClientListener.cs" />
