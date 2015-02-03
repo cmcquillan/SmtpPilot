@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using SMTPileIt.Server.IO;
+using System.Threading;
 
 namespace SMTPileIt.Server
 {
@@ -43,16 +44,34 @@ namespace SMTPileIt.Server
                 foreach(var client in _clients)
                 {
                     string input = client.Read();
-                    if(!String.IsNullOrEmpty(input))
+
+                    if (!String.IsNullOrEmpty(input))
                     {
+                        if(client.IsDataState)
+                        {
+                            _conversations[client.ClientId].Elements.Last().Append(Environment.NewLine + input);
+                            client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
+                            client.IsDataState = false;
+                            continue;
+                        }
+
                         var element = ConversationElement.Parse(input);
 
                         _conversations[client.ClientId].AddElement(element);
-
                         Console.WriteLine(element.Command);
 
-                        client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
+                        if (element.Command == SmtpCommand.DATA)
+                        {
+                            client.Write(new SmtpReply(SmtpReplyCode.Code354).ToString());
+                            client.IsDataState = true;
+                        }
+                        else
+                        {
+                            client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
+                        }
                     }
+
+                    Thread.Sleep(5);
                 }
             }
         }

@@ -9,7 +9,7 @@ namespace SMTPileIt.Server.Conversation
     public class ConversationElement
     {
         public const char ASCIISpace = (char)0x20;
-        public StringBuilder _fullMessage = new StringBuilder();
+        private readonly StringBuilder _fullMessage = new StringBuilder();
 
 
         public ConversationElement()

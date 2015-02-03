@@ -29,7 +29,6 @@ namespace SMTPileIt.Server.IO
             get { return _clientId; }
         }
 
-
         public void Write(string message)
         {
             var s = _tcpClient.GetStream();
@@ -40,16 +39,27 @@ namespace SMTPileIt.Server.IO
             }
         }
 
-
         public string Read()
         {
             var s = _tcpClient.GetStream();
-            using (var reader = new StreamReader(s, Encoding.ASCII, false, 2048, true))
-            {
-                string line = reader.ReadLine();
-                Console.WriteLine(line);
-                return line;
-            }
+
+            var bytes = new byte[2048];
+
+            int bytesRead = s.Read(bytes, 0, bytes.Length);
+
+            string str = Encoding.ASCII.GetString(bytes, 0, bytesRead);
+            Console.WriteLine(str);
+            return str;
+
+            //using (var reader = new StreamReader(s, Encoding.ASCII, false, 2048, true))
+            //{
+
+            //    string line = reader.ReadLine();
+            //    Console.WriteLine(line);
+            //    return line;
+            //}
         }
+
+        public bool IsDataState { get; set; }
     }
 }

@@ -14,13 +14,14 @@ namespace SMTPileIt.Client
         {
             Thread.Sleep(2000);
 
-            var client = new SmtpClient("localhost", 25);
-            var message = new MailMessage("casey.mcquillan@gmail.com", "cmcquillan@restaurant.org");
-            message.Subject = "Hello, World";
-            message.Body = "This is my message";
+            using (var client = new SmtpClient("localhost", 25))
+            {
+                var message = new MailMessage("casey.mcquillan@gmail.com", "cmcquillan@restaurant.org");
+                message.Subject = "Hello, World";
+                message.Body = "This is my message";
 
-            client.Send(message);
-
+                client.Send(message);
+            }
         }
     }
 }
