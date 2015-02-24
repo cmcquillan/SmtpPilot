@@ -43,37 +43,29 @@ namespace SMTPileIt.Server
 
                 foreach(var client in _clients)
                 {
+                    if(_conversations[client.ClientId].IsInQuitState)
+                    {
+                        client.Disconnect();
+                        continue;
+                    }
+
                     string input = client.Read();
 
                     if (!String.IsNullOrEmpty(input))
                     {
-                        if(_conversations[client.ClientId].IsInDataState)
-                        {
-                            if (input.Equals(@"."))
-                                client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
+                        _conversations[client.ClientId].AppendToConversation(input);
 
-                            _conversations[client.ClientId].LastElement.Append(Environment.NewLine + input);
-                            
-                            continue;
-                        }
+                        string reply = _conversations[client.ClientId].LastElement.SendReply();
+                        if (reply != null)
+                            client.Write(reply);
 
-                        var element = ConversationElement.Parse(input);
-
-                        _conversations[client.ClientId].AddElement(element);
-                        Console.WriteLine(element.Command);
-
-                        if (element.Command == SmtpCommand.DATA)
-                        {
-                            client.Write(new SmtpReply(SmtpReplyCode.Code354).ToString());
-                        }
-                        else
-                        {
-                            client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
-                        }
+                        Console.WriteLine(_conversations[client.ClientId].LastElement.FullMessage);
                     }
 
                     Thread.Sleep(5);
                 }
+
+                _clients.RemoveAll(p => p.Disconnected);
             }
         }
     }

@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conversation\ConversationElement.cs" />
+    <Compile Include="Conversation\DataConversationElement.cs" />
     <Compile Include="Conversation\SmtpCommand.cs" />
     <Compile Include="Conversation\SmtpConversation.cs" />
     <Compile Include="Conversation\SmtpReply.cs" />

@@ -12,7 +12,7 @@ namespace SMTPileIt.Server.IO
         private const int BUFFER_SIZE = 2048;
         private readonly TcpClient _tcpClient;
         private readonly int _clientId;
-        private readonly byte[] _inputBuffer;
+        private readonly StreamReader _reader;
 
         public TcpMailClient(System.Net.Sockets.TcpClient tcpClient)
             : this(tcpClient, tcpClient.Client.Handle.ToInt32())
@@ -24,7 +24,7 @@ namespace SMTPileIt.Server.IO
         {
             _tcpClient = client;
             _clientId = clientId;
-            _inputBuffer = new byte[BUFFER_SIZE];
+            _reader = new StreamReader(_tcpClient.GetStream());
         }
 
         public int ClientId
@@ -44,14 +44,25 @@ namespace SMTPileIt.Server.IO
 
         public string Read()
         {
-            var s = _tcpClient.GetStream();
+            if (_reader.EndOfStream)
+                return null;
 
-            using (var reader = new StreamReader(s, Encoding.ASCII, false, BUFFER_SIZE, true))
-            {
-                string line = reader.ReadLine();
-                Console.WriteLine(line);
-                return line;
-            }
+            string line = _reader.ReadLine();
+            Console.WriteLine(line);
+            return line;
+        }
+
+
+        public void Disconnect()
+        {
+            _reader.Dispose();
+            _tcpClient.Close();
+        }
+
+
+        public bool Disconnected
+        {
+            get { return !_tcpClient.Connected; }
         }
     }
 }

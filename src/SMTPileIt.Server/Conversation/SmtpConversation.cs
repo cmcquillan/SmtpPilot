@@ -35,11 +35,33 @@ namespace SMTPileIt.Server.Conversation
                 if (_elements.Count == 0)
                     return false;
 
-                return LastElement.Command == SmtpCommand.DATA;
+                return LastElement.Command == SmtpCommand.DATA && !LastElement.Terminated;
             }
         }
 
-        public void AddElement(ConversationElement element)
+        public bool IsInQuitState
+        {
+            get
+            {
+                if (_elements.Count == 0)
+                    return false;
+
+                return LastElement.Command == SmtpCommand.QUIT;
+            }
+        }
+
+        public void AppendToConversation(string input)
+        {
+            if(!IsInDataState)
+            {
+                AddElement(ConversationElement.Parse(input));
+                return;
+            }
+
+            ((DataConversationElement)LastElement).AppendLine(input);
+        }
+
+        protected void AddElement(ConversationElement element)
         {
             _elements.Add(element);
         }

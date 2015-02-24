@@ -12,5 +12,9 @@ namespace SMTPileIt.Server.IO
         void Write(string message);
 
         string Read();
+
+        void Disconnect();
+
+        bool Disconnected { get; }
     }
 }

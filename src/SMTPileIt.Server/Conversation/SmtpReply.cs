@@ -27,6 +27,11 @@ namespace SMTPileIt.Server.Conversation
         {
             return String.Format("{0} {1}", (int)Code, Text);
         }
+
+        public string GetReply()
+        {
+            return this.ToString();
+        }
     }
 
     public enum SmtpReplyCode : int

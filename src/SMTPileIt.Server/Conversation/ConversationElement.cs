@@ -13,15 +13,23 @@ namespace SMTPileIt.Server.Conversation
 
 
         public ConversationElement()
-        { }
+        {
+            Reply = new SmtpReply(SmtpReplyCode.Code250);
+        }
 
         public string FullMessage { get { return _fullMessage.ToString(); } }
         public SmtpCommand Command { get; private set; }
         public string ArgText { get; private set; }
         public DateTime TimeStamp { get; private set; }
+        public virtual bool Terminated { get { return true; } protected set { } }
+        public SmtpReply Reply { get; protected set; }
 
+        public virtual string SendReply()
+        {
+            return Reply.GetReply();
+        }
 
-        public void Append(string line)
+        protected void Append(string line)
         {
             _fullMessage.Append(line);
         }
@@ -37,12 +45,16 @@ namespace SMTPileIt.Server.Conversation
 
             SmtpCommand command = (SmtpCommand)Enum.Parse(typeof(SmtpCommand), word);
 
-            var retValue = new ConversationElement()
-            {
-                ArgText = message.Substring(verbIndex+1, message.Length - (verbIndex+1)),
-                Command = command,
-                TimeStamp = DateTime.Now,
-            };
+            ConversationElement retValue;
+
+            if (command != SmtpCommand.DATA)
+                retValue = new ConversationElement();
+            else
+                retValue = new DataConversationElement();
+
+            retValue.ArgText = message.Substring(verbIndex + 1, message.Length - (verbIndex + 1));
+            retValue.Command = command;
+            retValue.TimeStamp = DateTime.Now;
 
             retValue.Append(message);
 
