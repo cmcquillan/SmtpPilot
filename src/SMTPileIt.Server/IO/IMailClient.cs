@@ -9,8 +9,6 @@ namespace SMTPileIt.Server.IO
     {
         int ClientId { get; }
 
-        bool IsDataState { get; set; }
-
         void Write(string message);
 
         string Read();

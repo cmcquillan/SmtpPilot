@@ -20,6 +20,25 @@ namespace SMTPileIt.Server.Conversation
             }
         }
 
+        public ConversationElement LastElement
+        {
+            get 
+            {
+                return _elements.Last();
+            }
+        }
+
+        public bool IsInDataState 
+        {
+            get
+            {
+                if (_elements.Count == 0)
+                    return false;
+
+                return LastElement.Command == SmtpCommand.DATA;
+            }
+        }
+
         public void AddElement(ConversationElement element)
         {
             _elements.Add(element);

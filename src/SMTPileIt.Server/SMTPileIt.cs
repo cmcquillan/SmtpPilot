@@ -47,11 +47,13 @@ namespace SMTPileIt.Server
 
                     if (!String.IsNullOrEmpty(input))
                     {
-                        if(client.IsDataState)
+                        if(_conversations[client.ClientId].IsInDataState)
                         {
-                            _conversations[client.ClientId].Elements.Last().Append(Environment.NewLine + input);
-                            client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
-                            client.IsDataState = false;
+                            if (input.Equals(@"."))
+                                client.Write(new SmtpReply(SmtpReplyCode.Code250).ToString());
+
+                            _conversations[client.ClientId].LastElement.Append(Environment.NewLine + input);
+                            
                             continue;
                         }
 
@@ -63,7 +65,6 @@ namespace SMTPileIt.Server
                         if (element.Command == SmtpCommand.DATA)
                         {
                             client.Write(new SmtpReply(SmtpReplyCode.Code354).ToString());
-                            client.IsDataState = true;
                         }
                         else
                         {
