@@ -34,25 +34,10 @@ namespace SMTPileIt.Server.Conversation
             _fullMessage.Append(line);
         }
 
-        public static ConversationElement Parse(string message)
+        public static ConversationElement Parse(SmtpCommand command, string message)
         {
-            int verbIndex = message.IndexOf(ASCIISpace);
-
-            if (verbIndex == -1)
-                verbIndex = message.Length - 1;
-
-            string word = message.Substring(0, verbIndex + 1);
-
-            SmtpCommand command = (SmtpCommand)Enum.Parse(typeof(SmtpCommand), word);
-
-            ConversationElement retValue;
-
-            if (command != SmtpCommand.DATA)
-                retValue = new ConversationElement();
-            else
-                retValue = new DataConversationElement();
-
-            retValue.ArgText = message.Substring(verbIndex + 1, message.Length - (verbIndex + 1));
+            ConversationElement retValue = new ConversationElement();
+            retValue.ArgText = message.Substring(5, message.Length - 5);
             retValue.Command = command;
             retValue.TimeStamp = DateTime.Now;
 
