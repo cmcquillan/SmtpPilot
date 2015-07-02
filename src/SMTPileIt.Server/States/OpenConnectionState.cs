@@ -30,4 +30,4 @@ namespace SMTPileIt.Server.States
             get { return Conversation.SmtpCommand.EHLO | Conversation.SmtpCommand.HELO; }
         }
     }
-}checked
+}
