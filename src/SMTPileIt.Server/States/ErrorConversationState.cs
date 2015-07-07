@@ -30,7 +30,7 @@ namespace SMTPileIt.Server.States
 
         public Conversation.SmtpCommand AllowedCommands
         {
-            get { throw new NotImplementedException(); }
+            get { return Conversation.SmtpCommand.NonCommand; }
         }
     }
 }

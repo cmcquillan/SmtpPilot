@@ -1,15 +1,20 @@
 ﻿using SMTPileIt.Server.Conversation;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace SMTPileIt.Server.IO
 {
-    public class TcpMailClient : IMailClient
+    public class TcpMailClient : IMailClient, IDisposable
     {
+
+        #region Remove
         private const int START_BUFFER_SIZE = 2048;
         private readonly TcpClient _tcpClient;
         private readonly int _clientId;
@@ -57,6 +62,7 @@ namespace SMTPileIt.Server.IO
             if (_bufferDataPosition > _bufferReadPosition)
             {
                 string s = IOHelper.GetLineFromBuffer(_buffer, _bufferReadPosition, _bufferDataPosition - _bufferReadPosition);
+                _bufferReadPosition += s.Length;
                 return s;
             }
 
@@ -81,7 +87,7 @@ namespace SMTPileIt.Server.IO
 
         private void AdjustBuffer()
         {
-            if(_bufferReadPosition > 0)
+            if (_bufferReadPosition > 0)
             {
                 ReallocateBuffer();
                 return;
@@ -101,7 +107,7 @@ namespace SMTPileIt.Server.IO
 
         public void Disconnect()
         {
-            _inputStream.Close();    
+            _inputStream.Close();
             _tcpClient.Close();
         }
 
@@ -121,7 +127,7 @@ namespace SMTPileIt.Server.IO
 
             char[] cmdText = new char[4];
 
-            for(int i = 0; i < cmdText.Length; i++)
+            for (int i = 0; i < cmdText.Length; i++)
             {
                 cmdText[i] = _buffer[_bufferReadPosition + i];
             }
@@ -131,7 +137,131 @@ namespace SMTPileIt.Server.IO
 
         public bool HasData
         {
-            get { return (_bufferReadPosition < _bufferDataPosition) || _inputStream.DataAvailable; }
+            get
+            {
+                ReadToBuffer();
+                /*return (_bufferReadPosition < _bufferDataPosition) || _inputStream.DataAvailable; */
+                return BufferHasNewLine();
+            }
         }
+
+        private bool BufferHasNewLine()
+        {
+            char[] newLine = Environment.NewLine.ToCharArray();
+            int lengthEqual = 0;
+
+            for(int i = _bufferReadPosition; i < _bufferDataPosition; i++)
+            {
+                if (_buffer[i] == newLine[lengthEqual])
+                    lengthEqual++;
+                else
+                    lengthEqual = 0;
+
+                if (lengthEqual == newLine.Length)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void Dispose()
+        {
+            _tcpClient.Close();
+        }
+
+        #endregion
+
+        #region EndRegion
+        //private readonly int _clientId;
+        //private readonly TcpClient _client;
+        //private readonly StreamWriter _networkWriter;
+        //private readonly ConcurrentQueue<string> _inputLines;
+        //private readonly StreamReader _networkReader;
+        //private readonly Stream _stream;
+        //private readonly Thread _thread;
+        //private volatile bool _clientOpen = true;
+
+        //public TcpMailClient(TcpClient client, int clientId)
+        //{
+        //    this._clientId = clientId;
+        //    _client = client;
+        //    _stream = _client.GetStream();
+        //    _networkWriter = new StreamWriter(_stream);
+        //    _networkReader = new StreamReader(_stream);
+        //    //_networkWriter.AutoFlush = true;
+        //    _inputLines = new ConcurrentQueue<string>();
+
+        //    _thread = new Thread(new ThreadStart(BufferInputLines));
+        //    _thread.Start();
+        //}
+
+
+
+        //private void BufferInputLines()
+        //{
+        //    while (_clientOpen)
+        //    {
+
+        //        _inputLines.Enqueue(_networkReader.ReadLine());
+
+        //        Thread.Sleep(50);
+        //    }
+        //}
+
+        //public int ClientId
+        //{
+        //    get { return _clientId; }
+        //}
+
+        //public void Write(string message)
+        //{
+        //    _networkWriter.WriteLine();
+        //    _networkWriter.Flush();
+        //}
+
+        //public string ReadLine()
+        //{
+
+        //    if (!HasData)
+        //        throw new InvalidOperationException();
+
+        //    string line;
+        //    _inputLines.TryDequeue(out line);
+        //    return line;
+        //}
+
+        //public SmtpCommand PeekCommand()
+        //{
+        //    string line;
+        //    _inputLines.TryPeek(out line);
+
+        //    return IOHelper.GetCommand(line);
+        //}
+
+        //public void Disconnect()
+        //{
+        //    _client.Close();
+        //}
+
+        //public bool Disconnected
+        //{
+        //    get { return !_client.Connected; }
+        //}
+
+        //public bool HasData
+        //{
+        //    get
+        //    {
+        //        return _inputLines.Count > 0;
+        //    }
+        //}
+
+        //public void Dispose()
+        //{
+        //    _clientOpen = false;
+        //    _thread.Join();
+        //    GC.SuppressFinalize(this);
+        //}
+        #endregion
     }
 }

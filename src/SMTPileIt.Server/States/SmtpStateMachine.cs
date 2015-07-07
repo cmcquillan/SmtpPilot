@@ -67,7 +67,8 @@ namespace SMTPileIt.Server.States
             if (cmd != SmtpCommand.NonCommand)
             {
                 (_context as SmtpStateContext).Command = cmd;
-                var command = new SmtpCmd(cmd);
+                string line = Client.ReadLine();
+                var command = new SmtpCmd(cmd, line);
                 Conversation.AddElement(command);
 
                 if(!CurrentState.AllowedCommands.HasFlag(cmd))
@@ -76,12 +77,13 @@ namespace SMTPileIt.Server.States
                     return;
                 }
 
-                string line = Client.ReadLine();
+                //string line = Client.ReadLine();
                 CurrentState = CurrentState.ProcessNewCommand(_context, command, line);
             }
             else
             {
                 string line = Client.ReadLine();
+                Conversation.LastCommand.AppendLine(line);
                 CurrentState = CurrentState.ProcessData(_context, line);
             }
         }
