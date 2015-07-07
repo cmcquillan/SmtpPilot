@@ -129,7 +129,6 @@ namespace SMTPileIt.Server.IO
             return IOHelper.GetCommand(cmdText);
         }
 
-
         public bool HasData
         {
             get { return (_bufferReadPosition < _bufferDataPosition) || _inputStream.DataAvailable; }

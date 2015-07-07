@@ -12,5 +12,6 @@ namespace SMTPileIt.Server.States
         IMailClient Client { get; }
         SmtpConversation Conversation { get; }
         SmtpCommand Command { get; }
+        void Reply(SmtpReply reply);
     }
 }

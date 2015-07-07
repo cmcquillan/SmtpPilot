@@ -13,7 +13,6 @@ namespace SMTPileIt.Server.Conversation
         
         public SmtpConversation() {  }
 
-
         public IReadOnlyList<ConversationElement> Elements
         {
             get
@@ -26,7 +25,32 @@ namespace SMTPileIt.Server.Conversation
         {
             get 
             {
+                if (_elements.Count == 0)
+                    return null;
+
                 return _elements.Last();
+            }
+        }
+
+        public SmtpCmd LastCommand
+        {
+            get
+            {
+                var q = _elements.Where(p => p is SmtpCmd);
+                if (!q.Any())
+                    return null;
+                return q.Last() as SmtpCmd;
+            }
+        }
+
+        public SmtpReply LastReply
+        {
+            get
+            {
+                var q = _elements.Where(p => p is SmtpReply);
+                if (q.Any())
+                    return null;
+                return q.Last() as SmtpReply;
             }
         }
 

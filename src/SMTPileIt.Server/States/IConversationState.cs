@@ -10,12 +10,10 @@ namespace SMTPileIt.Server.States
 {
     public interface IConversationState
     {
-        void EnterState(IMailClient client);
-
-        IConversationState Process(ISmtpStateContext context);
-
+        void EnterState(ISmtpStateContext context);
         void LeaveState(ISmtpStateContext context);
-
+        IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line);
+        IConversationState ProcessData(ISmtpStateContext context, string line);
         SmtpCommand AllowedCommands { get; }
     }
 }

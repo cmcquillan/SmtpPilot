@@ -10,12 +10,12 @@ namespace SMTPileIt.Server.States
 {
     public class OpenConnectionState : IConversationState
     {
-        public void EnterState(IMailClient client)
+        public void EnterState(ISmtpStateContext context)
         {
-            client.Write(new SmtpReply(SmtpReplyCode.Code220).GetReply());
+            context.Reply(new SmtpReply(SmtpReplyCode.Code220, "Ord-Mantell SMTP Server Ready"));
         }
 
-        public IConversationState Process(ISmtpStateContext context)
+        public IConversationState ProcessData(ISmtpStateContext context, string line)
         {
             throw new NotImplementedException();
         }
@@ -28,6 +28,12 @@ namespace SMTPileIt.Server.States
         public SmtpCommand AllowedCommands
         {
             get { return Conversation.SmtpCommand.EHLO | Conversation.SmtpCommand.HELO; }
+        }
+
+        public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        {
+            context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Ord-Mantell"));
+            return new AcceptMailConnectionState();
         }
     }
 }

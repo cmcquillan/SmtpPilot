@@ -10,7 +10,7 @@ namespace SMTPileIt.Server.States
 {
     public class SmtpStateContext : ISmtpStateContext
     {
-        private readonly SmtpCommand _command;
+        private SmtpCommand _command;
         private readonly SmtpConversation _conversation;
         private readonly IMailClient _client;
 
@@ -34,6 +34,19 @@ namespace SMTPileIt.Server.States
         public Conversation.SmtpCommand Command
         {
             get { return _command; }
+
+            /* Has a setter, which is more than the Interface contains.
+             * This is done to hide the setter from the IConversationState
+             * objects and make clear the read-only intent when operating
+             * in that context.
+             */
+            set { _command = value; }
+        }
+
+        public void Reply(SmtpReply reply)
+        {
+            Conversation.AddElement(reply);
+            Client.Write(reply.FullText);
         }
     }
 }

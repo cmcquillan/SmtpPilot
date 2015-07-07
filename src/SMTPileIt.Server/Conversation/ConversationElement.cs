@@ -6,44 +6,33 @@ using System.Threading.Tasks;
 
 namespace SMTPileIt.Server.Conversation
 {
-    public class ConversationElement
+    public abstract class ConversationElement 
     {
         public const char ASCIISpace = (char)0x20;
-        private readonly StringBuilder _fullMessage = new StringBuilder();
 
-
-        public ConversationElement()
+        protected ConversationElement()
         {
-            Reply = new SmtpReply(SmtpReplyCode.Code250);
+            UtcTimestamp = DateTime.UtcNow;
+            Timestamp = UtcTimestamp.ToLocalTime();
         }
 
-        public string FullMessage { get { return _fullMessage.ToString(); } }
-        public SmtpCommand Command { get; private set; }
-        public string ArgText { get; private set; }
-        public DateTime TimeStamp { get; private set; }
-        public virtual bool Terminated { get { return true; } protected set { } }
-        public SmtpReply Reply { get; protected set; }
+        public DateTime UtcTimestamp { get; private set; }
 
-        public virtual string SendReply()
-        {
-            return Reply.GetReply();
-        }
+        public DateTime Timestamp { get; private set; }
 
-        protected void Append(string line)
-        {
-            _fullMessage.Append(line);
-        }
+        public abstract string Preamble { get; }
 
-        public static ConversationElement Parse(SmtpCommand command, string message)
-        {
-            ConversationElement retValue = new ConversationElement();
-            retValue.ArgText = message.Substring(5, message.Length - 5);
-            retValue.Command = command;
-            retValue.TimeStamp = DateTime.Now;
+        public abstract string FullText { get; }
 
-            retValue.Append(message);
+        //public string FullMessage { get { return _fullMessage.ToString(); } }
+        //public SmtpCommand Command { get; private set; }
+        //public string ArgText { get; private set; }
+        //public DateTime TimeStamp { get; private set; }
+        //public virtual bool Terminated { get { return true; } protected set { } }
 
-            return retValue;
-        }
+        //protected void Append(string line)
+        //{
+        //    _fullMessage.Append(line);
+        //}
     }
 }

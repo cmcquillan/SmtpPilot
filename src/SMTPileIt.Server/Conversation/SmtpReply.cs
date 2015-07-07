@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SMTPileIt.Server.Conversation
 {
-    public struct SmtpReply
+    public class SmtpReply : ConversationElement
     {
         private readonly SmtpReplyCode _code;
         private string _text;
@@ -25,12 +25,17 @@ namespace SMTPileIt.Server.Conversation
 
         public override string ToString()
         {
-            return String.Format("{0} {1}", (int)Code, Text);
+            return String.Format("{0} {1}", Preamble, Text);
         }
 
-        public string GetReply()
+        public override string Preamble
         {
-            return this.ToString();
+            get { return ((int)Code).ToString(); }
+        }
+
+        public override string FullText
+        {
+            get { return this.ToString(); }
         }
     }
 
