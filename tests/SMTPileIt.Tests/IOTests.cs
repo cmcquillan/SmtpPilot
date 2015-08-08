@@ -13,6 +13,18 @@ namespace SMTPileIt.Tests
     public class IOTests
     {
         [Test]
+        [TestCase("<cmcquillan@gmail.com>", 1)]
+        [TestCase("Casey McQuillan <cmcquillan@gmail.com>", 1)]
+        [TestCase("Casey McQuillan <cmcquillan@gmail.com>; John Smith <jsmith@gmail.com>", 2)]
+        public void ParseEmailCapturesValidAmountOfEmails(string s, int numEmails)
+        {
+            string[] emails = IOHelper.ParseEmails(s);
+
+            Assert.AreEqual(numEmails, emails.Length);
+        }
+
+
+        [Test]
         public void GetLineFromBufferRetrievesLineData()
         {
             string testString = "This is the first line\r\nThis is the second line.\r\n";

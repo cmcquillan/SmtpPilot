@@ -43,10 +43,28 @@ namespace SMTPileIt.Server.States
             set { _command = value; }
         }
 
+        public bool HasError
+        {
+            get
+            {
+                return _conversation.HasError;
+            }
+        }
+
         public void Reply(SmtpReply reply)
         {
             Conversation.AddElement(reply);
             Client.Write(reply.FullText);
+        }
+
+        public void SetFrom(string from)
+        {
+            Conversation.FromAddress = from;
+        }
+
+        public void SetTo(string[] emails)
+        {
+            Conversation.ToAddresses = emails;
         }
     }
 }

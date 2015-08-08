@@ -10,7 +10,9 @@ namespace SMTPileIt.Server.Conversation
     public class SmtpConversation
     {
         private readonly List<ConversationElement> _elements = new List<ConversationElement>();
-        
+        private string _fromAddress;
+        private string[] _toAddresses;
+
         public SmtpConversation() {  }
 
         public IReadOnlyList<ConversationElement> Elements
@@ -21,6 +23,12 @@ namespace SMTPileIt.Server.Conversation
             }
         }
 
+        public string FromAddress
+        {
+            get { return _fromAddress; }
+            set { _fromAddress = value; }
+        }
+
         public ConversationElement LastElement
         {
             get 
@@ -29,6 +37,17 @@ namespace SMTPileIt.Server.Conversation
                     return null;
 
                 return _elements.Last();
+            }
+        }
+
+        public bool HasError
+        {
+            get
+            {
+                //CONSIDER: Linq performance vs loop performance.
+                return _elements.Select(p => p as SmtpReply)
+                  .Where(p => p != null && p.IsError)
+                  .Any();
             }
         }
 
@@ -54,9 +73,27 @@ namespace SMTPileIt.Server.Conversation
             }
         }
 
+        public string[] ToAddresses
+        {
+            get { return _toAddresses; }
+            set { _toAddresses = value; }
+        }
+
         public void AddElement(ConversationElement element)
         {
             _elements.Add(element);
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            foreach(var e in _elements)
+            {
+                sb.Append(e.ToString());
+            }
+
+            return sb.ToString();
         }
     }
 }

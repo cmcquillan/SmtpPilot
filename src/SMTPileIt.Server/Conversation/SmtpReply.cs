@@ -25,7 +25,7 @@ namespace SMTPileIt.Server.Conversation
 
         public override string ToString()
         {
-            return String.Format("{0} {1}", Preamble, Text);
+            return FullText + Environment.NewLine;
         }
 
         public override string Preamble
@@ -35,7 +35,15 @@ namespace SMTPileIt.Server.Conversation
 
         public override string FullText
         {
-            get { return this.ToString(); }
+            get { return String.Format("{0} {1}", Preamble, Text); }
+        }
+
+        public bool IsError
+        {
+            get
+            {
+                return (int)Code > (int)SmtpReplyCode.Code354;
+            }
         }
     }
 

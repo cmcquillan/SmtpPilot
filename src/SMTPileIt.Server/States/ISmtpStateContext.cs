@@ -12,6 +12,10 @@ namespace SMTPileIt.Server.States
         IMailClient Client { get; }
         SmtpConversation Conversation { get; }
         SmtpCommand Command { get; }
+        bool HasError { get; }
+
         void Reply(SmtpReply reply);
+        void SetFrom(string from);
+        void SetTo(string[] emails);
     }
 }

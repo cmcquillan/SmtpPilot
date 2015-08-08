@@ -1,14 +1,15 @@
 ﻿using SMTPileIt.Server.Conversation;
+using SMTPileIt.Server.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SMTPileIt.Server.States
 {
     public class AcceptMailConversationState : IConversationState
     {
-
         public IConversationState ProcessData(ISmtpStateContext context, string line)
         {
             return this;
@@ -16,12 +17,13 @@ namespace SMTPileIt.Server.States
 
         public void LeaveState(ISmtpStateContext context)
         {
-            
+            if (!context.HasError)
+                context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Empty));
         }
 
-        public Conversation.SmtpCommand AllowedCommands
+        public SmtpCommand AllowedCommands
         {
-            get { return Conversation.SmtpCommand.MAIL; }
+            get { return SmtpCommand.MAIL; }
         }
 
 
@@ -32,7 +34,20 @@ namespace SMTPileIt.Server.States
 
         public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
-            throw new NotImplementedException();
+            switch(cmd.Command)
+            {
+                case SmtpCommand.MAIL:
+                    string[] matches = IO.IOHelper.ParseEmails(cmd.Args);
+                    if (matches.Length != 1)
+                        return new ErrorConversationState();
+
+                    string from = matches[0];
+                    context.SetFrom(from);
+                    return new RecipientConversationState();
+                default:
+                    throw new NotImplementedException();
+            }
+            
         }
     }
 }

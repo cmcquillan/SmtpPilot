@@ -1,17 +1,25 @@
 ﻿using SMTPileIt.Server.Conversation;
+using SMTPileIt.Server.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SMTPileIt.Server.IO
 {
     public static class IOHelper
     {
+        static IOHelper()
+        {
+            _mailFromRegex = new Regex(Constants.EmailAddressRegex, RegexOptions.Singleline|RegexOptions.Compiled);
+        }
+
         private const char ASCIISpace = (char)0x20;
         private const char ASCIICarriageReturn = (char)0x0D;
         private const char ASCIILineFeed = (char)0x0A;
+        private static readonly Regex _mailFromRegex;
 
         public static SmtpCommand GetCommand(IEnumerable<char> input)
         {
@@ -57,6 +65,19 @@ namespace SMTPileIt.Server.IO
 
             Array.Copy(buffer, offset, strBuf, 0, n);
             return new string(strBuf);
+        }
+
+        public static string[] ParseEmails(string s)
+        {
+            var matches = _mailFromRegex.Matches(s);
+            string[] emails = new string[matches.Count];
+
+            for(int i = 0; i < matches.Count; i++)
+            {
+                emails[i] = matches[i].Value;
+            }
+
+            return emails;
         }
     }
 }

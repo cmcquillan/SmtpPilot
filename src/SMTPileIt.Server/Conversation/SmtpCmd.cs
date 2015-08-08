@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SMTPileIt.Server.Conversation
 {
-    public class SmtpCmd : ConversationElement
+    public class SmtpCmd : ConversationElement, IAppendable
     {
         private readonly SmtpCommand _cmd;
         private readonly StringBuilder _lines;
@@ -25,19 +25,51 @@ namespace SMTPileIt.Server.Conversation
             get { return _cmd.ToString(); }
         }
 
+        public bool IsCommand
+        {
+            get
+            {
+                SmtpCommand cmd = SmtpCommand.EHLO;
+                return Enum.TryParse<SmtpCommand>(Preamble, out cmd);
+            }
+        }
+
+        public SmtpCommand Command
+        {
+            get
+            {
+                return (SmtpCommand)Enum.Parse(typeof(SmtpCommand), Preamble);
+            }
+        }
+
         public override string FullText
         {
             get { return this.ToString(); }
         }
 
-        public void AppendLine(string line)
+        public string Args
         {
-            _lines.AppendLine(line);
+            get
+            {
+                var sb = new StringBuilder(this.FullText);
+                sb = sb.Replace(Preamble, String.Empty, 0, Preamble.Length);
+                return sb.ToString().Trim();
+            }
+        }
+
+        public void AppendLine(string l)
+        {
+            _lines.AppendLine(l);
         }
 
         public override string ToString()
         {
-            return String.Format("{1}", _lines.ToString());
+            return String.Format("{0}", _lines.ToString());
+        }
+
+        public void Append(string l)
+        {
+            _lines.Append(l);
         }
     }
 }

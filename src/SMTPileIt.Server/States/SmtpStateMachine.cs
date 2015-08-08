@@ -83,7 +83,7 @@ namespace SMTPileIt.Server.States
             else
             {
                 string line = Client.ReadLine();
-                Conversation.LastCommand.AppendLine(line);
+                (Conversation.LastElement as IAppendable)?.Append(line);
                 CurrentState = CurrentState.ProcessData(_context, line);
             }
         }
