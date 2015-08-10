@@ -10,6 +10,7 @@ namespace SMTPileIt.Server.Conversation
     public class SmtpConversation
     {
         private readonly List<ConversationElement> _elements = new List<ConversationElement>();
+        private readonly List<SmtpHeader> _headers = new List<SmtpHeader>();
         private string _fromAddress;
         private string[] _toAddresses;
 
@@ -21,6 +22,13 @@ namespace SMTPileIt.Server.Conversation
             {
                 return _elements.AsReadOnly();
             }
+        }
+
+        public IReadOnlyCollection<SmtpHeader> Headers { get { return _headers; } }
+
+        public void AddHeader(SmtpHeader header)
+        {
+            _headers.Add(header);
         }
 
         public string FromAddress

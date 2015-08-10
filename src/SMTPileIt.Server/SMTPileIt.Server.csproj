@@ -47,6 +47,7 @@
     <Compile Include="Conversation\SmtpCommand.cs" />
     <Compile Include="Conversation\SmtpConversation.cs" />
     <Compile Include="Conversation\SmtpData.cs" />
+    <Compile Include="Conversation\SmtpHeader.cs" />
     <Compile Include="Conversation\SmtpReply.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="IO\IOHelper.cs" />
@@ -60,7 +61,6 @@
     <Compile Include="States\AcceptMailConversationState.cs" />
     <Compile Include="States\DataConversationState.cs" />
     <Compile Include="States\EndDataConversationState.cs" />
-    <Compile Include="States\EnterDataConversationState.cs" />
     <Compile Include="States\ErrorConversationState.cs" />
     <Compile Include="States\IConversationState.cs" />
     <Compile Include="States\ISmtpStateContext.cs" />

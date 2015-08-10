@@ -1,15 +1,8 @@
 ﻿using SMTPileIt.Server.Conversation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 using SMTPileIt.Server.IO;
-using System.Threading;
 using SMTPileIt.Server.States;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace SMTPileIt.Server
 {
@@ -25,7 +18,6 @@ namespace SMTPileIt.Server
         public SMTPileIt(string ipString, int ipPort)
         {
             _listener = new TcpClientListener(ipString, ipPort);
-
             _clients = new List<IMailClient>();
             _conversations = new Dictionary<int, SmtpStateMachine>();
         }

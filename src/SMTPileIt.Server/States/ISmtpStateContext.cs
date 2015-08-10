@@ -16,6 +16,6 @@ namespace SMTPileIt.Server.States
 
         void Reply(SmtpReply reply);
         void SetFrom(string from);
-        void SetTo(string[] emails);
+        void AddTo(string[] emails);
     }
 }

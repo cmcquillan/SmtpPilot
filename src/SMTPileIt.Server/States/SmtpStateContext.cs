@@ -62,7 +62,7 @@ namespace SMTPileIt.Server.States
             Conversation.FromAddress = from;
         }
 
-        public void SetTo(string[] emails)
+        public void AddTo(string[] emails)
         {
             Conversation.ToAddresses = emails;
         }

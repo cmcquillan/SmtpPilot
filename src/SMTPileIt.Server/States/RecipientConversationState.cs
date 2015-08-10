@@ -10,7 +10,7 @@ namespace SMTPileIt.Server.States
         {
             get
             {
-                return SmtpCommand.RCPT;
+                return SmtpCommand.RCPT|SmtpCommand.DATA;
             }
         }
 
@@ -20,8 +20,8 @@ namespace SMTPileIt.Server.States
 
         public void LeaveState(ISmtpStateContext context)
         {
-            if (!context.HasError)
-                context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Awesome"));
+            //if (!context.HasError)
+            //    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Awesome"));
         }
 
         public IConversationState ProcessData(ISmtpStateContext context, string line)
@@ -31,15 +31,18 @@ namespace SMTPileIt.Server.States
 
         public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
-            string[] emails = IOHelper.ParseEmails(cmd.Args);
-
-            if(emails.Length == 0)
+            switch(cmd.Command)
             {
-                return new ErrorConversationState("Must provide at least one TO address.");
+                case SmtpCommand.RCPT:
+                    string[] emails = IOHelper.ParseEmails(cmd.Args);
+                    context.AddTo(emails);
+                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Awesome"));
+                    return this;
+                case SmtpCommand.DATA:
+                    return new DataConversationState();
+                default:
+                    return new ErrorConversationState();
             }
-
-            context.SetTo(emails);
-            return new EnterDataConversationState();
         }
     }
 }
