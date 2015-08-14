@@ -13,6 +13,8 @@ namespace SMTPileIt.Server
         private readonly IMailClientListener _listener;
         private readonly List<IMailClient> _clients;
         private readonly Dictionary<int, SmtpStateMachine> _conversations;
+        private volatile bool _running;
+        private Thread _runThread;
 
 
         public SMTPileIt(string ipString, int ipPort)
@@ -22,9 +24,23 @@ namespace SMTPileIt.Server
             _conversations = new Dictionary<int, SmtpStateMachine>();
         }
 
+        public void Start()
+        {
+            _runThread = new Thread(new ThreadStart(Run));
+            _runThread.Start();
+        }
+
+        public void Stop()
+        {
+            _running = false;
+            _runThread.Join();
+        }
+
         public void Run()
         {
-            while(true)
+            _running = true;
+
+            while(_running)
             {
                 if (_listener.ClientPending)
                 {
