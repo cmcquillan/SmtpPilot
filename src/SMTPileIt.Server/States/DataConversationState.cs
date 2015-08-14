@@ -6,7 +6,7 @@ namespace SMTPileIt.Server.States
 {
     public class DataConversationState : IConversationState
     {
-        private bool _receivingHeaders;
+        private bool _headersAreOver;
 
         public SmtpCommand AllowedCommands
         {
@@ -20,7 +20,7 @@ namespace SMTPileIt.Server.States
         {
             context.Reply(new SmtpReply(SmtpReplyCode.Code354, "Start mail input; end with < CRLF >.< CRLF >"));
             context.Conversation.AddElement(new SmtpData());
-            _receivingHeaders = true;
+            _headersAreOver = false;
         }
 
         public void LeaveState(ISmtpStateContext context)
@@ -31,20 +31,25 @@ namespace SMTPileIt.Server.States
         public IConversationState ProcessData(ISmtpStateContext context, string line)
         {
             if (line.Equals(Constants.CarriageReturnLineFeed))
+                return this;
+
+
+            if (!_headersAreOver)
             {
-                _receivingHeaders = false;
+                if (IO.IOHelper.LooksLikeHeader(line))
+                {
+                    string[] header = line.Split(new char[] { ':' }, 2);
+                    context.Conversation.AddHeader(new SmtpHeader(header[0], header[1]));
+                }
+                else
+                {
+                    _headersAreOver = true;
+                }
             }
             else if (line.Equals(Constants.EndOfDataElement))
             {
                 return new EndDataConversationState();
             }
-
-            if(_receivingHeaders)
-            {
-                string[] header = line.Split(new char[] { ':' }, 2);
-                context.Conversation.AddHeader(new SmtpHeader(header[0], header[1]));
-            }
-
 
             return this;
         }

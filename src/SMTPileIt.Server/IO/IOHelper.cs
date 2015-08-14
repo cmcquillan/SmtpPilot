@@ -41,6 +41,27 @@ namespace SMTPileIt.Server.IO
             return command;
         }
 
+        public static bool LooksLikeHeader(string line)
+        {
+            /*
+             * Looking for a space or a colon.  If we find
+             * a space before finding the colon, then assume
+             * we do not have a header.
+             * If we never find a colon, then it was definitely not
+             * a header.
+             */
+            for(int i = 0; i < line.Length; i++)
+            {
+                if (Char.Equals(line[i], ASCIISpace))
+                    return false;
+
+                if (Char.Equals(line[i], ':'))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static string GetLineFromBuffer(char[] buffer, int offset, int limit)
         {
             bool carriageReturnFound = false;
