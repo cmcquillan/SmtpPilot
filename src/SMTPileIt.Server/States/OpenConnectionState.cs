@@ -32,7 +32,7 @@ namespace SMTPileIt.Server.States
 
         public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
-            context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Ord-Mantell"));
+            context.Reply(new SmtpReply(SmtpReplyCode.Code250, Environment.MachineName));
             return new AcceptMailConversationState();
         }
     }

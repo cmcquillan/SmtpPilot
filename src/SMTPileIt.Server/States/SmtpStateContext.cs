@@ -64,7 +64,7 @@ namespace SMTPileIt.Server.States
 
         public void AddTo(string[] emails)
         {
-            Conversation.ToAddresses = emails;
+            Conversation.AddAddresses(emails);
         }
     }
 }

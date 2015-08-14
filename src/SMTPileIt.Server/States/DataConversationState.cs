@@ -30,7 +30,7 @@ namespace SMTPileIt.Server.States
 
         public IConversationState ProcessData(ISmtpStateContext context, string line)
         {
-            if (line.Equals("\r\n"))
+            if (line.Equals(Constants.CarriageReturnLineFeed))
             {
                 _receivingHeaders = false;
             }

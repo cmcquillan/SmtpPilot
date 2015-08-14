@@ -32,6 +32,9 @@ namespace SMTPileIt.Server.States
         {
             switch(cmd.Command)
             {
+                case SmtpCommand.RSET:
+                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "OK"));
+                    return new AcceptMailConversationState();
                 case SmtpCommand.QUIT:
                     return new QuitConversationState();
                 default:

@@ -23,7 +23,7 @@ namespace SMTPileIt.Server.States
 
         public SmtpCommand AllowedCommands
         {
-            get { return SmtpCommand.MAIL; }
+            get { return SmtpCommand.MAIL|SmtpCommand.RSET; }
         }
 
 
@@ -44,6 +44,10 @@ namespace SMTPileIt.Server.States
                     string from = matches[0];
                     context.SetFrom(from);
                     return new RecipientConversationState();
+                case SmtpCommand.RSET:
+                    context.Conversation.Reset();
+                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Awesome"));
+                    return this;
                 default:
                     throw new NotImplementedException();
             }
