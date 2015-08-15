@@ -10,7 +10,7 @@ namespace SMTPileIt
     {
         static void Main(string[] args)
         {
-            var server = new SMTPileIt.Server.SMTPileIt("127.0.0.1", 25);
+            var server = new SMTPileIt.Server.SMTPServer("127.0.0.1", 25);
 
             Console.WriteLine("Starting bogus smtp server.");
 

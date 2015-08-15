@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace SMTPileIt.Server
 {
-    public class SMTPileIt
+    public class SMTPServer
     {
         public const int DefaultSmtpPort = 25;
 
@@ -17,7 +17,7 @@ namespace SMTPileIt.Server
         private Thread _runThread;
 
 
-        public SMTPileIt(string ipString, int ipPort)
+        public SMTPServer(string ipString, int ipPort)
         {
             _listener = new TcpClientListener(ipString, ipPort);
             _clients = new List<IMailClient>();

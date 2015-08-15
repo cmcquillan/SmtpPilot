@@ -55,7 +55,7 @@
     <Compile Include="IO\IMailClient.cs" />
     <Compile Include="IO\TcpClientListener.cs" />
     <Compile Include="IO\TcpMailClient.cs" />
-    <Compile Include="SMTPileIt.cs" />
+    <Compile Include="SMTPServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SMTPileItConfiguration.cs" />
     <Compile Include="States\AcceptMailConversationState.cs" />
