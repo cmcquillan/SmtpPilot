@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SMTPileIt.Server.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,32 @@ namespace SMTPileIt.Server.Conversation
 {
     public class SmtpReply : ConversationElement
     {
+        #region Static Properties for general replies.  
+        public static SmtpReply OK
+        {
+            get
+            {
+                return new SmtpReply(SmtpReplyCode.Code250, Constants.OKText);
+            }
+        }
+
+        public static SmtpReply ServerClosing
+        {
+            get
+            {
+                return new SmtpReply(SmtpReplyCode.Code221, Constants.QuitText);
+            }
+        }
+
+        public static SmtpReply BeginData
+        {
+            get
+            {
+                return new SmtpReply(SmtpReplyCode.Code354, Constants.BeginDataText);
+            }
+        }
+        #endregion
+
         private readonly SmtpReplyCode _code;
         private string _text;
 

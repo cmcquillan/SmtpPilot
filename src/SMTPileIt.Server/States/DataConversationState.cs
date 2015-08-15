@@ -18,7 +18,7 @@ namespace SMTPileIt.Server.States
 
         public void EnterState(ISmtpStateContext context)
         {
-            context.Reply(new SmtpReply(SmtpReplyCode.Code354, "Start mail input; end with < CRLF >.< CRLF >"));
+            context.Reply(SmtpReply.BeginData);
             context.Conversation.AddElement(new SmtpData());
             _headersAreOver = false;
         }
@@ -48,7 +48,7 @@ namespace SMTPileIt.Server.States
             }
             else if (line.Equals(Constants.EndOfDataElement))
             {
-                return new EndDataConversationState();
+                return new AcceptMailConversationState();
             }
 
             return this;

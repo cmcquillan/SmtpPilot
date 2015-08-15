@@ -8,31 +8,31 @@ using System.Text.RegularExpressions;
 
 namespace SMTPileIt.Server.States
 {
-    public class AcceptMailConversationState : IConversationState
+    public class AcceptMailConversationState : MinimalConversationState
     {
-        public IConversationState ProcessData(ISmtpStateContext context, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, string line)
         {
             return this;
         }
 
-        public void LeaveState(ISmtpStateContext context)
+        public override void LeaveState(ISmtpStateContext context)
         {
             if (!context.HasError)
-                context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Empty));
+                context.Reply(SmtpReply.OK);
         }
 
-        public SmtpCommand AllowedCommands
+        public override SmtpCommand AllowedCommands
         {
-            get { return SmtpCommand.MAIL|SmtpCommand.RSET; }
+            get { return base.AllowedCommands | SmtpCommand.MAIL; }
         }
 
 
-        public void EnterState(ISmtpStateContext context)
+        public override void EnterState(ISmtpStateContext context)
         {
             
         }
 
-        public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             switch(cmd.Command)
             {
@@ -44,12 +44,8 @@ namespace SMTPileIt.Server.States
                     string from = matches[0];
                     context.SetFrom(from);
                     return new RecipientConversationState();
-                case SmtpCommand.RSET:
-                    context.Conversation.Reset();
-                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Awesome"));
-                    return this;
                 default:
-                    throw new NotImplementedException();
+                    return base.ProcessNewCommand(context, cmd, line);
             }
             
         }

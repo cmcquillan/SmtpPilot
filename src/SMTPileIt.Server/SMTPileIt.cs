@@ -64,6 +64,8 @@ namespace SMTPileIt.Server
 
                 _clients.RemoveAll(p => p.Disconnected);
             }
+
+            Thread.Sleep(5000);
         }
     }
 }

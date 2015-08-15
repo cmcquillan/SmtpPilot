@@ -15,7 +15,7 @@ namespace SMTPileIt.Server.States
 
         public void EnterState(ISmtpStateContext context)
         {
-            context.Reply(new SmtpReply(SmtpReplyCode.Code221, "Server closing transmission channel."));
+            context.Reply(SmtpReply.ServerClosing);
             context.Client.Disconnect();
             Console.WriteLine(context.Conversation.ToString());
         }

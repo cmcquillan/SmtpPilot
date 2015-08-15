@@ -27,7 +27,7 @@ namespace SMTPileIt.Server.States
 
         public SmtpCommand AllowedCommands
         {
-            get { return Conversation.SmtpCommand.EHLO | Conversation.SmtpCommand.HELO; }
+            get { return SmtpCommand.EHLO | SmtpCommand.HELO; }
         }
 
         public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)

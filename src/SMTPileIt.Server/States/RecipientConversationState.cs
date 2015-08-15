@@ -4,48 +4,42 @@ using SMTPileIt.Server.IO;
 
 namespace SMTPileIt.Server.States
 {
-    public class RecipientConversationState : IConversationState
+    public class RecipientConversationState : MinimalConversationState
     {
-        public SmtpCommand AllowedCommands
+        public override SmtpCommand AllowedCommands
         {
             get
             {
-                return SmtpCommand.RCPT | SmtpCommand.DATA | SmtpCommand.RSET;
+                return base.AllowedCommands | SmtpCommand.RCPT | SmtpCommand.DATA;
             }
         }
 
-        public void EnterState(ISmtpStateContext context)
+        public override void EnterState(ISmtpStateContext context)
         {
         }
 
-        public void LeaveState(ISmtpStateContext context)
+        public override void LeaveState(ISmtpStateContext context)
         {
-            //if (!context.HasError)
-            //    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Awesome"));
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, string line)
         {
             return this;
         }
 
-        public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             switch(cmd.Command)
             {
                 case SmtpCommand.RCPT:
                     string[] emails = IOHelper.ParseEmails(cmd.Args);
                     context.AddTo(emails);
-                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "OK"));
+                    context.Reply(SmtpReply.OK);
                     return this;
                 case SmtpCommand.DATA:
                     return new DataConversationState();
-                case SmtpCommand.RSET:
-                    context.Conversation.Reset();
-                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, "OK"));
-                    return new AcceptMailConversationState();
                 default:
-                    return new ErrorConversationState();
+                    return base.ProcessNewCommand(context, cmd, line);
             }
         }
     }

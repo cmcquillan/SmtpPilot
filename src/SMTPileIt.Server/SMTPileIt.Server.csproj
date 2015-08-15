@@ -60,10 +60,10 @@
     <Compile Include="SMTPileItConfiguration.cs" />
     <Compile Include="States\AcceptMailConversationState.cs" />
     <Compile Include="States\DataConversationState.cs" />
-    <Compile Include="States\EndDataConversationState.cs" />
     <Compile Include="States\ErrorConversationState.cs" />
     <Compile Include="States\IConversationState.cs" />
     <Compile Include="States\ISmtpStateContext.cs" />
+    <Compile Include="States\MinimalConversationState.cs" />
     <Compile Include="States\OpenConnectionState.cs" />
     <Compile Include="States\QuitConversationState.cs" />
     <Compile Include="States\QuitState.cs" />
