@@ -30,7 +30,7 @@ namespace SMTPileIt.Server.Conversation
             get
             {
                 SmtpCommand cmd = SmtpCommand.EHLO;
-                return Enum.TryParse<SmtpCommand>(Preamble, out cmd);
+                return Enum.TryParse(Preamble, out cmd);
             }
         }
 
@@ -44,14 +44,14 @@ namespace SMTPileIt.Server.Conversation
 
         public override string FullText
         {
-            get { return this.ToString(); }
+            get { return ToString(); }
         }
 
         public string Args
         {
             get
             {
-                var sb = new StringBuilder(this.FullText);
+                var sb = new StringBuilder(FullText);
                 sb = sb.Replace(Preamble, String.Empty, 0, Preamble.Length);
                 return sb.ToString().Trim();
             }

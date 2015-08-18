@@ -17,7 +17,7 @@ namespace SMTPileIt.Web
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            var smtpTester = new SMTPServer("127.0.0.1", SMTPServer.DefaultSmtpPort);
+            var smtpTester = new SMTPServer("127.0.0.1", SMTPileItConfiguration.DefaultSmtpPort);
             _server = smtpTester;
             _server.Start();
         }

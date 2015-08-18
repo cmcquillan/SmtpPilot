@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading;
@@ -16,6 +17,8 @@ namespace SMTPileIt.Client
 
             using (var client = new SmtpClient("localhost", 25))
             {
+                client.Credentials = new NetworkCredential("cmcquillan", "password");
+                client.UseDefaultCredentials = false;
                 var message = new MailMessage("casey.mcquillan@gmail.com", "cmcquillan@restaurant.org");
                 message.To.Add(new MailAddress("casey.r.mcquillan@gmail.com"));
                 message.Subject = "Hello, World";

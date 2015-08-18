@@ -90,7 +90,7 @@ namespace SMTPileIt.Server.States
 
         public IMailClient Client { get { return _client; } }
 
-        public bool IsInQuitState { get { return _currentState is QuitState; } }
+        public bool IsInQuitState { get { return _currentState is QuitConversationState; } }
 
 
     }

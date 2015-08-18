@@ -25,13 +25,13 @@ namespace SMTPileIt.Server.IO
         private int _bufferReadPosition = 0;
         private int _bufferDataPosition = 0;
 
-        public TcpMailClient(System.Net.Sockets.TcpClient tcpClient)
+        public TcpMailClient(TcpClient tcpClient)
             : this(tcpClient, tcpClient.Client.Handle.ToInt32())
         {
 
         }
 
-        public TcpMailClient(System.Net.Sockets.TcpClient client, int clientId)
+        public TcpMailClient(TcpClient client, int clientId)
         {
             _tcpClient = client;
             _clientId = clientId;
@@ -164,104 +164,27 @@ namespace SMTPileIt.Server.IO
             return false;
         }
 
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            _tcpClient.Close();
+            if(disposing)
+            {
+                _inputStream.Dispose();
+                _reader.Dispose();
+                _tcpClient.Close();
+            }
         }
 
-        #endregion
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(true);
+        }
 
-        #region EndRegion
-        //private readonly int _clientId;
-        //private readonly TcpClient _client;
-        //private readonly StreamWriter _networkWriter;
-        //private readonly ConcurrentQueue<string> _inputLines;
-        //private readonly StreamReader _networkReader;
-        //private readonly Stream _stream;
-        //private readonly Thread _thread;
-        //private volatile bool _clientOpen = true;
+        ~TcpMailClient()
+        {
+            Dispose(false);
+        }
 
-        //public TcpMailClient(TcpClient client, int clientId)
-        //{
-        //    this._clientId = clientId;
-        //    _client = client;
-        //    _stream = _client.GetStream();
-        //    _networkWriter = new StreamWriter(_stream);
-        //    _networkReader = new StreamReader(_stream);
-        //    //_networkWriter.AutoFlush = true;
-        //    _inputLines = new ConcurrentQueue<string>();
-
-        //    _thread = new Thread(new ThreadStart(BufferInputLines));
-        //    _thread.Start();
-        //}
-
-
-
-        //private void BufferInputLines()
-        //{
-        //    while (_clientOpen)
-        //    {
-
-        //        _inputLines.Enqueue(_networkReader.ReadLine());
-
-        //        Thread.Sleep(50);
-        //    }
-        //}
-
-        //public int ClientId
-        //{
-        //    get { return _clientId; }
-        //}
-
-        //public void Write(string message)
-        //{
-        //    _networkWriter.WriteLine();
-        //    _networkWriter.Flush();
-        //}
-
-        //public string ReadLine()
-        //{
-
-        //    if (!HasData)
-        //        throw new InvalidOperationException();
-
-        //    string line;
-        //    _inputLines.TryDequeue(out line);
-        //    return line;
-        //}
-
-        //public SmtpCommand PeekCommand()
-        //{
-        //    string line;
-        //    _inputLines.TryPeek(out line);
-
-        //    return IOHelper.GetCommand(line);
-        //}
-
-        //public void Disconnect()
-        //{
-        //    _client.Close();
-        //}
-
-        //public bool Disconnected
-        //{
-        //    get { return !_client.Connected; }
-        //}
-
-        //public bool HasData
-        //{
-        //    get
-        //    {
-        //        return _inputLines.Count > 0;
-        //    }
-        //}
-
-        //public void Dispose()
-        //{
-        //    _clientOpen = false;
-        //    _thread.Join();
-        //    GC.SuppressFinalize(this);
-        //}
         #endregion
     }
 }

@@ -8,6 +8,22 @@ namespace SMTPileIt.Server
 {
     public class SMTPileItConfiguration
     {
-        public bool Optimized { get; internal set; }
+        public const string Localhost = "127.0.0.1";
+        public const int DefaultSmtpPort = 25;
+
+        public SMTPileItConfiguration()
+            : this(Localhost, DefaultSmtpPort)
+        {
+
+        }
+
+        public SMTPileItConfiguration(string listenUri, int portNumber)
+        {
+            ListenUri = new Uri(listenUri);
+            PortNumber = portNumber;
+        }
+
+        public Uri ListenUri { get; private set; }
+        public int PortNumber { get; private set; }
     }
 }

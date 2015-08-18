@@ -8,8 +8,6 @@ namespace SMTPileIt.Server
 {
     public class SMTPServer
     {
-        public const int DefaultSmtpPort = 25;
-
         private readonly IMailClientListener _listener;
         private readonly List<IMailClient> _clients;
         private readonly Dictionary<int, SmtpStateMachine> _conversations;
@@ -53,10 +51,7 @@ namespace SMTPileIt.Server
                 foreach (var client in _clients)
                 {
                     if (_conversations[client.ClientId].IsInQuitState)
-                    {
-                        client.Disconnect();
                         continue;
-                    }
 
                     _conversations[client.ClientId].ProcessLine();
                     Thread.Sleep(5);
@@ -65,7 +60,6 @@ namespace SMTPileIt.Server
                 _clients.RemoveAll(p => p.Disconnected);
             }
 
-            Thread.Sleep(5000);
         }
     }
 }
