@@ -16,7 +16,7 @@ namespace SMTPileIt.Server.States
         public void EnterState(ISmtpStateContext context)
         {
             context.Reply(SmtpReply.ServerClosing);
-            context.Client.Disconnect();
+            //context.Client.Disconnect();
         }
 
         public void LeaveState(ISmtpStateContext context)

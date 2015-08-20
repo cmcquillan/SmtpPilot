@@ -53,12 +53,16 @@
     <Compile Include="Conversation\SmtpHeader.cs" />
     <Compile Include="Conversation\SmtpReply.cs" />
     <Compile Include="Conversation\EmailAddress.cs" />
+    <Compile Include="Delegates.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="IO\IOHelper.cs" />
     <Compile Include="IO\IMailClientListener.cs" />
     <Compile Include="IO\IMailClient.cs" />
     <Compile Include="IO\TcpClientListener.cs" />
     <Compile Include="IO\TcpMailClient.cs" />
+    <Compile Include="MailClientConnectedEventArgs.cs" />
+    <Compile Include="MailClientDisconnectedEventArgs.cs" />
+    <Compile Include="MailClientEventArgs.cs" />
     <Compile Include="SMTPServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SMTPileItConfiguration.cs" />

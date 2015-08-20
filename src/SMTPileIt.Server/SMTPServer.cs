@@ -15,6 +15,9 @@ namespace SMTPileIt.Server
         private volatile bool _running;
         private Thread _runThread;
 
+        public event MailClientConnectedEventHandler ClientConnected;
+        public event MailClientDisconnectedEventHandler ClientDisconnected;
+
         public SMTPServer(IMailClientListener clientListener)
         {
             _listener = clientListener;
@@ -46,6 +49,10 @@ namespace SMTPileIt.Server
                 if (_listener.ClientPending)
                 {
                     var c = _listener.AcceptClient();
+
+                    if (ClientConnected != null)
+                        ClientConnected.Invoke(this, new MailClientConnectedEventArgs(c));
+
                     _clients.Add(c);
                     _conversations[c.ClientId] = new SmtpStateMachine(c, new SmtpConversation());
                 }
@@ -53,7 +60,14 @@ namespace SMTPileIt.Server
                 foreach (var client in _clients)
                 {
                     if (_conversations[client.ClientId].IsInQuitState)
+                    {
+                        client.Disconnect();
+                        if(ClientDisconnected != null)
+                        {
+                            ClientDisconnected.Invoke(this, new MailClientDisconnectedEventArgs(client, DisconnectReason.TransactionCompleted));
+                        }
                         continue;
+                    }
 
                     _conversations[client.ClientId].ProcessLine();
                     Thread.Sleep(5);
