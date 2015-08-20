@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SMTPileIt.Server.IO
 {
-    public class TcpClientListener : IMailClientListener
+    public class TcpClientListener : IMailClientListener, IDisposable
     {
         private readonly string _ipString;
         private readonly int _ipPort;
@@ -37,6 +37,19 @@ namespace SMTPileIt.Server.IO
             int clientId = client.Client.Handle.ToInt32();
 
             return new TcpMailClient(client, clientId);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if(disposing)
+            {
+                _listener.Stop();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
     }
 }

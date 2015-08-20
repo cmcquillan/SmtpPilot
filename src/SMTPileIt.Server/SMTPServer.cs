@@ -1,6 +1,7 @@
 ﻿using SMTPileIt.Server.Conversation;
 using SMTPileIt.Server.IO;
 using SMTPileIt.Server.States;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -9,17 +10,19 @@ namespace SMTPileIt.Server
     public class SMTPServer
     {
         private readonly IMailClientListener _listener;
-        private readonly List<IMailClient> _clients;
-        private readonly Dictionary<int, SmtpStateMachine> _conversations;
+        private readonly List<IMailClient> _clients = new List<IMailClient>();
+        private readonly Dictionary<int, SmtpStateMachine> _conversations = new Dictionary<int, SmtpStateMachine>();
         private volatile bool _running;
         private Thread _runThread;
 
+        public SMTPServer(IMailClientListener clientListener)
+        {
+            _listener = clientListener;
+        }
 
         public SMTPServer(string ipString, int ipPort)
         {
             _listener = new TcpClientListener(ipString, ipPort);
-            _clients = new List<IMailClient>();
-            _conversations = new Dictionary<int, SmtpStateMachine>();
         }
 
         public void Start()
@@ -45,7 +48,6 @@ namespace SMTPileIt.Server
                     var c = _listener.AcceptClient();
                     _clients.Add(c);
                     _conversations[c.ClientId] = new SmtpStateMachine(c, new SmtpConversation());
-                    //c.Write(new SmtpReply(SmtpReplyCode.Code220).ToString());
                 }
 
                 foreach (var client in _clients)
@@ -60,6 +62,7 @@ namespace SMTPileIt.Server
                 _clients.RemoveAll(p => p.Disconnected);
             }
 
+            (_listener as IDisposable).Dispose();
         }
     }
 }

@@ -17,7 +17,6 @@ namespace SMTPileIt.Server.States
         {
             context.Reply(SmtpReply.ServerClosing);
             context.Client.Disconnect();
-            Console.WriteLine(context.Conversation.ToString());
         }
 
         public void LeaveState(ISmtpStateContext context)
