@@ -41,7 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Conversation\AddressComparer.cs" />
+    <Compile Include="Conversation\AddressType.cs" />
     <Compile Include="Conversation\ConversationElement.cs" />
+    <Compile Include="Conversation\IAddress.cs" />
     <Compile Include="Conversation\IAppendable.cs" />
     <Compile Include="Conversation\SmtpCmd.cs" />
     <Compile Include="Conversation\SmtpCommand.cs" />
@@ -49,6 +52,7 @@
     <Compile Include="Conversation\SmtpData.cs" />
     <Compile Include="Conversation\SmtpHeader.cs" />
     <Compile Include="Conversation\SmtpReply.cs" />
+    <Compile Include="Conversation\EmailAddress.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="IO\IOHelper.cs" />
     <Compile Include="IO\IMailClientListener.cs" />

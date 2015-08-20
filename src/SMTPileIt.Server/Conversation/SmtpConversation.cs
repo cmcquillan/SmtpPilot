@@ -1,9 +1,7 @@
-﻿using SMTPileIt.Server.States;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SMTPileIt.Server.Conversation
 {
@@ -43,6 +41,23 @@ namespace SMTPileIt.Server.Conversation
         {
             get { return _fromAddress; }
             set { _fromAddress = value; }
+        }
+
+        public SmtpData Data
+        {
+            get
+            {
+                //CONSIDER: Linq performance vs loop performance.
+                return (SmtpData)_elements.SingleOrDefault(p => p is SmtpData);
+            }
+        }
+
+        public string DataString
+        {
+            get
+            {
+                return Data.ToString();
+            }
         }
 
         public ConversationElement LastElement

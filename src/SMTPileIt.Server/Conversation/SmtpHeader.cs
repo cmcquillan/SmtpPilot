@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SMTPileIt.Server.Conversation
 {
-    public class SmtpHeader
+    public struct SmtpHeader
     {
         public const string DATE_HEADER = @"Date";
         public const string FROM_HEADER = @"From";

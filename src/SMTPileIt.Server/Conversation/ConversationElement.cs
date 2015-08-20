@@ -23,16 +23,5 @@ namespace SMTPileIt.Server.Conversation
         public abstract string Preamble { get; }
 
         public abstract string FullText { get; }
-
-        //public string FullMessage { get { return _fullMessage.ToString(); } }
-        //public SmtpCommand Command { get; private set; }
-        //public string ArgText { get; private set; }
-        //public DateTime TimeStamp { get; private set; }
-        //public virtual bool Terminated { get { return true; } protected set { } }
-
-        //protected void Append(string line)
-        //{
-        //    _fullMessage.Append(line);
-        //}
     }
 }
