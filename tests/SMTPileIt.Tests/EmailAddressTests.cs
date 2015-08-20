@@ -46,8 +46,5 @@ namespace SMTPileIt.Tests
 
             Assert.AreEqual(displayShouldEqual, addr.DisplayName);
         }
-
-        [Test]
-
     }
 }
