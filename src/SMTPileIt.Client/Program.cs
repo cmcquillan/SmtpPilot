@@ -26,6 +26,9 @@ namespace SMTPileIt.Client
                 message.Body = "This is my message";
 
                 client.Send(message);
+                client.Send(message);
+                client.Send(message);
+                client.Send(message);
             }
         }
     }

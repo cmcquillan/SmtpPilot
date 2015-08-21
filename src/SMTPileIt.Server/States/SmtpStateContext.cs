@@ -21,17 +21,17 @@ namespace SMTPileIt.Server.States
             _command = command;
         }
 
-        public IO.IMailClient Client
+        public IMailClient Client
         {
             get { return _client; }
         }
 
-        public Conversation.SmtpConversation Conversation
+        public SmtpConversation Conversation
         {
             get { return _conversation; }
         }
 
-        public Conversation.SmtpCommand Command
+        public SmtpCommand Command
         {
             get { return _command; }
 
@@ -59,12 +59,32 @@ namespace SMTPileIt.Server.States
 
         public void SetFrom(string from)
         {
-            Conversation.FromAddress = from;
+            Conversation.FromAddress = new EmailAddress(from, AddressType.From);
         }
 
         public void AddTo(string[] emails)
         {
-            Conversation.AddAddresses(emails);
+            InternalAddAddresses(emails, AddressType.To);
+        }
+
+        public void AddCc(string[] emails)
+        {
+            InternalAddAddresses(emails, AddressType.Cc);
+        }
+
+        public void AddBcc(string[] emails)
+        {
+            InternalAddAddresses(emails, AddressType.Bcc);
+        }
+
+        private void InternalAddAddresses(string[] emails, AddressType type)
+        {
+            IAddress[] addresses = new IAddress[emails.Length];
+
+            for (int i = 0; i < emails.Length; i++)
+                addresses[i] = new EmailAddress(emails[i], type);
+
+            Conversation.AddAddresses(addresses);
         }
     }
 }

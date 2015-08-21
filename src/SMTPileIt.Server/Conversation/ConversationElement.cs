@@ -8,8 +8,6 @@ namespace SMTPileIt.Server.Conversation
 {
     public abstract class ConversationElement 
     {
-        public const char ASCIISpace = (char)0x20;
-
         protected ConversationElement()
         {
             UtcTimestamp = DateTime.UtcNow;

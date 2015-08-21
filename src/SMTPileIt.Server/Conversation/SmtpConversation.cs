@@ -9,8 +9,8 @@ namespace SMTPileIt.Server.Conversation
     {
         private readonly List<ConversationElement> _elements = new List<ConversationElement>();
         private readonly List<SmtpHeader> _headers = new List<SmtpHeader>();
-        private string _fromAddress;
-        private List<string> _toAddresses = new List<string>();
+        private IAddress _fromAddress;
+        private List<IAddress> _toAddresses = new List<IAddress>();
 
         public SmtpConversation() {
         }
@@ -37,7 +37,7 @@ namespace SMTPileIt.Server.Conversation
             _headers.Add(header);
         }
 
-        public string FromAddress
+        public IAddress FromAddress
         {
             get { return _fromAddress; }
             set { _fromAddress = value; }
@@ -104,12 +104,12 @@ namespace SMTPileIt.Server.Conversation
             }
         }
 
-        public IReadOnlyCollection<string> ToAddresses
+        public IReadOnlyCollection<IAddress> ToAddresses
         {
             get { return _toAddresses; }
         }
 
-        public void AddAddresses(string[] email)
+        public void AddAddresses(IAddress[] email)
         {
             _toAddresses.AddRange(email);
         }

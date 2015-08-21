@@ -99,6 +99,24 @@ namespace SMTPileIt.Server.Conversation
             }
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (obj is EmailAddress)
+            {
+                return Equals((EmailAddress)obj);
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return AddressComparer.FullAddress.GetHashCode(this);
+        }
+
         public bool Equals(EmailAddress other)
         {
             return Equals(other, AddressComparer.FullAddress);
