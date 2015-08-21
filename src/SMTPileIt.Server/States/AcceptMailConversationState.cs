@@ -42,7 +42,9 @@ namespace SMTPileIt.Server.States
                         return new ErrorConversationState();
 
                     string from = matches[0];
+                    context.NewMessage();
                     context.SetFrom(from);
+                    
                     return new RecipientConversationState();
                 default:
                     return base.ProcessNewCommand(context, cmd, line);

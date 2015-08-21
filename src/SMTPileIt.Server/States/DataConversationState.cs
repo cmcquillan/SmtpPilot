@@ -39,7 +39,7 @@ namespace SMTPileIt.Server.States
                 if (IO.IOHelper.LooksLikeHeader(line))
                 {
                     string[] header = line.Split(new char[] { ':' }, 2);
-                    context.Conversation.AddHeader(new SmtpHeader(header[0], header[1]));
+                    context.AddHeader(new SmtpHeader(header[0], header[1]));
                 }
                 else
                 {
@@ -50,6 +50,8 @@ namespace SMTPileIt.Server.States
             {
                 return new AcceptMailConversationState();
             }
+
+            context.Conversation.CurrentMessage.AppendLine(line);
 
             return this;
         }

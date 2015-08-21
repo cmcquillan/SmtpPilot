@@ -8,18 +8,16 @@ namespace SMTPileIt.Server.Conversation
     public class SmtpConversation
     {
         private readonly List<ConversationElement> _elements = new List<ConversationElement>();
-        private readonly List<SmtpHeader> _headers = new List<SmtpHeader>();
-        private IAddress _fromAddress;
-        private List<IAddress> _toAddresses = new List<IAddress>();
+        private Stack<IMessage> _messages = new Stack<IMessage>();
 
-        public SmtpConversation() {
+        public SmtpConversation()
+        {
         }
 
         public void Reset()
         {
-            _fromAddress = null;
-            _toAddresses.Clear();
-            _headers.Clear();
+            if (_messages.Count > 0)
+                _messages.Pop();
         }
 
         public IReadOnlyList<ConversationElement> Elements
@@ -30,33 +28,11 @@ namespace SMTPileIt.Server.Conversation
             }
         }
 
-        public IReadOnlyCollection<SmtpHeader> Headers { get { return _headers; } }
-
-        public void AddHeader(SmtpHeader header)
-        {
-            _headers.Add(header);
-        }
-
-        public IAddress FromAddress
-        {
-            get { return _fromAddress; }
-            set { _fromAddress = value; }
-        }
-
-        public SmtpData Data
+        public IMessage CurrentMessage
         {
             get
             {
-                //CONSIDER: Linq performance vs loop performance.
-                return (SmtpData)_elements.SingleOrDefault(p => p is SmtpData);
-            }
-        }
-
-        public string DataString
-        {
-            get
-            {
-                return Data.ToString();
+                return _messages.Peek();
             }
         }
 
@@ -104,19 +80,14 @@ namespace SMTPileIt.Server.Conversation
             }
         }
 
-        public IReadOnlyCollection<IAddress> ToAddresses
-        {
-            get { return _toAddresses; }
-        }
-
-        public void AddAddresses(IAddress[] email)
-        {
-            _toAddresses.AddRange(email);
-        }
-
         public void AddElement(ConversationElement element)
         {
             _elements.Add(element);
+        }
+
+        public void NewMessage()
+        {
+            _messages.Push(new EmailMessage());
         }
 
         public override string ToString()

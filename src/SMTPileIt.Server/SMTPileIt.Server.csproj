@@ -44,8 +44,10 @@
     <Compile Include="Conversation\AddressComparer.cs" />
     <Compile Include="Conversation\AddressType.cs" />
     <Compile Include="Conversation\ConversationElement.cs" />
+    <Compile Include="Conversation\EmailMessage.cs" />
     <Compile Include="Conversation\IAddress.cs" />
     <Compile Include="Conversation\IAppendable.cs" />
+    <Compile Include="Conversation\IMessage.cs" />
     <Compile Include="Conversation\SmtpCmd.cs" />
     <Compile Include="Conversation\SmtpCommand.cs" />
     <Compile Include="Conversation\SmtpConversation.cs" />

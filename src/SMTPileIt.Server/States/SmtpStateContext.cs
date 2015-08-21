@@ -51,6 +51,11 @@ namespace SMTPileIt.Server.States
             }
         }
 
+        public void AddHeader(SmtpHeader header)
+        {
+            Conversation.CurrentMessage.AddHeader(header);
+        }
+
         public void Reply(SmtpReply reply)
         {
             Conversation.AddElement(reply);
@@ -59,7 +64,7 @@ namespace SMTPileIt.Server.States
 
         public void SetFrom(string from)
         {
-            Conversation.FromAddress = new EmailAddress(from, AddressType.From);
+            Conversation.CurrentMessage.FromAddress = new EmailAddress(from, AddressType.From);
         }
 
         public void AddTo(string[] emails)
@@ -84,7 +89,12 @@ namespace SMTPileIt.Server.States
             for (int i = 0; i < emails.Length; i++)
                 addresses[i] = new EmailAddress(emails[i], type);
 
-            Conversation.AddAddresses(addresses);
+            Conversation.CurrentMessage.AddAddresses(addresses);
+        }
+
+        public void NewMessage()
+        {
+            Conversation.NewMessage();
         }
     }
 }

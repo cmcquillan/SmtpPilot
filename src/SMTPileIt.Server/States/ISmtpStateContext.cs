@@ -14,8 +14,12 @@ namespace SMTPileIt.Server.States
         SmtpCommand Command { get; }
         bool HasError { get; }
 
+        void NewMessage();
+        void AddHeader(SmtpHeader header);
         void Reply(SmtpReply reply);
         void SetFrom(string from);
         void AddTo(string[] emails);
+        void AddCc(string[] emails);
+        void AddBcc(string[] emails);
     }
 }
