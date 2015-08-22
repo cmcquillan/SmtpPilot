@@ -55,6 +55,44 @@ namespace SMTPileIt.Tests
             SendTestEmail();
         }
 
+        [Test]
+        public void ExceptionInConnectedEventDoesNotInterruptServer()
+        {
+            Server.ClientConnected += ExceptionEventMethod;
+            Assert.DoesNotThrow(() =>
+            {
+                Server.Start();
+                SendTestEmail();
+            });
+        }
+
+        [Test]
+        public void ExceptionInDisconnectedEventDoesNotInterruptServer()
+        {
+            Server.ClientDisconnected += ExceptionEventMethod;
+            Assert.DoesNotThrow(() =>
+            {
+                Server.Start();
+                SendTestEmail();
+            });
+        }
+
+        [Test]
+        public void ExceptionInMailEventDoesNotInterruptServer()
+        {
+            Server.EmailProcessed += ExceptionEventMethod;
+            Assert.DoesNotThrow(() =>
+            {
+                Server.Start();
+                SendTestEmail();
+            });
+        }
+
+        private void ExceptionEventMethod(object sender, MailClientEventArgs eventArgs)
+        {
+            throw new InvalidOperationException("We done bad.");
+        }
+
         private void TestMailSentMethod(object sender, EmailProcessedEventArgs eventArgs)
         {
             Assert.Pass("Successfully fired the mail sent method");
