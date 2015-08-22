@@ -132,7 +132,7 @@ namespace SMTPileIt.Server.Conversation
             if (!String.IsNullOrEmpty(DisplayName))
                 return String.Format("{0} <{1}@{2}>", DisplayName, User, Host);
             else
-                return String.Format("{0}@{2}", User, Host);
+                return String.Format("{0}@{1}", User, Host);
         }
     }
 }

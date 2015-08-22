@@ -1,4 +1,5 @@
 ﻿using SMTPileIt.Server.Conversation;
+using SMTPileIt.Server.Internal;
 using SMTPileIt.Server.IO;
 using SMTPileIt.Server.States;
 using System;
@@ -15,9 +16,6 @@ namespace SMTPileIt.Server
         private volatile bool _running;
         private Thread _runThread;
 
-        public event MailClientConnectedEventHandler ClientConnected;
-        public event MailClientDisconnectedEventHandler ClientDisconnected;
-
         public SMTPServer(IMailClientListener clientListener)
         {
             _listener = clientListener;
@@ -26,6 +24,68 @@ namespace SMTPileIt.Server
         public SMTPServer(string ipString, int ipPort)
         {
             _listener = new TcpClientListener(ipString, ipPort);
+        }
+
+        public event MailClientConnectedEventHandler ClientConnected;
+
+        public event MailClientDisconnectedEventHandler ClientDisconnected;
+
+        private event EmailProcessedEventHandler _internalEmailProcessed;
+
+        public event EmailProcessedEventHandler EmailProcessed
+        {
+            add
+            {
+                _internalEmailProcessed += value;
+                foreach(var c in _conversations)
+                {
+                    c.Value.Context.EmailProcessed += value;
+                }
+            }
+            remove
+            {
+                _internalEmailProcessed -= value;
+                foreach(var c in _conversations)
+                {
+                    c.Value.Context.EmailProcessed -= value;
+                }
+            }
+        }
+
+        protected virtual void OnClientConnected(MailClientConnectedEventArgs eventArgs)
+        {
+            MailClientConnectedEventHandler handler = ClientConnected;
+
+            if (handler != null)
+            {
+                foreach(MailClientConnectedEventHandler sub in handler.GetInvocationList())
+                {
+                    try
+                    {
+                        sub(this, eventArgs);
+                    }
+                    catch (Exception ex)
+                    { }
+                }
+            }
+        }
+
+        protected virtual void OnClientDisconnected(MailClientDisconnectedEventArgs eventArgs)
+        {
+            MailClientDisconnectedEventHandler handler = ClientDisconnected;
+
+            if(handler != null)
+            {
+                foreach(MailClientDisconnectedEventHandler sub in handler.GetInvocationList())
+                {
+                    try
+                    {
+                        sub(this, eventArgs);
+                    }
+                    catch (Exception ex)
+                    { }
+                }
+            }
         }
 
         public void Start()
@@ -50,11 +110,13 @@ namespace SMTPileIt.Server
                 {
                     var c = _listener.AcceptClient();
 
-                    if (ClientConnected != null)
-                        ClientConnected.Invoke(this, new MailClientConnectedEventArgs(c));
+                    OnClientConnected(new MailClientConnectedEventArgs(c));
 
                     _clients.Add(c);
-                    _conversations[c.ClientId] = new SmtpStateMachine(c, new SmtpConversation());
+                    var conversation = new SmtpConversation();
+                    var stateMachine = new SmtpStateMachine(c, conversation);
+                    stateMachine.Context.EmailProcessed += _internalEmailProcessed;
+                    _conversations[c.ClientId] = stateMachine;
                 }
 
                 foreach (var client in _clients)
@@ -62,10 +124,7 @@ namespace SMTPileIt.Server
                     if (_conversations[client.ClientId].IsInQuitState)
                     {
                         client.Disconnect();
-                        if(ClientDisconnected != null)
-                        {
-                            ClientDisconnected.Invoke(this, new MailClientDisconnectedEventArgs(client, DisconnectReason.TransactionCompleted));
-                        }
+                        OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.TransactionCompleted));
                         continue;
                     }
 

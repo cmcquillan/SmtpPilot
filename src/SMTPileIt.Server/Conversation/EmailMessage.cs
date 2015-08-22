@@ -12,6 +12,7 @@ namespace SMTPileIt.Server.Conversation
         private IAddress _fromAddress;
         private List<IAddress> _toAddresses = new List<IAddress>();
         private StringBuilder _data = new StringBuilder();
+        private bool _complete = false;
 
         public IReadOnlyCollection<SmtpHeader> Headers { get { return _headers; } }
 
@@ -52,9 +53,22 @@ namespace SMTPileIt.Server.Conversation
             get { return _toAddresses; }
         }
 
+        public bool IsComplete
+        {
+            get
+            {
+                return _complete;
+            }
+        }
+
         public void AddAddresses(IAddress[] email)
         {
             _toAddresses.AddRange(email);
+        }
+
+        public void Complete()
+        {
+            _complete = true;
         }
     }
 }

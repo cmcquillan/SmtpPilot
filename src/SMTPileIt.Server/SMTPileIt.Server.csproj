@@ -56,6 +56,7 @@
     <Compile Include="Conversation\SmtpReply.cs" />
     <Compile Include="Conversation\EmailAddress.cs" />
     <Compile Include="Delegates.cs" />
+    <Compile Include="EmailProcessedEventArgs.cs" />
     <Compile Include="Internal\Constants.cs" />
     <Compile Include="IO\IOHelper.cs" />
     <Compile Include="IO\IMailClientListener.cs" />

@@ -48,6 +48,7 @@ namespace SMTPileIt.Server.States
             }
             else if (line.Equals(Constants.EndOfDataElement))
             {
+                context.CompleteMessage();
                 return new AcceptMailConversationState();
             }
 

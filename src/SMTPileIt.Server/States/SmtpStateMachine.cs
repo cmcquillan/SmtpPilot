@@ -24,6 +24,8 @@ namespace SMTPileIt.Server.States
             CurrentState = new OpenConnectionState();
         }
 
+        public ISmtpStateContext Context { get { return _context; } }
+
         public IConversationState CurrentState
         {
             get
@@ -91,7 +93,6 @@ namespace SMTPileIt.Server.States
         public IMailClient Client { get { return _client; } }
 
         public bool IsInQuitState { get { return _currentState is QuitConversationState; } }
-
 
     }
 }

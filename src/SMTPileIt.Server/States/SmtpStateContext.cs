@@ -21,6 +21,24 @@ namespace SMTPileIt.Server.States
             _command = command;
         }
 
+        protected virtual void OnEmailProcessed(EmailProcessedEventArgs eventArgs)
+        {
+            EmailProcessedEventHandler handler = EmailProcessed;
+
+            if (handler != null)
+            {
+                foreach (EmailProcessedEventHandler sub in handler.GetInvocationList())
+                {
+                    try
+                    {
+                        sub(this, eventArgs);
+                    }
+                    catch (Exception ex)
+                    { }
+                }
+            }
+        }
+
         public IMailClient Client
         {
             get { return _client; }
@@ -50,6 +68,8 @@ namespace SMTPileIt.Server.States
                 return _conversation.HasError;
             }
         }
+
+        public EmailProcessedEventHandler EmailProcessed { get; set; }
 
         public void AddHeader(SmtpHeader header)
         {
@@ -90,6 +110,12 @@ namespace SMTPileIt.Server.States
                 addresses[i] = new EmailAddress(emails[i], type);
 
             Conversation.CurrentMessage.AddAddresses(addresses);
+        }
+
+        public void CompleteMessage()
+        {
+            Conversation.CurrentMessage.Complete();
+            OnEmailProcessed(new EmailProcessedEventArgs(_client, _conversation.CurrentMessage));
         }
 
         public void NewMessage()

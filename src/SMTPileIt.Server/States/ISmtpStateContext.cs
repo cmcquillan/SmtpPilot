@@ -13,6 +13,7 @@ namespace SMTPileIt.Server.States
         SmtpConversation Conversation { get; }
         SmtpCommand Command { get; }
         bool HasError { get; }
+        EmailProcessedEventHandler EmailProcessed { get; set; }
 
         void NewMessage();
         void AddHeader(SmtpHeader header);
@@ -21,5 +22,6 @@ namespace SMTPileIt.Server.States
         void AddTo(string[] emails);
         void AddCc(string[] emails);
         void AddBcc(string[] emails);
+        void CompleteMessage();
     }
 }

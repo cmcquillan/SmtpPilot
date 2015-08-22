@@ -5,11 +5,12 @@ using System.Text;
 
 namespace SMTPileIt.Server.Conversation
 {
-    public class SmtpConversation
+    public class SmtpConversation 
     {
         private readonly List<ConversationElement> _elements = new List<ConversationElement>();
         private Stack<IMessage> _messages = new Stack<IMessage>();
 
+        
         public SmtpConversation()
         {
         }

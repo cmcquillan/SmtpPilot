@@ -17,6 +17,7 @@ namespace SMTPileIt
 
             server.ClientConnected += Server_ClientConnected;
             server.ClientDisconnected += Server_ClientDisconnected;
+            server.EmailProcessed += Server_EmailProcessed;
             server.Start();
 
             Console.WriteLine("Press 'q' to stop server.");
@@ -25,6 +26,11 @@ namespace SMTPileIt
 
             Console.WriteLine("Shutting down bogus smtp server.");
             server.Stop();
+        }
+
+        private static void Server_EmailProcessed(object sender, EmailProcessedEventArgs eventArgs)
+        {
+            Console.WriteLine("Client processed mail:{0}\tId: {1} {0}\tFrom: {2}", Environment.NewLine, eventArgs.ClientId, eventArgs.Message.FromAddress, Environment.NewLine);
         }
 
         private static void Server_ClientDisconnected(object sender, MailClientDisconnectedEventArgs eventArgs)
@@ -36,5 +42,7 @@ namespace SMTPileIt
         {
             Console.WriteLine("Server received new connection:{0}\tId: {1}", Environment.NewLine, eventArgs.ClientId);
         }
+
+
     }
 }

@@ -4,6 +4,7 @@ namespace SMTPileIt.Server.Conversation
 {
     public interface IMessage
     {
+        bool IsComplete { get; }
         string Data { get; }
         string DataString { get; }
         IAddress FromAddress { get; set; }
@@ -13,5 +14,6 @@ namespace SMTPileIt.Server.Conversation
         void AddAddresses(IAddress[] email);
         void AddHeader(SmtpHeader header);
         void AppendLine(string line);
+        void Complete();
     }
 }
