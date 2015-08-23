@@ -34,6 +34,13 @@ namespace SMTPileIt.Server
 
         public event EmailProcessedEventHandler EmailProcessed
         {
+            /*
+             * CONSIDER:  This could be an expensive operation is lots of 
+             * concurrent connections are taking place.  There might be reason 
+             * to "drop" hooking into existing conversations.  If that is not an
+             * option, we could potentially parallelize this, since event adds/removes
+             * are atomic operations behind the scenes.
+             */
             add
             {
                 _internalEmailProcessed += value;
