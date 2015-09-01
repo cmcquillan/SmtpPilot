@@ -15,12 +15,14 @@ namespace SMTPileIt.Server.States
         private IConversationState _currentState;
         private ISmtpStateContext _context;
         SmtpCommand _currentCommand = SmtpCommand.NonCommand;
+        private readonly EmailStatistics _emailStats;
 
-        public SmtpStateMachine(IMailClient client, SmtpConversation conversation)
+        public SmtpStateMachine(IMailClient client, SmtpConversation conversation, EmailStatistics statistics)
         {
+            _emailStats = statistics;
             _client = client;
             _conversation = conversation;
-            _context = new SmtpStateContext(Client, Conversation, _currentCommand);
+            _context = new SmtpStateContext(Client, Conversation, _currentCommand, _emailStats);
             CurrentState = new OpenConnectionState();
         }
 

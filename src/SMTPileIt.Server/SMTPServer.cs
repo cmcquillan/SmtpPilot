@@ -15,16 +15,29 @@ namespace SMTPileIt.Server
         private readonly Dictionary<int, SmtpStateMachine> _conversations = new Dictionary<int, SmtpStateMachine>();
         private volatile bool _running;
         private Thread _runThread;
+        private EmailStatistics _emailStats = new EmailStatistics();
 
-        public SMTPServer(IMailClientListener clientListener)
+        public SMTPServer(IMailClientListener clientListener) : this()
         {
             _listener = clientListener;
         }
 
-        public SMTPServer(string ipString, int ipPort)
+        public SMTPServer(string ipString, int ipPort) : this()
         {
             _listener = new TcpClientListener(ipString, ipPort);
         }
+
+        private SMTPServer()
+        {
+            EmailProcessed += TrackEmailStatistics;
+        }
+
+        private void TrackEmailStatistics(object sender, EmailProcessedEventArgs eventArgs)
+        {
+            _emailStats.AddEmailReceived();
+        }
+
+        public EmailStatistics Statistics { get { return _emailStats; } }
 
         public event MailClientConnectedEventHandler ClientConnected;
 
@@ -44,7 +57,7 @@ namespace SMTPileIt.Server
             add
             {
                 _internalEmailProcessed += value;
-                foreach(var c in _conversations)
+                foreach (var c in _conversations)
                 {
                     c.Value.Context.EmailProcessed += value;
                 }
@@ -52,7 +65,7 @@ namespace SMTPileIt.Server
             remove
             {
                 _internalEmailProcessed -= value;
-                foreach(var c in _conversations)
+                foreach (var c in _conversations)
                 {
                     c.Value.Context.EmailProcessed -= value;
                 }
@@ -65,7 +78,7 @@ namespace SMTPileIt.Server
 
             if (handler != null)
             {
-                foreach(MailClientConnectedEventHandler sub in handler.GetInvocationList())
+                foreach (MailClientConnectedEventHandler sub in handler.GetInvocationList())
                 {
                     try
                     {
@@ -81,9 +94,9 @@ namespace SMTPileIt.Server
         {
             MailClientDisconnectedEventHandler handler = ClientDisconnected;
 
-            if(handler != null)
+            if (handler != null)
             {
-                foreach(MailClientDisconnectedEventHandler sub in handler.GetInvocationList())
+                foreach (MailClientDisconnectedEventHandler sub in handler.GetInvocationList())
                 {
                     try
                     {
@@ -111,7 +124,7 @@ namespace SMTPileIt.Server
         {
             _running = true;
 
-            while(_running)
+            while (_running)
             {
                 if (_listener.ClientPending)
                 {
@@ -121,7 +134,7 @@ namespace SMTPileIt.Server
 
                     _clients.Add(c);
                     var conversation = new SmtpConversation();
-                    var stateMachine = new SmtpStateMachine(c, conversation);
+                    var stateMachine = new SmtpStateMachine(c, conversation, _emailStats);
                     stateMachine.Context.EmailProcessed += _internalEmailProcessed;
                     _conversations[c.ClientId] = stateMachine;
                 }

@@ -13,9 +13,11 @@ namespace SMTPileIt.Server.States
         private SmtpCommand _command;
         private readonly SmtpConversation _conversation;
         private readonly IMailClient _client;
+        private readonly EmailStatistics _stats;
 
-        internal SmtpStateContext(IMailClient client, SmtpConversation conversation, SmtpCommand command)
+        internal SmtpStateContext(IMailClient client, SmtpConversation conversation, SmtpCommand command, EmailStatistics stats)
         {
+            _stats = stats;
             _client = client;
             _conversation = conversation;
             _command = command;
@@ -115,7 +117,7 @@ namespace SMTPileIt.Server.States
         public void CompleteMessage()
         {
             Conversation.CurrentMessage.Complete();
-            OnEmailProcessed(new EmailProcessedEventArgs(_client, _conversation.CurrentMessage));
+            OnEmailProcessed(new EmailProcessedEventArgs(_client, _conversation.CurrentMessage, _stats));
         }
 
         public void NewMessage()

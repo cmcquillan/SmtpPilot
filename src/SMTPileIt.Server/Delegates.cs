@@ -20,6 +20,11 @@ namespace SMTPileIt.Server
     /// <param name="eventArgs"></param>
     public delegate void MailClientDisconnectedEventHandler(object sender, MailClientDisconnectedEventArgs eventArgs);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="eventArgs"></param>
     public delegate void EmailProcessedEventHandler(object sender, EmailProcessedEventArgs eventArgs);
 
 }
