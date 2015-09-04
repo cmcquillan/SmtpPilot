@@ -133,6 +133,7 @@ namespace SMTPileIt.Server
                     OnClientConnected(new MailClientConnectedEventArgs(c));
 
                     _clients.Add(c);
+                    _emailStats.AddClient(1);
                     var conversation = new SmtpConversation();
                     var stateMachine = new SmtpStateMachine(c, conversation, _emailStats);
                     stateMachine.Context.EmailProcessed += _internalEmailProcessed;
@@ -152,7 +153,7 @@ namespace SMTPileIt.Server
                     Thread.Sleep(5);
                 }
 
-                _clients.RemoveAll(p => p.Disconnected);
+                _emailStats.RemoveClient(_clients.RemoveAll(p => p.Disconnected));
             }
 
             (_listener as IDisposable).Dispose();
