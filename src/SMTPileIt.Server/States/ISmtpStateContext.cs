@@ -9,6 +9,7 @@ namespace SMTPileIt.Server.States
 {
     public interface ISmtpStateContext
     {
+        EmailStatistics Statistics { get; }
         IMailClient Client { get; }
         SmtpConversation Conversation { get; }
         SmtpCommand Command { get; }

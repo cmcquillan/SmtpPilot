@@ -41,6 +41,11 @@ namespace SMTPileIt.Server.States
             }
         }
 
+        public EmailStatistics Statistics
+        {
+            get { return _stats; }
+        }
+
         public IMailClient Client
         {
             get { return _client; }

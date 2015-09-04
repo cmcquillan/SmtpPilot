@@ -23,6 +23,7 @@ namespace SMTPileIt.Server.States
 
         public void EnterState(ISmtpStateContext context)
         {
+            context.Statistics.AddErrorGenerated();
             context.Reply(new Conversation.SmtpReply(Conversation.SmtpReplyCode.Code503, _errorMessage));
         }
 

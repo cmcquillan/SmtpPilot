@@ -17,7 +17,7 @@ namespace SMTPileIt.Server.States
 
         public IConversationState ProcessData(ISmtpStateContext context, string line)
         {
-            throw new NotImplementedException();
+            return new ErrorConversationState("Command not recognized.");
         }
 
         public void LeaveState(ISmtpStateContext context)

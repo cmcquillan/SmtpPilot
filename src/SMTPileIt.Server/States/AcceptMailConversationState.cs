@@ -12,7 +12,7 @@ namespace SMTPileIt.Server.States
     {
         public override IConversationState ProcessData(ISmtpStateContext context, string line)
         {
-            return this;
+            return new ErrorConversationState("Did not recognize command.");
         }
 
         public override void LeaveState(ISmtpStateContext context)

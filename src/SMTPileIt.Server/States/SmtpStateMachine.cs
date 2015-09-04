@@ -83,6 +83,9 @@ namespace SMTPileIt.Server.States
 
                 //string line = Client.ReadLine();
                 CurrentState = CurrentState.ProcessNewCommand(_context, command, line);
+
+                if (!(CurrentState is ErrorConversationState))
+                    _emailStats.AddCommandProcessed();
             }
             else
             {
