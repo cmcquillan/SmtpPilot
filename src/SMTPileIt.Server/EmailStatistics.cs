@@ -14,6 +14,7 @@ namespace SMTPileIt.Server
         private long _commandsProcessed = 0;
         private long _lastReceivedUtc = DateTime.MinValue.Ticks;
         private int _activeClients = 0;
+        private long _startTime = 0;
 
         public long CommandsProcessed { get { return _commandsProcessed; } }
 
@@ -25,7 +26,14 @@ namespace SMTPileIt.Server
 
         public DateTime LastMailReceivedLocal { get { return LastMailReceivedUTC.ToLocalTime(); } }
 
+        public TimeSpan RunningTime { get { return TimeSpan.FromTicks(DateTime.UtcNow.Ticks - _startTime); } }
+
         public int ActiveClients { get { return _activeClients; } }
+
+        internal void SetStart()
+        {
+            Interlocked.Exchange(ref _startTime, DateTime.UtcNow.Ticks);
+        }
 
         internal void AddClient(int val)
         {

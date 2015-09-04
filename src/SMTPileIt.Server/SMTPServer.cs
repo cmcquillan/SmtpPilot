@@ -123,6 +123,7 @@ namespace SMTPileIt.Server
         public void Run()
         {
             _running = true;
+            _emailStats.SetStart();
 
             while (_running)
             {
