@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SMTPileIt.Server.IO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,11 +20,9 @@ namespace SMTPileIt.Server
 
         public SMTPileItConfiguration(string listenUri, int portNumber)
         {
-            ListenUri = new Uri(listenUri);
-            PortNumber = portNumber;
+            Listeners.Add(new TcpClientListener(listenUri, portNumber));
         }
 
-        public Uri ListenUri { get; private set; }
-        public int PortNumber { get; private set; }
+        public IList<IMailClientListener> Listeners { get; } = new List<IMailClientListener>();
     }
 }

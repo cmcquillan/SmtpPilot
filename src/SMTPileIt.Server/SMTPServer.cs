@@ -10,26 +10,28 @@ namespace SMTPileIt.Server
 {
     public class SMTPServer
     {
-        private readonly IMailClientListener _listener;
+        private readonly IList<IMailClientListener> _listeners;
         private readonly List<IMailClient> _clients = new List<IMailClient>();
         private readonly Dictionary<int, SmtpStateMachine> _conversations = new Dictionary<int, SmtpStateMachine>();
         private volatile bool _running;
         private Thread _runThread;
         private EmailStatistics _emailStats = new EmailStatistics();
 
-        public SMTPServer(IMailClientListener clientListener) : this()
+        public SMTPServer(string ipString, int ipPort)
+            : this(new SMTPileItConfiguration(ipString, ipPort))
         {
-            _listener = clientListener;
         }
 
-        public SMTPServer(string ipString, int ipPort) : this()
+        public SMTPServer(SMTPileItConfiguration configuration)
         {
-            _listener = new TcpClientListener(ipString, ipPort);
-        }
-
-        private SMTPServer()
-        {
+            _listeners = new List<IMailClientListener>(configuration.Listeners);
             EmailProcessed += TrackEmailStatistics;
+        }
+
+        public SMTPServer()
+            : this(new SMTPileItConfiguration())
+        {
+
         }
 
         private void TrackEmailStatistics(object sender, EmailProcessedEventArgs eventArgs)
@@ -127,18 +129,21 @@ namespace SMTPileIt.Server
 
             while (_running)
             {
-                if (_listener.ClientPending)
+                foreach (var listener in _listeners)
                 {
-                    var c = _listener.AcceptClient();
+                    if (listener.ClientPending)
+                    {
+                        var c = listener.AcceptClient();
 
-                    OnClientConnected(new MailClientConnectedEventArgs(c));
+                        OnClientConnected(new MailClientConnectedEventArgs(c));
 
-                    _clients.Add(c);
-                    _emailStats.AddClient(1);
-                    var conversation = new SmtpConversation();
-                    var stateMachine = new SmtpStateMachine(c, conversation, _emailStats);
-                    stateMachine.Context.EmailProcessed += _internalEmailProcessed;
-                    _conversations[c.ClientId] = stateMachine;
+                        _clients.Add(c);
+                        _emailStats.AddClient(1);
+                        var conversation = new SmtpConversation();
+                        var stateMachine = new SmtpStateMachine(c, conversation, _emailStats);
+                        stateMachine.Context.EmailProcessed += _internalEmailProcessed;
+                        _conversations[c.ClientId] = stateMachine;
+                    }
                 }
 
                 foreach (var client in _clients)
@@ -151,13 +156,18 @@ namespace SMTPileIt.Server
                     }
 
                     _conversations[client.ClientId].ProcessLine();
-                    Thread.Sleep(5);
                 }
+
+                Thread.Sleep(5);
 
                 _emailStats.RemoveClient(_clients.RemoveAll(p => p.Disconnected));
             }
 
-            (_listener as IDisposable).Dispose();
+            /*
+             * Check each listener for an IDisposable and... well... dispose of them.
+             */
+            foreach (var listener in _listeners)
+                (listener as IDisposable)?.Dispose();
         }
     }
 }
