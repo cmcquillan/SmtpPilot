@@ -9,27 +9,16 @@ namespace SMTPileIt.Server
 {
     public class EmailStatistics
     {
+        #region Tracking Fields
         private int _emailsReceived = 0;
         private int _errorsGenerated = 0;
         private long _commandsProcessed = 0;
         private long _lastReceivedUtc = DateTime.MinValue.Ticks;
         private int _activeClients = 0;
         private long _startTime = 0;
+        #endregion
 
-        public long CommandsProcessed { get { return _commandsProcessed; } }
-
-        public int EmailsReceived { get { return _emailsReceived; } }
-
-        public int ErrorsGenerated { get { return _errorsGenerated; } }
-
-        public DateTime LastMailReceivedUTC { get { return new DateTime(_lastReceivedUtc); } }
-
-        public DateTime LastMailReceivedLocal { get { return LastMailReceivedUTC.ToLocalTime(); } }
-
-        public TimeSpan RunningTime { get { return TimeSpan.FromTicks(DateTime.UtcNow.Ticks - _startTime); } }
-
-        public int ActiveClients { get { return _activeClients; } }
-
+        #region Tracking Methods
         internal void SetStart()
         {
             Interlocked.Exchange(ref _startTime, DateTime.UtcNow.Ticks);
@@ -61,5 +50,22 @@ namespace SMTPileIt.Server
         {
             Interlocked.Increment(ref _commandsProcessed);
         }
+        #endregion
+
+        #region Tracking Properties
+        public long CommandsProcessed { get { return _commandsProcessed; } }
+
+        public int EmailsReceived { get { return _emailsReceived; } }
+
+        public int ErrorsGenerated { get { return _errorsGenerated; } }
+
+        public DateTime LastMailReceivedUTC { get { return new DateTime(_lastReceivedUtc); } }
+
+        public DateTime LastMailReceivedLocal { get { return LastMailReceivedUTC.ToLocalTime(); } }
+
+        public TimeSpan RunningTime { get { return TimeSpan.FromTicks(DateTime.UtcNow.Ticks - _startTime); } }
+
+        public int ActiveClients { get { return _activeClients; } }
+        #endregion
     }
 }
