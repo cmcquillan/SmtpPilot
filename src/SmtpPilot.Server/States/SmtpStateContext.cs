@@ -35,7 +35,7 @@ namespace SmtpPilot.Server.States
                     {
                         sub(this, eventArgs);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     { }
                 }
             }

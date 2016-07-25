@@ -86,7 +86,7 @@ namespace SmtpPilot.Server
                     {
                         sub(this, eventArgs);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     { }
                 }
             }
@@ -104,7 +104,7 @@ namespace SmtpPilot.Server
                     {
                         sub(this, eventArgs);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     { }
                 }
             }
