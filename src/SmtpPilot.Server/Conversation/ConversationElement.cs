@@ -10,13 +10,13 @@ namespace SmtpPilot.Server.Conversation
     {
         protected ConversationElement()
         {
-            UtcTimestamp = DateTime.UtcNow;
+            UtcTimestamp = DateTimeOffset.UtcNow;
             Timestamp = UtcTimestamp.ToLocalTime();
         }
 
-        public DateTime UtcTimestamp { get; private set; }
+        public DateTimeOffset UtcTimestamp { get; private set; }
 
-        public DateTime Timestamp { get; private set; }
+        public DateTimeOffset Timestamp { get; private set; }
 
         public abstract string Preamble { get; }
 

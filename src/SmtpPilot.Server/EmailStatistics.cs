@@ -13,7 +13,7 @@ namespace SmtpPilot.Server
         private int _emailsReceived = 0;
         private int _errorsGenerated = 0;
         private long _commandsProcessed = 0;
-        private long _lastReceivedUtc = DateTime.MinValue.Ticks;
+        private long _lastReceivedUtc = DateTimeOffset.MinValue.Ticks;
         private int _activeClients = 0;
         private long _startTime = 0;
         #endregion
@@ -21,7 +21,7 @@ namespace SmtpPilot.Server
         #region Tracking Methods
         internal void SetStart()
         {
-            Interlocked.Exchange(ref _startTime, DateTime.UtcNow.Ticks);
+            Interlocked.Exchange(ref _startTime, DateTimeOffset.UtcNow.Ticks);
         }
 
         internal void AddClient(int val)
@@ -37,7 +37,7 @@ namespace SmtpPilot.Server
         internal void AddEmailReceived()
         {
             Interlocked.Increment(ref _emailsReceived);
-            long date = DateTime.UtcNow.Ticks;
+            long date = DateTimeOffset.UtcNow.Ticks;
             Interlocked.Exchange(ref _lastReceivedUtc, date);
         }
 
@@ -59,11 +59,11 @@ namespace SmtpPilot.Server
 
         public int ErrorsGenerated { get { return _errorsGenerated; } }
 
-        public DateTime LastMailReceivedUTC { get { return new DateTime(_lastReceivedUtc); } }
+        public DateTimeOffset LastMailReceivedUTC { get { return new DateTimeOffset(_lastReceivedUtc, TimeSpan.Zero); } }
 
-        public DateTime LastMailReceivedLocal { get { return LastMailReceivedUTC.ToLocalTime(); } }
+        public DateTimeOffset LastMailReceivedLocal { get { return LastMailReceivedUTC.ToLocalTime(); } }
 
-        public TimeSpan RunningTime { get { return TimeSpan.FromTicks(DateTime.UtcNow.Ticks - _startTime); } }
+        public TimeSpan RunningTime { get { return TimeSpan.FromTicks(DateTimeOffset.UtcNow.Ticks - _startTime); } }
 
         public int ActiveClients { get { return _activeClients; } }
         #endregion
