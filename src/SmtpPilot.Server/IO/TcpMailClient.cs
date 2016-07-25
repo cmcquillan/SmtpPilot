@@ -13,8 +13,6 @@ namespace SmtpPilot.Server.IO
 {
     public class TcpMailClient : IMailClient, IDisposable
     {
-
-        #region Remove
         private const int START_BUFFER_SIZE = 2048;
         private readonly TcpClient _tcpClient;
         private readonly int _clientId;
@@ -140,7 +138,6 @@ namespace SmtpPilot.Server.IO
             get
             {
                 ReadToBuffer();
-                /*return (_bufferReadPosition < _bufferDataPosition) || _inputStream.DataAvailable; */
                 return BufferHasNewLine();
             }
         }
@@ -184,7 +181,5 @@ namespace SmtpPilot.Server.IO
         {
             Dispose(false);
         }
-
-        #endregion
     }
 }

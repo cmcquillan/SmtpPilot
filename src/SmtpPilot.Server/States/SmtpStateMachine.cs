@@ -81,7 +81,6 @@ namespace SmtpPilot.Server.States
                     return;
                 }
 
-                //string line = Client.ReadLine();
                 CurrentState = CurrentState.ProcessNewCommand(_context, command, line);
 
                 if (!(CurrentState is ErrorConversationState))
