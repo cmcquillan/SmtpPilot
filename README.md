@@ -1,1 +1,1 @@
-# SMTPileIt
+# SmtpPilot
