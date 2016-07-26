@@ -13,6 +13,7 @@ namespace SmtpPilot.Server.IO
 {
     public class TcpMailClient : IMailClient, IDisposable
     {
+        private DateTime _lastDataAvailable;
         private const int START_BUFFER_SIZE = 2048;
         private readonly TcpClient _tcpClient;
         private readonly int _clientId;
@@ -35,6 +36,7 @@ namespace SmtpPilot.Server.IO
             _clientId = clientId;
             _inputStream = _tcpClient.GetStream();
             _reader = new StreamReader(_tcpClient.GetStream());
+            _lastDataAvailable = DateTime.Now;
         }
 
         public int ClientId
@@ -138,7 +140,20 @@ namespace SmtpPilot.Server.IO
             get
             {
                 ReadToBuffer();
-                return BufferHasNewLine();
+                bool returnValue = BufferHasNewLine();
+
+                if (returnValue)
+                    _lastDataAvailable = DateTime.Now;
+
+                return returnValue;
+            }
+        }
+
+        public int SecondsClientHasBeenSilent
+        {
+            get
+            {
+                return (int)(DateTime.Now - _lastDataAvailable).TotalSeconds;
             }
         }
 

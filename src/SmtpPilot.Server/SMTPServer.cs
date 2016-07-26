@@ -13,6 +13,8 @@ namespace SmtpPilot.Server
         private readonly IList<IMailClientListener> _listeners;
         private readonly List<IMailClient> _clients = new List<IMailClient>();
         private readonly Dictionary<int, SmtpStateMachine> _conversations = new Dictionary<int, SmtpStateMachine>();
+        private readonly SmtpPilotConfiguration _configuration;
+
         private volatile bool _running;
         private Thread _runThread;
         private EmailStatistics _emailStats = new EmailStatistics();
@@ -26,6 +28,7 @@ namespace SmtpPilot.Server
         {
             _listeners = new List<IMailClientListener>(configuration.Listeners);
             EmailProcessed += TrackEmailStatistics;
+            _configuration = configuration;
         }
 
         public SMTPServer()
@@ -156,6 +159,12 @@ namespace SmtpPilot.Server
                     }
 
                     _conversations[client.ClientId].ProcessLine();
+
+                    if(client.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
+                    {
+                        client.Disconnect();
+                        OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.ClientTimeout));
+                    }
                 }
 
                 Thread.Sleep(5);

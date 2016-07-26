@@ -11,7 +11,12 @@ namespace SmtpPilot
     {
         static void Main(string[] args)
         {
-            var server = new SMTPServer("127.0.0.1", 25);
+            var config = new SmtpPilotConfiguration("127.0.0.1", 25)
+            {
+                ClientTimeoutSeconds = 10,
+            };
+
+            var server = new SMTPServer(config);
 
             Console.WriteLine("Starting bogus smtp server.");
 
