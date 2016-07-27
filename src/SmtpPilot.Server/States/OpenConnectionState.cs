@@ -1,4 +1,5 @@
 ﻿using SmtpPilot.Server.Conversation;
+using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
@@ -8,32 +9,43 @@ using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.States
 {
-    public class OpenConnectionState : IConversationState
+    public class OpenConnectionState : MinimalConversationState
     {
-        public void EnterState(ISmtpStateContext context)
+        public override void EnterState(ISmtpStateContext context)
         {
             context.Reply(new SmtpReply(SmtpReplyCode.Code220, "Ord-Mantell SMTP Server Ready"));
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, string line)
         {
             return new ErrorConversationState("Command not recognized.");
         }
 
-        public void LeaveState(ISmtpStateContext context)
+        public override void LeaveState(ISmtpStateContext context)
         {
             
         }
 
-        public SmtpCommand AllowedCommands
+        public override SmtpCommand AllowedCommands
         {
-            get { return SmtpCommand.EHLO | SmtpCommand.HELO; }
+            get { return base.AllowedCommands | SmtpCommand.EHLO | SmtpCommand.HELO; }
         }
 
-        public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
-            context.Reply(new SmtpReply(SmtpReplyCode.Code250, Environment.MachineName));
-            return new AcceptMailConversationState();
+            switch(cmd.Command)
+            {
+                case SmtpCommand.HELO:
+                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, Environment.MachineName));
+                    return new AcceptMailConversationState();
+                default:
+                    return base.ProcessNewCommand(context, cmd, line);   
+            }   
+        }
+
+        internal override string HandleHelp()
+        {
+            return Constants.HelpTextOpenState;
         }
     }
 }

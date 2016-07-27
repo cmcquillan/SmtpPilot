@@ -13,13 +13,13 @@ namespace SmtpPilot.Server.States
         {
             get
             {
-                return SmtpCommand.NOOP | SmtpCommand.RSET | SmtpCommand.QUIT;
+                return SmtpCommand.NOOP | SmtpCommand.RSET | SmtpCommand.QUIT | SmtpCommand.HELP;
             }
         }
 
         public virtual void EnterState(ISmtpStateContext context)
         {
-            
+
         }
 
         public virtual void LeaveState(ISmtpStateContext context)
@@ -45,9 +45,14 @@ namespace SmtpPilot.Server.States
                     return new AcceptMailConversationState();
                 case SmtpCommand.QUIT:
                     return new QuitConversationState();
+                case SmtpCommand.HELP:
+                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, HandleHelp()));
+                    return this;
                 default:
                     return new ErrorConversationState();
             }
         }
+
+        internal abstract string HandleHelp();
     }
 }

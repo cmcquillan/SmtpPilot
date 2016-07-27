@@ -13,7 +13,7 @@ namespace SmtpPilot
         {
             var config = new SmtpPilotConfiguration("127.0.0.1", 25)
             {
-                ClientTimeoutSeconds = 10,
+                ClientTimeoutSeconds = 1000,
             };
 
             var server = new SMTPServer(config);

@@ -1,6 +1,7 @@
 ﻿using System;
 using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.IO;
+using SmtpPilot.Server.Internal;
 
 namespace SmtpPilot.Server.States
 {
@@ -41,6 +42,11 @@ namespace SmtpPilot.Server.States
                 default:
                     return base.ProcessNewCommand(context, cmd, line);
             }
+        }
+
+        internal override string HandleHelp()
+        {
+            return Constants.HelpTextRecipientState;
         }
     }
 }

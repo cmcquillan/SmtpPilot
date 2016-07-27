@@ -51,5 +51,10 @@ namespace SmtpPilot.Server.States
             }
             
         }
+
+        internal override string HandleHelp()
+        {
+            return Constants.HelpTextAcceptState;
+        }
     }
 }
