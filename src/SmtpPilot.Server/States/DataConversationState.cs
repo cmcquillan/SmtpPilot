@@ -39,7 +39,7 @@ namespace SmtpPilot.Server.States
                 if (IO.IOHelper.LooksLikeHeader(line))
                 {
                     string[] header = line.Split(new char[] { ':' }, 2);
-                    context.AddHeader(new SmtpHeader(header[0], header[1].Replace(Environment.NewLine, String.Empty)));
+                    context.AddHeader(new SmtpHeader(header[0], header[1]));
                 }
                 else
                 {
