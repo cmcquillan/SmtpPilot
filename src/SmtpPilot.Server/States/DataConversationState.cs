@@ -25,7 +25,7 @@ namespace SmtpPilot.Server.States
 
         public void LeaveState(ISmtpStateContext context)
         {
-            context.Reply(new SmtpReply(SmtpReplyCode.Code250, "Awesome"));
+            context.Reply(SmtpReply.OK);
         }
 
         public IConversationState ProcessData(ISmtpStateContext context, string line)
