@@ -29,6 +29,11 @@ namespace SmtpPilot.Server
             _listeners = new List<IMailClientListener>(configuration.Listeners);
             EmailProcessed += TrackEmailStatistics;
             _configuration = configuration;
+
+            if(_configuration.MailStore != null)
+            {
+                EmailProcessed += (o, eva) => _configuration.MailStore.SaveMessage(eva.Message);
+            }
         }
 
         public SMTPServer()

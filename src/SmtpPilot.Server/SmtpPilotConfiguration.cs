@@ -1,4 +1,5 @@
-﻿using SmtpPilot.Server.IO;
+﻿using SmtpPilot.Server.Data;
+using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,5 +29,7 @@ namespace SmtpPilot.Server
         public IList<IMailClientListener> Listeners { get; } = new List<IMailClientListener>();
 
         public int ClientTimeoutSeconds { get; set; }
+
+        public IMailStore MailStore { get; set; }
     }
 }

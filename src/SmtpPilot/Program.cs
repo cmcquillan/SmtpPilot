@@ -1,4 +1,5 @@
 ﻿using SmtpPilot.Server;
+using SmtpPilot.Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace SmtpPilot
             var config = new SmtpPilotConfiguration("127.0.0.1", 25)
             {
                 ClientTimeoutSeconds = 1000,
+                MailStore = new XmlMailStore(),
             };
 
             var server = new SMTPServer(config);

@@ -34,6 +34,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -56,6 +57,11 @@
     <Compile Include="Conversation\SmtpHeader.cs" />
     <Compile Include="Conversation\SmtpReply.cs" />
     <Compile Include="Conversation\EmailAddress.cs" />
+    <Compile Include="Data\IMailStore.cs" />
+    <Compile Include="Data\XmlAddressList.cs" />
+    <Compile Include="Data\XmlMailHeader.cs" />
+    <Compile Include="Data\XmlMailMessage.cs" />
+    <Compile Include="Data\XmlMailStore.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="EmailProcessedEventArgs.cs" />
     <Compile Include="EmailStatistics.cs" />
