@@ -33,13 +33,14 @@ namespace SmtpPilot.Server.States
             if (line.Equals(Constants.CarriageReturnLineFeed))
                 return this;
 
+            string choppedLine = line.Replace(Environment.NewLine, String.Empty);
 
             if (!_headersAreOver)
             {
                 if (IO.IOHelper.LooksLikeHeader(line))
                 {
-                    string[] header = line.Split(new char[] { ':' }, 2);
-                    context.AddHeader(new SmtpHeader(header[0], header[1].Replace(Environment.NewLine, String.Empty)));
+                    string[] header = choppedLine.Split(new char[] { ':' }, 2);
+                    context.AddHeader(new SmtpHeader(header[0], header[1]));
                 }
                 else
                 {
@@ -52,7 +53,7 @@ namespace SmtpPilot.Server.States
                 return new AcceptMailConversationState();
             }
 
-            context.Conversation.CurrentMessage.AppendLine(line);
+            context.Conversation.CurrentMessage.AppendLine(choppedLine);
 
             return this;
         }
