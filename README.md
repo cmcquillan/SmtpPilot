@@ -6,14 +6,17 @@ SmtpPilot is a mock SMTP server which allows developers to code e-mail functions
 
 Setting up a basic server is as simple as running a few lines of code in your console application.  
 
-    var server = new SMTPServer("127.0.0.1", 25);
-    server.Start();
+```csharp
+var server = new SMTPServer("127.0.0.1", 25);
+server.Start();
+```
 
 ## Configuration of a Server
 
 Hooking into additional features requires initializing a configuration object and passing it to the server's constructor.
 
-    var config = new SmtpPilotConfiguration("127.0.0.1", 25);
-    var server = new SMTPServer(config);
-    server.Start();
-
+```csharp
+var config = new SmtpPilotConfiguration("127.0.0.1", 25);
+var server = new SMTPServer(config);
+server.Start();
+```
