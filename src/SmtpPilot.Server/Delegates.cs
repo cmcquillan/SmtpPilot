@@ -27,4 +27,21 @@ namespace SmtpPilot.Server
     /// <param name="eventArgs">A <see cref="EmailProcessedEventArgs"/> object.</param>
     public delegate void EmailProcessedEventHandler(object sender, EmailProcessedEventArgs eventArgs);
 
+    /// <summary>
+    /// Delegate that plugs into the <see cref="SMTPServer"/> and is fired when the server is started.  This is fired as soon as the worker thread is initialized and running.
+    /// </summary>
+    /// <remarks>Server start time is rather minimal, so most applications will not need explicit access to this information.  
+    /// Use this if you application needs precise timing knowledge of when the server is ready and listening.</remarks>
+    /// <param name="sender">A reference to <see cref="SMTPServer"/> firing the event.</param>
+    /// <param name="eventArgs">A <see cref="ServerEventArgs"/> object.</param>
+    public delegate void ServerStartedEventHandler(object sender, ServerEventArgs eventArgs);
+
+    /// <summary>
+    /// Delegate that plugs into the <see cref="SMTPServer"/> and is fired when the server is stopped.  
+    /// This is fired as soon as the worker thread has completed its final loop, right before releasing it back to the thread pool.
+    /// </summary>
+    /// <param name="sender">A reference to <see cref="SMTPServer"/> firing the event.</param>
+    /// <param name="eventArgs">A <see cref="ServerEventArgs"/> object.</param>
+    public delegate void ServerStoppedEventHandler(object sender, ServerEventArgs eventArgs);
+
 }

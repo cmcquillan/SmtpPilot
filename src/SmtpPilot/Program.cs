@@ -20,36 +20,21 @@ namespace SmtpPilot
 
             var server = new SMTPServer(config);
 
-            Console.WriteLine("Starting bogus smtp server.");
+            ConsoleHooks.LogInfo("Starting mock SMTP server.");
 
-            server.ClientConnected += Server_ClientConnected;
-            server.ClientDisconnected += Server_ClientDisconnected;
-            server.EmailProcessed += Server_EmailProcessed;
+            server.ClientConnected += ConsoleHooks.Server_ClientConnected;
+            server.ClientDisconnected += ConsoleHooks.Server_ClientDisconnected;
+            server.EmailProcessed += ConsoleHooks.Server_EmailProcessed;
+            server.ServerStarted += ConsoleHooks.Server_Started;
+            server.ServerStopped += ConsoleHooks.Server_Stopped;
             server.Start();
 
-            Console.WriteLine("Press 'q' to stop server.");
+            ConsoleHooks.LogInfo("Press 'q' to stop server.");
 
             while (Console.ReadKey(true).KeyChar != 'q') { }
 
-            Console.WriteLine("Shutting down bogus smtp server.");
+            ConsoleHooks.LogInfo("Shutting down mock SMTP server.");
             server.Stop();
         }
-
-        private static void Server_EmailProcessed(object sender, EmailProcessedEventArgs eventArgs)
-        {
-            Console.WriteLine("Client processed mail:{0}\tId: {1} {0}\tFrom: {2}", Environment.NewLine, eventArgs.ClientId, eventArgs.Message.FromAddress, Environment.NewLine);
-        }
-
-        private static void Server_ClientDisconnected(object sender, MailClientDisconnectedEventArgs eventArgs)
-        {
-            Console.WriteLine("Client disconnected from server:{0}\tId: {1}{0}\tReason: {2}", Environment.NewLine, eventArgs.ClientId, eventArgs.Reason);
-        }
-
-        private static void Server_ClientConnected(object sender, MailClientConnectedEventArgs eventArgs)
-        {
-            Console.WriteLine("Server received new connection:{0}\tId: {1}", Environment.NewLine, eventArgs.ClientId);
-        }
-
-
     }
 }

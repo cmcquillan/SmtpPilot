@@ -53,6 +53,10 @@ namespace SmtpPilot.Server
 
         public event MailClientDisconnectedEventHandler ClientDisconnected;
 
+        public event ServerStartedEventHandler ServerStarted;
+
+        public event ServerStoppedEventHandler ServerStopped;
+
         private event EmailProcessedEventHandler _internalEmailProcessed;
 
         public event EmailProcessedEventHandler EmailProcessed
@@ -118,6 +122,42 @@ namespace SmtpPilot.Server
             }
         }
 
+        protected virtual void OnServerStart(ServerEventArgs eventArgs)
+        {
+            ServerStartedEventHandler handler = ServerStarted;
+
+            if(handler != null)
+            {
+                foreach(ServerStartedEventHandler sub in handler.GetInvocationList())
+                {
+                    try
+                    {
+                        sub(this, eventArgs);
+                    }
+                    catch (Exception)
+                    { }
+                }
+            }
+        }
+
+        protected virtual void OnServerStop(ServerEventArgs eventArgs)
+        {
+            ServerStoppedEventHandler handler = ServerStopped;
+
+            if(handler != null)
+            {
+                foreach(ServerStoppedEventHandler sub in handler.GetInvocationList())
+                {
+                    try
+                    {
+                        sub(this, eventArgs);
+                    }
+                    catch (Exception)
+                    { }
+                }
+            }
+        }
+
         public void Start()
         {
             _runThread = new Thread(new ThreadStart(Run));
@@ -134,6 +174,8 @@ namespace SmtpPilot.Server
         {
             _running = true;
             _emailStats.SetStart();
+
+            OnServerStart(new ServerEventArgs(this, ServerEventType.Started));
 
             while (_running)
             {
@@ -182,6 +224,8 @@ namespace SmtpPilot.Server
              */
             foreach (var listener in _listeners)
                 (listener as IDisposable)?.Dispose();
+
+            OnServerStop(new ServerEventArgs(this, ServerEventType.Stopped));
         }
     }
 }

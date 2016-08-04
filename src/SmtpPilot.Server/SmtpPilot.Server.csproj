@@ -74,6 +74,8 @@
     <Compile Include="MailClientConnectedEventArgs.cs" />
     <Compile Include="MailClientDisconnectedEventArgs.cs" />
     <Compile Include="MailClientEventArgs.cs" />
+    <Compile Include="ServerEventArgs.cs" />
+    <Compile Include="ServerEventType.cs" />
     <Compile Include="SMTPServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmtpPilotConfiguration.cs" />
