@@ -42,9 +42,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleBehavior.cs" />
     <Compile Include="ConsoleHooks.cs" />
+    <Compile Include="ConsoleParse.cs" />
+    <Compile Include="ExitCode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SmtpPilotOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

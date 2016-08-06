@@ -15,12 +15,16 @@ namespace SmtpPilot
         static void Main(string[] args)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
-
-            var config = new SmtpPilotConfiguration("127.0.0.1", 25)
+            var options = ConsoleParse.GetOptions(args);
+            var config = new SmtpPilotConfiguration(options.ListenIPAddress, options.ListenPort)
             {
                 ClientTimeoutSeconds = 1000,
-                MailStore = new XmlMailStore(),
             };
+
+            if(options.WriteMailToFolder)
+            {
+                config.MailStore = new XmlMailStore(options.WriteMailToFolderPath);
+            }
 
             _server = new SMTPServer(config);
 
