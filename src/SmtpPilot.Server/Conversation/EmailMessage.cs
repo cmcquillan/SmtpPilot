@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace SmtpPilot.Server.Conversation
         private StringBuilder _data = new StringBuilder();
         private bool _complete = false;
 
-        public IReadOnlyCollection<SmtpHeader> Headers { get { return _headers; } }
+        public ReadOnlyCollection<SmtpHeader> Headers { get { return _headers.AsReadOnly(); } }
 
         public void AddHeader(SmtpHeader header)
         {
@@ -48,9 +49,9 @@ namespace SmtpPilot.Server.Conversation
             }
         }
 
-        public IReadOnlyCollection<IAddress> ToAddresses
+        public ReadOnlyCollection<IAddress> ToAddresses
         {
-            get { return _toAddresses; }
+            get { return _toAddresses.AsReadOnly(); }
         }
 
         public bool IsComplete

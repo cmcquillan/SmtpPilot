@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SmtpPilot.Server.Conversation
 {
@@ -8,8 +9,8 @@ namespace SmtpPilot.Server.Conversation
         string Data { get; }
         string DataString { get; }
         IAddress FromAddress { get; set; }
-        IReadOnlyCollection<SmtpHeader> Headers { get; }
-        IReadOnlyCollection<IAddress> ToAddresses { get; }
+        ReadOnlyCollection<SmtpHeader> Headers { get; }
+        ReadOnlyCollection<IAddress> ToAddresses { get; }
 
         void AddAddresses(IAddress[] email);
         void AddHeader(SmtpHeader header);

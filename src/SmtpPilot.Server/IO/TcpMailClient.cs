@@ -47,7 +47,7 @@ namespace SmtpPilot.Server.IO
         public void Write(string message)
         {
             var s = _tcpClient.GetStream();
-            using (var writer = new StreamWriter(s, Encoding.ASCII, START_BUFFER_SIZE, true))
+            using (var writer = new StreamWriter(s, Encoding.ASCII, START_BUFFER_SIZE))
             {
                 writer.WriteLine(message);
                 writer.Flush();
