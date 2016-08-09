@@ -1,6 +1,6 @@
 # SmtpPilot
 
-SmtpPilot is a mock SMTP server which allows developers to code e-mail functions and applications without the fear of sending to real addresses.  SmtpPilot can run standalone as a server or in-process (if you are developing a .NET application).  The goal of SmtpPilot is to comply with a substantial portion of [RFC 2821](https://www.ietf.org/rfc/rfc2821.txt) (as much as makes sense for a mock server) for the purposes of processing e-mail.
+SmtpPilot is a mock SMTP server which allows developers to code e-mail functions and applications without the fear of sending to real addresses.  SmtpPilot can run standalone as a server or in-process (if you are developing a .NET application).  The goal of SmtpPilot is to comply with a substantial portion of [RFC 5321](https://tools.ietf.org/html/rfc5321) (as much as makes sense for a mock server) for the purposes of processing e-mail.
 
 ## Setting Up a Server
 
