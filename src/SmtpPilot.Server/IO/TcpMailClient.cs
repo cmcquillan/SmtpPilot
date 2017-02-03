@@ -19,6 +19,7 @@ namespace SmtpPilot.Server.IO
         private readonly int _clientId;
         private readonly NetworkStream _inputStream;
         private readonly StreamReader _reader;
+        private readonly StreamWriter _writer;
         private char[] _buffer = new char[START_BUFFER_SIZE];
         private int _bufferMultiple = 1;
         private int _bufferReadPosition = 0;
@@ -35,7 +36,8 @@ namespace SmtpPilot.Server.IO
             _tcpClient = client;
             _clientId = clientId;
             _inputStream = _tcpClient.GetStream();
-            _reader = new StreamReader(_tcpClient.GetStream());
+            _reader = new StreamReader(_inputStream, Encoding.ASCII);
+            _writer = new StreamWriter(_inputStream, Encoding.ASCII, START_BUFFER_SIZE);
             _lastDataAvailable = DateTime.Now;
         }
 
@@ -47,11 +49,8 @@ namespace SmtpPilot.Server.IO
         public void Write(string message)
         {
             var s = _tcpClient.GetStream();
-            using (var writer = new StreamWriter(s, Encoding.ASCII, START_BUFFER_SIZE))
-            {
-                writer.WriteLine(message);
-                writer.Flush();
-            }
+            _writer.WriteLine(message);
+            _writer.Flush();
         }
 
         public string ReadLine()
@@ -182,6 +181,7 @@ namespace SmtpPilot.Server.IO
             {
                 _inputStream.Dispose();
                 _reader.Dispose();
+                _writer.Dispose();
                 _tcpClient.Close();
             }
         }
