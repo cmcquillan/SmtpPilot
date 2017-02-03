@@ -38,8 +38,8 @@ namespace SmtpPilot.Server.IO
             _tcpClient = client;
             _clientId = clientId;
             _inputStream = _tcpClient.GetStream();
-            _reader = new StreamReader(_inputStream, Encoding.UTF8);
-            _writer = new StreamWriter(_inputStream, Encoding.UTF8, START_BUFFER_SIZE);
+            _reader = new StreamReader(_inputStream, Encoding.ASCII);
+            _writer = new StreamWriter(_inputStream, Encoding.ASCII, START_BUFFER_SIZE);
             _lastDataAvailable = DateTime.Now;
         }
 
