@@ -17,13 +17,15 @@ namespace SmtpPilot.Server.States
         private ISmtpStateContext _context;
         SmtpCommand _currentCommand = SmtpCommand.NonCommand;
         private readonly EmailStatistics _emailStats;
+        private readonly SmtpPilotConfiguration _configuration;
 
-        public SmtpStateMachine(IMailClient client, SmtpConversation conversation, EmailStatistics statistics)
+        public SmtpStateMachine(IMailClient client, SmtpConversation conversation, EmailStatistics statistics, SmtpPilotConfiguration configuration)
         {
+            _configuration = configuration;
             _emailStats = statistics;
             _client = client;
             _conversation = conversation;
-            _context = new SmtpStateContext(Client, Conversation, _currentCommand, _emailStats);
+            _context = new SmtpStateContext(Client, Conversation, _currentCommand, _emailStats, _configuration);
             CurrentState = new OpenConnectionState();
         }
 

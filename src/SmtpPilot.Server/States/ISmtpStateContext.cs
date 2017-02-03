@@ -9,6 +9,7 @@ namespace SmtpPilot.Server.States
 {
     public interface ISmtpStateContext
     {
+        SmtpPilotConfiguration Configuration { get; }
         EmailStatistics Statistics { get; }
         IMailClient Client { get; }
         SmtpConversation Conversation { get; }

@@ -14,9 +14,11 @@ namespace SmtpPilot.Server.States
         private readonly SmtpConversation _conversation;
         private readonly IMailClient _client;
         private readonly EmailStatistics _stats;
+        private readonly SmtpPilotConfiguration _configuration;
 
-        internal SmtpStateContext(IMailClient client, SmtpConversation conversation, SmtpCommand command, EmailStatistics stats)
+        internal SmtpStateContext(IMailClient client, SmtpConversation conversation, SmtpCommand command, EmailStatistics stats, SmtpPilotConfiguration configuration)
         {
+            _configuration = configuration;
             _stats = stats;
             _client = client;
             _conversation = conversation;
@@ -41,20 +43,11 @@ namespace SmtpPilot.Server.States
             }
         }
 
-        public EmailStatistics Statistics
-        {
-            get { return _stats; }
-        }
+        public EmailStatistics Statistics => _stats;
 
-        public IMailClient Client
-        {
-            get { return _client; }
-        }
+        public IMailClient Client => _client;
 
-        public SmtpConversation Conversation
-        {
-            get { return _conversation; }
-        }
+        public SmtpConversation Conversation => _conversation;
 
         public SmtpCommand Command
         {
@@ -68,15 +61,11 @@ namespace SmtpPilot.Server.States
             set { _command = value; }
         }
 
-        public bool HasError
-        {
-            get
-            {
-                return _conversation.HasError;
-            }
-        }
+        public bool HasError => _conversation.HasError;
 
         public EmailProcessedEventHandler EmailProcessed { get; set; }
+
+        public SmtpPilotConfiguration Configuration => _configuration;
 
         public void AddHeader(SmtpHeader header)
         {

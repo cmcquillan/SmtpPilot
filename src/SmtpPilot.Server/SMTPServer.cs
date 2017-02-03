@@ -190,7 +190,7 @@ namespace SmtpPilot.Server
                         _clients.Add(c);
                         _emailStats.AddClient(1);
                         var conversation = new SmtpConversation();
-                        var stateMachine = new SmtpStateMachine(c, conversation, _emailStats);
+                        var stateMachine = new SmtpStateMachine(c, conversation, _emailStats, _configuration);
                         stateMachine.Context.EmailProcessed += _internalEmailProcessed;
                         _conversations[c.ClientId] = stateMachine;
                     }
