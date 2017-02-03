@@ -90,6 +90,7 @@
     <Compile Include="States\RecipientConversationState.cs" />
     <Compile Include="States\SmtpStateContext.cs" />
     <Compile Include="States\SmtpStateMachine.cs" />
+    <Compile Include="States\TraceConstants.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

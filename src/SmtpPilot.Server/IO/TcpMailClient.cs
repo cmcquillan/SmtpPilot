@@ -1,8 +1,10 @@
 ﻿using SmtpPilot.Server.Conversation;
+using SmtpPilot.Server.States;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -36,8 +38,8 @@ namespace SmtpPilot.Server.IO
             _tcpClient = client;
             _clientId = clientId;
             _inputStream = _tcpClient.GetStream();
-            _reader = new StreamReader(_inputStream, Encoding.ASCII);
-            _writer = new StreamWriter(_inputStream, Encoding.ASCII, START_BUFFER_SIZE);
+            _reader = new StreamReader(_inputStream, Encoding.UTF8);
+            _writer = new StreamWriter(_inputStream, Encoding.UTF8, START_BUFFER_SIZE);
             _lastDataAvailable = DateTime.Now;
         }
 
@@ -48,6 +50,7 @@ namespace SmtpPilot.Server.IO
 
         public void Write(string message)
         {
+            Trace.WriteLine($"Writing message: {message}", TraceConstants.IO);
             var s = _tcpClient.GetStream();
             _writer.WriteLine(message);
             _writer.Flush();
@@ -62,6 +65,8 @@ namespace SmtpPilot.Server.IO
             {
                 string s = IOHelper.GetLineFromBuffer(_buffer, _bufferReadPosition, _bufferDataPosition - _bufferReadPosition);
                 _bufferReadPosition += s.Length;
+
+                Trace.WriteLine($"Receiving input: {s}", TraceConstants.IO);
                 return s;
             }
 
@@ -79,6 +84,7 @@ namespace SmtpPilot.Server.IO
 
                 if (dataRead == spaceLeftInBuffer)
                 {
+                    Trace.WriteLine($"Performing buffer adjustment.", TraceConstants.IO);
                     AdjustBuffer();
                 }
             }

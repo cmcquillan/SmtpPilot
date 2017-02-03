@@ -2,6 +2,7 @@
 using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,15 +32,26 @@ namespace SmtpPilot.Server.States
         public IConversationState CurrentState
         {
             get
-            { return _currentState; }
+            {
+                return _currentState;
+            }
             private set
             {
                 if (IConversationState.ReferenceEquals(CurrentState, value))
                     return;
+
                 if (_currentState != null)
+                {
+                    Debug.WriteLine($"Leaving State {_currentState.GetType().Name}", TraceConstants.StateMachine);
                     _currentState.LeaveState(_context);
+                    Debug.WriteLine($"Left State {_currentState.GetType().Name}", TraceConstants.StateMachine);
+                }
+                    
                 _currentState = value;
+
+                Debug.WriteLine($"Entering State {_currentState.GetType().Name}", TraceConstants.StateMachine);
                 _currentState.EnterState(_context);
+                Debug.WriteLine($"Entered State {_currentState.GetType().Name}", TraceConstants.StateMachine);
             }
         }
 
@@ -62,12 +74,12 @@ namespace SmtpPilot.Server.States
              * 5) Set new state according to return value of ProcessData().
              */
 
-
             if (!Client.HasData)
                 return;
 
             SmtpCommand cmd = Client.PeekCommand();
 
+            Debug.WriteLine($"Received command: {cmd}.", TraceConstants.StateMachine);
             if (cmd != SmtpCommand.NonCommand)
             {
                 (_context as SmtpStateContext).Command = cmd;
