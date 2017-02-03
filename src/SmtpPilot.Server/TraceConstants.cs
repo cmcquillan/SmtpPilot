@@ -1,4 +1,4 @@
-﻿namespace SmtpPilot.Server.States
+﻿namespace SmtpPilot.Server
 {
     internal class TraceConstants
     {
