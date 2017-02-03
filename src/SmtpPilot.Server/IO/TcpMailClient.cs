@@ -98,7 +98,7 @@ namespace SmtpPilot.Server.IO
 
         private void ReallocateBuffer()
         {
-            byte[] newBuf = new byte[START_BUFFER_SIZE * _bufferMultiple];
+            char[] newBuf = new char[START_BUFFER_SIZE * _bufferMultiple];
             Array.Copy(_buffer, _bufferReadPosition, newBuf, 0, _bufferDataPosition - _bufferReadPosition);
             _bufferDataPosition = _bufferDataPosition - _bufferReadPosition;
             _bufferReadPosition = 0;
