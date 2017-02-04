@@ -29,100 +29,116 @@ namespace SmtpPilot.Tests
         [Test]
         public void ClientConnectedEventFires()
         {
-            Server.ClientConnected += TestConnectMethod;
-            Server.Start();
-            try
+            bool connected = false;
+            Server.ClientConnected += (s, e) =>
             {
-                SendTestEmail();
-            }
-            catch (Exception) /* This is going to throw since the server will abort */
-            { }
+                connected = true;
+                (s as SMTPServer).Stop();
+            };
+
+            Server.Run();
+            Assert.True(connected);
         }
 
         [Test]
         public void ClientDisconnectedEventFires()
         {
-            Server.ClientDisconnected += TestDisconnectMethod;
-            Server.Start();
-            SendTestEmail();
+            bool disconnected = false;
+            Server.ClientDisconnected += (s, e) =>
+            {
+                disconnected = true;
+                (s as SMTPServer).Stop();
+            };
+
+            Server.Run();
+            Assert.True(disconnected);
         }
 
         [Test]
         public void MailSentEventFires()
         {
-            Server.EmailProcessed += TestMailSentMethod;
-            Server.Start();
-            SendTestEmail();
+            bool emailSent = false;
+            Server.EmailProcessed += (s, e) =>
+            {
+                emailSent = true;
+                Server.Stop();
+            };
+
+            Server.Run();
+            Assert.True(emailSent);
         }
 
         [Test]
         public void ExceptionInConnectedEventDoesNotInterruptServer()
         {
-            Server.ClientConnected += ExceptionEventMethod;
+            bool eventFired = false;
+            Server.ClientConnected += (s, e) =>
+            {
+                (s as SMTPServer).Stop();
+            };
+            Server.ClientConnected += (s, e) =>
+            {
+                eventFired = true;
+                throw new Exception("I'm a bad monkey.");
+            };
+
             Assert.DoesNotThrow(() =>
             {
-                Server.Start();
-                SendTestEmail();
+                Server.Run();
             });
+
+            Assert.True(eventFired);
         }
 
         [Test]
         public void ExceptionInDisconnectedEventDoesNotInterruptServer()
         {
-            Server.ClientDisconnected += ExceptionEventMethod;
+            bool eventFired = false;
+            Server.ClientDisconnected += (s, e) =>
+            {
+                (s as SMTPServer).Stop();
+            };
+            Server.ClientDisconnected += (s, e) =>
+            {
+                eventFired = true;
+                throw new Exception("I'm a bad monkey.");
+            };
+
             Assert.DoesNotThrow(() =>
             {
-                Server.Start();
-                SendTestEmail();
+                Server.Run();
             });
+
+            Assert.True(eventFired);
         }
 
         [Test]
         public void ExceptionInMailEventDoesNotInterruptServer()
         {
-            Server.EmailProcessed += ExceptionEventMethod;
+            bool eventFired = false;
+            Server.EmailProcessed += (s, e) =>
+            {
+                Server.Stop();
+            };
+            Server.EmailProcessed += (s, e) =>
+            {
+                eventFired = true;
+                throw new Exception("I'm a bad monkey.");
+            };
+
             Assert.DoesNotThrow(() =>
             {
-                Server.Start();
-                SendTestEmail();
+                Server.Run();
             });
-        }
 
-        private void ExceptionEventMethod(object sender, MailClientEventArgs eventArgs)
-        {
-            throw new InvalidOperationException("We done bad.");
-        }
-
-        private void TestMailSentMethod(object sender, EmailProcessedEventArgs eventArgs)
-        {
-            Assert.Pass("Successfully fired the mail sent method");
-        }
-
-        private void TestDisconnectMethod(object sender, MailClientDisconnectedEventArgs eventArgs)
-        {
-            Assert.Pass("Successfully fired the client disconnected method");
-        }
-
-        private void TestConnectMethod(object sender, MailClientConnectedEventArgs eventArgs)
-        {
-            Assert.Pass("Successfully fired the client connected method");
+            Assert.True(eventFired);
         }
 
         private SMTPServer GetServer()
         {
-            var server = new SMTPServer("127.0.0.1", 25026);
+            var config = TestHelper.GetConfig(TestHelper.BasicMessage);
+            var server = new SMTPServer(config);
             return server;
-        }
-
-        private void SendTestEmail()
-        {
-            using (var client = new SmtpClient("127.0.0.1", 25026))
-            {
-                var message = new MailMessage("foo@bar.com", "bar@baz.com");
-                message.Subject = "Hello, World";
-                message.Body = "This is my message";
-                client.Send(message);
-            }
         }
     }
 }

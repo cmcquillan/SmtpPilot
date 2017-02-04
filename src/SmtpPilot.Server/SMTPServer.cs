@@ -4,6 +4,7 @@ using SmtpPilot.Server.IO;
 using SmtpPilot.Server.States;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace SmtpPilot.Server
@@ -14,6 +15,7 @@ namespace SmtpPilot.Server
         private readonly List<IMailClient> _clients = new List<IMailClient>();
         private readonly Dictionary<int, SmtpStateMachine> _conversations = new Dictionary<int, SmtpStateMachine>();
         private readonly SmtpPilotConfiguration _configuration;
+        private readonly List<IMailClient> _clientsToRemove = new List<IMailClient>();
 
         private volatile bool _running;
         private Thread _runThread;
@@ -161,13 +163,13 @@ namespace SmtpPilot.Server
         public void Start()
         {
             _runThread = new Thread(new ThreadStart(Run));
-            _runThread.Start();
+            _runThread?.Start();
         }
 
         public void Stop()
         {
             _running = false;
-            _runThread.Join();
+            _runThread?.Join();
         }
 
         public void Run()
@@ -198,8 +200,16 @@ namespace SmtpPilot.Server
 
                 foreach (var client in _clients)
                 {
+                    if (client.Disconnected)
+                    {
+                        _clientsToRemove.Add(client);
+                        OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.ClientDisconnect));
+                        continue;
+                    }
+
                     if (_conversations[client.ClientId].IsInQuitState)
                     {
+                        _clientsToRemove.Add(client);
                         client.Disconnect();
                         OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.TransactionCompleted));
                         continue;
@@ -209,6 +219,7 @@ namespace SmtpPilot.Server
 
                     if(client.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
                     {
+                        _clientsToRemove.Add(client);
                         client.Disconnect();
                         OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.ClientTimeout));
                     }
@@ -216,7 +227,14 @@ namespace SmtpPilot.Server
 
                 Thread.Sleep(5);
 
-                _emailStats.RemoveClient(_clients.RemoveAll(p => p.Disconnected));
+                _emailStats.RemoveClient(_clientsToRemove.Count);
+
+                foreach(var client in _clientsToRemove)
+                {
+                    _clients.Remove(client);
+                }
+
+                _clientsToRemove.Clear();
             }
 
             /*

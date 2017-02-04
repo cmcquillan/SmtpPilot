@@ -19,5 +19,6 @@ namespace SmtpPilot.Server
         ClientTimeout = 1,
         ClientError = 2,
         ServerError = 3,
+        ClientDisconnect = 4,
     }
 }

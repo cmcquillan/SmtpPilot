@@ -24,11 +24,18 @@ namespace SmtpPilot.Server
         {
         }
 
-        public SmtpPilotConfiguration(string listenIp, int portNumber, string hostName)
+        public SmtpPilotConfiguration(string listenIp, int portNumber, string hostname)
+            : this(new[] { new TcpClientListener(listenIp, portNumber) }, hostname)
         {
-            Listeners.Add(new TcpClientListener(listenIp, portNumber));
+        }
+
+        public SmtpPilotConfiguration(IEnumerable<IMailClientListener> listeners, string hostname)
+        {
             ClientTimeoutSeconds = DefaultTimeoutSeconds;
-            HostName = hostName;
+            HostName = hostname;
+
+            foreach (var l in listeners)
+                Listeners.Add(l);
         }
 
         public string HostName { get; set; }
