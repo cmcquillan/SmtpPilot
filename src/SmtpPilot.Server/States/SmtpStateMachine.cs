@@ -79,29 +79,19 @@ namespace SmtpPilot.Server.States
 
             if (line != null)
             {
-                SmtpCommand cmd = SmtpCommand.NonCommand;
+                SmtpCmd command = null;
 
-                string commandString = (line?.Length >= 4) ? line.Substring(0, 4) : String.Empty;
-                Enum.TryParse(commandString, out cmd);
-
-                if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
-                    cmd = SmtpCommand.NonCommand;
-
-                Debug.WriteLine($"Received command: {cmd}.", TraceConstants.StateMachine);
-
-                if (cmd != SmtpCommand.NonCommand)
+                if (CurrentState.AcceptingCommands)
                 {
-                    (_context as SmtpStateContext).Command = cmd;
-                    var command = new SmtpCmd(cmd, line);
+                    command = GetCommandFromLine(line);
+                    (_context as SmtpStateContext).Command = command.Command;
                     Conversation.AddElement(command);
 
-                    if (!CurrentState.AllowedCommands.HasFlag(cmd))
+                    if (!CurrentState.AllowedCommands.HasFlag(command.Command))
                     {
                         CurrentState = new ErrorConversationState();
                         return;
                     }
-
-                    CurrentState = CurrentState.ProcessNewCommand(_context, command, line);
 
                     if (!(CurrentState is ErrorConversationState))
                         _emailStats.AddCommandProcessed();
@@ -109,9 +99,28 @@ namespace SmtpPilot.Server.States
                 else
                 {
                     (Conversation.LastElement as IAppendable)?.Append(line);
-                    CurrentState = CurrentState.ProcessData(_context, line);
                 }
+
+                CurrentState = CurrentState.ProcessData(_context, command, line);
             }
+        }
+
+        private static SmtpCmd GetCommandFromLine(string line)
+        {
+            SmtpCmd command;
+            SmtpCommand cmd = SmtpCommand.NonCommand;
+
+            string commandString = (line?.Length >= 4) ? line.Substring(0, 4) : String.Empty;
+            Enum.TryParse(commandString, out cmd);
+
+            if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
+                cmd = SmtpCommand.NonCommand;
+
+            Debug.WriteLine($"Received command: {cmd}.", TraceConstants.StateMachine);
+
+
+            command = new SmtpCmd(cmd, line);
+            return command;
         }
 
         public IMailClient Client { get { return _client; } }

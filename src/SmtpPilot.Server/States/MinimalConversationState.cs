@@ -17,6 +17,8 @@ namespace SmtpPilot.Server.States
             }
         }
 
+        public virtual bool AcceptingCommands => true;
+
         public virtual void EnterState(ISmtpStateContext context)
         {
 
@@ -27,12 +29,7 @@ namespace SmtpPilot.Server.States
             
         }
 
-        public virtual IConversationState ProcessData(ISmtpStateContext context, string line)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public virtual IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             switch(cmd.Command)
             {

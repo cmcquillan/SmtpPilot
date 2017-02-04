@@ -16,6 +16,8 @@ namespace SmtpPilot.Server.States
             }
         }
 
+        public bool AcceptingCommands => false;
+
         public void EnterState(ISmtpStateContext context)
         {
             context.Reply(SmtpReply.BeginData);
@@ -28,7 +30,7 @@ namespace SmtpPilot.Server.States
             context.Reply(SmtpReply.OK);
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, string line)
+        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             if (line.Equals(Constants.CarriageReturnLineFeed))
                 return this;
@@ -56,11 +58,6 @@ namespace SmtpPilot.Server.States
             context.Conversation.CurrentMessage.AppendLine(choppedLine);
 
             return this;
-        }
-
-        public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
-        {
-            throw new NotSupportedException();
         }
     }
 }

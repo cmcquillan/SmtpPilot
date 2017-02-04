@@ -13,22 +13,18 @@ namespace SmtpPilot.Server.States
             }
         }
 
+        public bool AcceptingCommands => false;
+
         public void EnterState(ISmtpStateContext context)
         {
             context.Reply(SmtpReply.ServerClosing);
-            //context.Client.Disconnect();
         }
 
         public void LeaveState(ISmtpStateContext context)
         {
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, string line)
-        {
-            return this;
-        }
-
-        public IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             return this;
         }

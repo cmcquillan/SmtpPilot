@@ -10,11 +10,6 @@ namespace SmtpPilot.Server.States
 {
     public class AcceptMailConversationState : MinimalConversationState
     {
-        public override IConversationState ProcessData(ISmtpStateContext context, string line)
-        {
-            return new ErrorConversationState("Did not recognize command.");
-        }
-
         public override void LeaveState(ISmtpStateContext context)
         {
             if (!context.HasError)
@@ -32,7 +27,7 @@ namespace SmtpPilot.Server.States
             
         }
 
-        public override IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             switch(cmd.Command)
             {
@@ -47,7 +42,7 @@ namespace SmtpPilot.Server.States
                     
                     return new RecipientConversationState();
                 default:
-                    return base.ProcessNewCommand(context, cmd, line);
+                    return base.ProcessData(context, cmd, line);
             }
             
         }

@@ -12,8 +12,8 @@ namespace SmtpPilot.Server.States
     {
         void EnterState(ISmtpStateContext context);
         void LeaveState(ISmtpStateContext context);
-        IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line);
-        IConversationState ProcessData(ISmtpStateContext context, string line);
+        IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line);
         SmtpCommand AllowedCommands { get; }
+        bool AcceptingCommands { get; }
     }
 }

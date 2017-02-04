@@ -23,12 +23,7 @@ namespace SmtpPilot.Server.States
         {
         }
 
-        public override IConversationState ProcessData(ISmtpStateContext context, string line)
-        {
-            return this;
-        }
-
-        public override IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             switch(cmd.Command)
             {
@@ -40,7 +35,7 @@ namespace SmtpPilot.Server.States
                 case SmtpCommand.DATA:
                     return new DataConversationState();
                 default:
-                    return base.ProcessNewCommand(context, cmd, line);
+                    return base.ProcessData(context, cmd, line);
             }
         }
 

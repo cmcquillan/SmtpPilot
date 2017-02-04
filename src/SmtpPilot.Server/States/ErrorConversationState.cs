@@ -32,12 +32,7 @@ namespace SmtpPilot.Server.States
             throw new NotImplementedException();
         }
 
-        public IConversationState ProcessNewCommand(ISmtpStateContext context, Conversation.SmtpCmd cmd, string line)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IConversationState ProcessData(ISmtpStateContext context, string line)
+        public IConversationState ProcessData(ISmtpStateContext context, Conversation.SmtpCmd cmd, string line)
         {
             throw new NotImplementedException();
         }
@@ -46,5 +41,7 @@ namespace SmtpPilot.Server.States
         {
             get { return Conversation.SmtpCommand.NonCommand; }
         }
+
+        public bool AcceptingCommands => false;
     }
 }

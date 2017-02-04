@@ -16,11 +16,6 @@ namespace SmtpPilot.Server.States
             context.Reply(new SmtpReply(SmtpReplyCode.Code220, $"{context.Configuration.HostName} Mock SMTP Server Ready"));
         }
 
-        public override IConversationState ProcessData(ISmtpStateContext context, string line)
-        {
-            return new ErrorConversationState("Command not recognized.");
-        }
-
         public override void LeaveState(ISmtpStateContext context)
         {
             
@@ -31,7 +26,7 @@ namespace SmtpPilot.Server.States
             get { return base.AllowedCommands | SmtpCommand.EHLO | SmtpCommand.HELO; }
         }
 
-        public override IConversationState ProcessNewCommand(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
         {
             switch(cmd.Command)
             {
@@ -39,7 +34,7 @@ namespace SmtpPilot.Server.States
                     context.Reply(new SmtpReply(SmtpReplyCode.Code250, Environment.MachineName));
                     return new AcceptMailConversationState();
                 default:
-                    return base.ProcessNewCommand(context, cmd, line);   
+                    return base.ProcessData(context, cmd, line);   
             }   
         }
 
