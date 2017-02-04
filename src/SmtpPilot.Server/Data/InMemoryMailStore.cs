@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SmtpPilot.Server.Conversation;
+using System.Diagnostics;
 
 namespace SmtpPilot.Server.Data
 {
@@ -27,8 +28,12 @@ namespace SmtpPilot.Server.Data
         public void SaveMessage(IMessage message)
         {
             if (_messages.Count == _retentionAmount)
+            {
+                Debug.WriteLine("Message Eviction", TraceConstants.InMemoryStore);
                 _messages.RemoveFirst();
+            }
 
+            Debug.WriteLine("Message Insertion", TraceConstants.InMemoryStore);
             _messages.AddLast(message);
         }
     }
