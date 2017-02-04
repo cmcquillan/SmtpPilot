@@ -58,6 +58,7 @@
     <Compile Include="Conversation\SmtpReply.cs" />
     <Compile Include="Conversation\EmailAddress.cs" />
     <Compile Include="Data\IMailStore.cs" />
+    <Compile Include="Data\InMemoryMailStore.cs" />
     <Compile Include="Data\XmlAddressList.cs" />
     <Compile Include="Data\XmlMailHeader.cs" />
     <Compile Include="Data\XmlMailMessage.cs" />
