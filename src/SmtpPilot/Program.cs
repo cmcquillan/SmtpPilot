@@ -16,7 +16,7 @@ namespace SmtpPilot
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
             var options = ConsoleParse.GetOptions(args);
-            var config = new SmtpPilotConfiguration(options.ListenIPAddress, options.ListenPort)
+            var config = new SmtpPilotConfiguration(options.ListenIPAddress, options.ListenPort, options.HostName)
             {
                 ClientTimeoutSeconds = 1000,
             };

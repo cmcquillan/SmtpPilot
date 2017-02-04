@@ -22,9 +22,9 @@ namespace SmtpPilot
                 WriteMailToFolderPath = DefaultPath,
             };
 
-            for(int i = 0; i < args.Length; i++)
+            for (int i = 0; i < args.Length; i++)
             {
-                switch(args[i])
+                switch (args[i])
                 {
                     case "-i":
                     case "--address":
@@ -38,7 +38,7 @@ namespace SmtpPilot
                             ConsoleBehavior.ExitWithError("Invalid port number.", ExitCode.InvalidArguments);
                         }
 
-                        options.ListenPort = port; 
+                        options.ListenPort = port;
                         break;
                     case "-s":
                     case "--save":
@@ -48,13 +48,15 @@ namespace SmtpPilot
                             options.WriteMailToFolderPath = args[++i];
                         }
                         break;
+                    case "-h":
+                    case "--host":
+                        options.HostName = args[++i];
+                        break;
                     default:
                         ConsoleBehavior.ExitWithError("Unrecognized argument.", ExitCode.InvalidArguments);
                         break;
                 }
-
             }
-
             return options;
         }
     }

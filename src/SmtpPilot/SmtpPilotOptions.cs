@@ -8,6 +8,8 @@ namespace SmtpPilot
 {
     internal class SmtpPilotOptions
     {
+        public string HostName { get; set; }
+
         internal bool WriteMailToFolder { get; set; }
 
         internal string WriteMailToFolderPath { get; set; }

@@ -13,7 +13,7 @@ namespace SmtpPilot.Server.States
     {
         public override void EnterState(ISmtpStateContext context)
         {
-            context.Reply(new SmtpReply(SmtpReplyCode.Code220, "Ord-Mantell SMTP Server Ready"));
+            context.Reply(new SmtpReply(SmtpReplyCode.Code220, $"{context.Configuration.HostName} Mock SMTP Server Ready"));
         }
 
         public override IConversationState ProcessData(ISmtpStateContext context, string line)

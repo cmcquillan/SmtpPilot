@@ -17,14 +17,21 @@ namespace SmtpPilot.Server
         public SmtpPilotConfiguration()
             : this(Localhost, DefaultSmtpPort)
         {
-
         }
 
-        public SmtpPilotConfiguration(string listenUri, int portNumber)
+        public SmtpPilotConfiguration(string listenIp, int portNumber)
+            : this(listenIp, portNumber, Environment.MachineName)
         {
-            Listeners.Add(new TcpClientListener(listenUri, portNumber));
-            ClientTimeoutSeconds = DefaultTimeoutSeconds;
         }
+
+        public SmtpPilotConfiguration(string listenIp, int portNumber, string hostName)
+        {
+            Listeners.Add(new TcpClientListener(listenIp, portNumber));
+            ClientTimeoutSeconds = DefaultTimeoutSeconds;
+            HostName = hostName;
+        }
+
+        public string HostName { get; set; }
 
         public IList<IMailClientListener> Listeners { get; } = new List<IMailClientListener>();
 
