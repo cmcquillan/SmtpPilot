@@ -15,6 +15,7 @@ namespace SmtpPilot.Server.IO
 {
     public class TcpMailClient : IMailClient, IDisposable
     {
+        private const byte _null = 0x00;
         private const byte _cr = 0x0D;
         private const byte _lf = 0x0A;
 
@@ -90,18 +91,26 @@ namespace SmtpPilot.Server.IO
                 _bufferPosition += _inputStream.Read(_buffer, _bufferPosition, remainingSpace);
             }
 
+            int initialScanPosition = _scanPosition;
+
             // Scan for a newline
             for (; _scanPosition < _buffer.Length; _scanPosition += 1)
             {
+                if (_buffer[_scanPosition] == _null)
+                    break;
+
                 if (_buffer.Length >= _scanPosition + 1
                     && _buffer[_scanPosition] == _cr
                     && _buffer[_scanPosition + 1] == _lf)
                 {
+                    Debug.WriteLine("Found newline in text.  Returning.");
                     foundLine = true;
                     _scanPosition += 1;
                     break;
                 }
             }
+
+            Debug.WriteLineIf(_scanPosition > initialScanPosition, $"Scan position advanced to {_scanPosition} from {initialScanPosition}.  No newline found.");
 
             if (foundLine)
             {
