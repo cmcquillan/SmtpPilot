@@ -21,7 +21,8 @@ namespace SmtpPilot.Client
                 message.Subject = "Hello, World";
                 message.Body = "This is my message";
 
-                client.Send(message);
+                for (int i = 0; i < 200; i++)
+                    client.Send(message);
                 client.Send(message);
                 client.Send(message);
                 client.Send(message);

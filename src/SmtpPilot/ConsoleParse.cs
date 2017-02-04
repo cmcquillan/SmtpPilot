@@ -26,6 +26,10 @@ namespace SmtpPilot
             {
                 switch (args[i])
                 {
+                    case "-m":
+                    case "--memory-store":
+                        options.WriteMailToMemory = true;
+                        break;
                     case "-i":
                     case "--address":
                         options.ListenIPAddress = args[++i];

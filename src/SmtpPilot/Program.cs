@@ -26,6 +26,11 @@ namespace SmtpPilot
                 config.MailStore = new XmlMailStore(options.WriteMailToFolderPath);
             }
 
+            if(options.WriteMailToMemory)
+            {
+                config.MailStore = new InMemoryMailStore();
+            }
+
             _server = new SMTPServer(config);
 
             ConsoleHooks.LogInfo("Starting mock SMTP server.");
