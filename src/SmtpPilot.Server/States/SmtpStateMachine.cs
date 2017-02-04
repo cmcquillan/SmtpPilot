@@ -65,46 +65,49 @@ namespace SmtpPilot.Server.States
         public void ProcessLine()
         {
             /* Steps:
-             * 1) Check if we have data.  If not, return.
-             * 2) Check if there is a new command in the data.
-             * 3) If yes:
+             * 1) Grab a line, exit if null received.
+             * 2) If line has a command:
              *     a) Create a new conversation element.
              *     b) Append to conversation.
              *     c) Check if new command is allowed.
-             *     d) If yes, continue to 4.
-             * 4) Read a line of conversation element and run ProcessData() on CurrentState.
-             * 5) Set new state according to return value of ProcessData().
+             *     d) If yes, continue to 3.
+             * 3) Read a line of conversation element and run ProcessData() on CurrentState.
+             * 4) Set new state according to return value of ProcessData().
              */
 
-            if (!Client.HasData)
-                return;
+            var line = Client.ReadLine();
 
-            SmtpCommand cmd = Client.PeekCommand();
-
-            Debug.WriteLine($"Received command: {cmd}.", TraceConstants.StateMachine);
-            if (cmd != SmtpCommand.NonCommand)
+            if (line != null)
             {
-                (_context as SmtpStateContext).Command = cmd;
-                string line = Client.ReadLine();
-                var command = new SmtpCmd(cmd, line);
-                Conversation.AddElement(command);
+                SmtpCommand cmd = SmtpCommand.NonCommand;
 
-                if(!CurrentState.AllowedCommands.HasFlag(cmd))
+                string commandString = (line?.Length >= 4) ? line.Substring(0, 4) : String.Empty;
+                Enum.TryParse(commandString, out cmd);
+
+                Debug.WriteLine($"Received command: {cmd}.", TraceConstants.StateMachine);
+
+                if (cmd != SmtpCommand.NonCommand)
                 {
-                    CurrentState = new ErrorConversationState();
-                    return;
+                    (_context as SmtpStateContext).Command = cmd;
+                    var command = new SmtpCmd(cmd, line);
+                    Conversation.AddElement(command);
+
+                    if (!CurrentState.AllowedCommands.HasFlag(cmd))
+                    {
+                        CurrentState = new ErrorConversationState();
+                        return;
+                    }
+
+                    CurrentState = CurrentState.ProcessNewCommand(_context, command, line);
+
+                    if (!(CurrentState is ErrorConversationState))
+                        _emailStats.AddCommandProcessed();
                 }
-
-                CurrentState = CurrentState.ProcessNewCommand(_context, command, line);
-
-                if (!(CurrentState is ErrorConversationState))
-                    _emailStats.AddCommandProcessed();
-            }
-            else
-            {
-                string line = Client.ReadLine();
-                (Conversation.LastElement as IAppendable)?.Append(line);
-                CurrentState = CurrentState.ProcessData(_context, line);
+                else
+                {
+                    (Conversation.LastElement as IAppendable)?.Append(line);
+                    CurrentState = CurrentState.ProcessData(_context, line);
+                }
             }
         }
 

@@ -15,17 +15,18 @@ namespace SmtpPilot.Server.IO
 {
     public class TcpMailClient : IMailClient, IDisposable
     {
-        private DateTime _lastDataAvailable;
-        private const int START_BUFFER_SIZE = 2048;
-        private readonly TcpClient _tcpClient;
+        private const byte _cr = 0x0D;
+        private const byte _lf = 0x0A;
+
+        private const int BUFFER_SIZE = 2048;
+        private DateTimeOffset _lastDataAvailable;
+        private TcpClient _tcpClient;
+        private NetworkStream _inputStream;
         private readonly int _clientId;
-        private readonly NetworkStream _inputStream;
-        private readonly StreamReader _reader;
-        private readonly StreamWriter _writer;
-        private char[] _buffer = new char[START_BUFFER_SIZE];
-        private int _bufferMultiple = 1;
-        private int _bufferReadPosition = 0;
-        private int _bufferDataPosition = 0;
+        private byte[] _buffer;
+        private int _bufferPosition = 0;
+        private int _scanPosition = 0;
+        private int _readPosition = 0;
 
         public TcpMailClient(TcpClient tcpClient)
             : this(tcpClient, tcpClient.Client.Handle.ToInt32())
@@ -38,169 +39,110 @@ namespace SmtpPilot.Server.IO
             _tcpClient = client;
             _clientId = clientId;
             _inputStream = _tcpClient.GetStream();
-            _reader = new StreamReader(_inputStream, Encoding.ASCII);
-            _writer = new StreamWriter(_inputStream, Encoding.ASCII, START_BUFFER_SIZE);
-            _lastDataAvailable = DateTime.Now;
+            _lastDataAvailable = DateTimeOffset.UtcNow;
+            _buffer = new byte[BUFFER_SIZE];
         }
 
-        public int ClientId
-        {
-            get { return _clientId; }
-        }
+        public int ClientId => _clientId;
+
+        public bool Disconnected => !(_tcpClient.Connected);
+
+        public bool HasData => _inputStream.DataAvailable;
+
+        public int SecondsClientHasBeenSilent => (int)(DateTimeOffset.UtcNow - _lastDataAvailable).TotalSeconds;
 
         public void Write(string message)
         {
-            Trace.WriteLine($"Writing message: {message}", TraceConstants.IO);
-            var s = _tcpClient.GetStream();
-            _writer.WriteLine(message);
-            _writer.Flush();
+            Debug.WriteLine($"Writing to transmission channel: {message}");
+            if (_tcpClient.Connected)
+            {
+                try
+                {
+                    byte[] messageBytes = Encoding.ASCII.GetBytes(message);
+                    _inputStream.Write(messageBytes, 0, messageBytes.Length);
+                    _inputStream.Write(new[] { _cr, _lf }, 0, 2);
+                    _inputStream.Flush();
+                }
+                catch (IOException)
+                {
+                    Debug.WriteLine("Client preemptively closed transmission channel.", TraceConstants.IO);
+                }
+            }
         }
 
         public string ReadLine()
         {
-            if (_inputStream.DataAvailable)
-                ReadToBuffer();
+            bool foundLine = false;
 
-            if (_bufferDataPosition > _bufferReadPosition)
+            while (_inputStream.DataAvailable)
             {
-                string s = IOHelper.GetLineFromBuffer(_buffer, _bufferReadPosition, _bufferDataPosition - _bufferReadPosition);
-                _bufferReadPosition += s.Length;
+                // Check remaining space and enlarge buffer if necessary.
+                int remainingSpace = _buffer.Length - _bufferPosition;
 
-                Trace.WriteLine($"Receiving input: {s}", TraceConstants.IO);
-                return s;
+                if (remainingSpace == 0)
+                {
+                    Debug.WriteLine("Performing buffer resize.", TraceConstants.IO);
+                    Array.Resize(ref _buffer, _buffer.Length * 2);
+                    continue;
+                }
+
+                // Fill the buffer.
+                _bufferPosition += _inputStream.Read(_buffer, _bufferPosition, remainingSpace);
+            }
+
+            // Scan for a newline
+            for (; _scanPosition < _buffer.Length; _scanPosition += 1)
+            {
+                if (_buffer.Length >= _scanPosition + 1
+                    && _buffer[_scanPosition] == _cr
+                    && _buffer[_scanPosition + 1] == _lf)
+                {
+                    foundLine = true;
+                    _scanPosition += 1;
+                    break;
+                }
+            }
+
+            if (foundLine)
+            {
+                int characterCount = _scanPosition - _readPosition + 1;
+
+                var str = Encoding.ASCII.GetString(_buffer, _readPosition, characterCount);
+                _readPosition += characterCount;
+
+                Debug.WriteLine($"Receiving from transmission channel: {str}");
+                return str;
             }
 
             return null;
         }
 
-        private void ReadToBuffer()
+        public SmtpCommand PeekCommand()
         {
-            while (_inputStream.DataAvailable)
-            {
-                int spaceLeftInBuffer = _buffer.Length - _bufferDataPosition;
-
-                int dataRead = _reader.Read(_buffer, _bufferDataPosition, spaceLeftInBuffer);
-                _bufferDataPosition += dataRead;
-
-                if (dataRead == spaceLeftInBuffer)
-                {
-                    Trace.WriteLine($"Performing buffer adjustment.", TraceConstants.IO);
-                    AdjustBuffer();
-                }
-            }
-        }
-
-        private void AdjustBuffer()
-        {
-            if (_bufferReadPosition > 0)
-            {
-                ReallocateBuffer();
-                return;
-            }
-
-            _bufferMultiple += 1;
-            ReallocateBuffer();
-        }
-
-        private void ReallocateBuffer()
-        {
-            char[] newBuf = new char[START_BUFFER_SIZE * _bufferMultiple];
-            Array.Copy(_buffer, _bufferReadPosition, newBuf, 0, _bufferDataPosition - _bufferReadPosition);
-            _bufferDataPosition = _bufferDataPosition - _bufferReadPosition;
-            _bufferReadPosition = 0;
+            SmtpCommand cmd = SmtpCommand.NonCommand;
+            Enum.TryParse(Encoding.ASCII.GetString(_buffer, _bufferPosition, 4), out cmd);
+            return cmd;
         }
 
         public void Disconnect()
         {
-            _inputStream.Close();
-            _tcpClient.Close();
-        }
-
-
-        public bool Disconnected
-        {
-            get { return !_tcpClient.Connected; }
-        }
-
-
-        public SmtpCommand PeekCommand()
-        {
-            ReadToBuffer();
-
-            if ((_bufferDataPosition - _bufferReadPosition) < 4)
-                return SmtpCommand.NonCommand;
-
-            char[] cmdText = new char[4];
-
-            for (int i = 0; i < cmdText.Length; i++)
-            {
-                cmdText[i] = _buffer[_bufferReadPosition + i];
-            }
-
-            return IOHelper.GetCommand(cmdText);
-        }
-
-        public bool HasData
-        {
-            get
-            {
-                ReadToBuffer();
-                bool returnValue = BufferHasNewLine();
-
-                if (returnValue)
-                    _lastDataAvailable = DateTime.Now;
-
-                return returnValue;
-            }
-        }
-
-        public int SecondsClientHasBeenSilent
-        {
-            get
-            {
-                return (int)(DateTime.Now - _lastDataAvailable).TotalSeconds;
-            }
-        }
-
-        private bool BufferHasNewLine()
-        {
-            char[] newLine = Environment.NewLine.ToCharArray();
-            int lengthEqual = 0;
-
-            for(int i = _bufferReadPosition; i < _bufferDataPosition; i++)
-            {
-                if (_buffer[i] == newLine[lengthEqual])
-                    lengthEqual++;
-                else
-                    lengthEqual = 0;
-
-                if (lengthEqual == newLine.Length)
-                    return true;
-            }
-
-            return false;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if(disposing)
-            {
-                _inputStream.Dispose();
-                _reader.Dispose();
-                _writer.Dispose();
-                _tcpClient.Close();
-            }
+            _tcpClient?.Close();
         }
 
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(true);
         }
 
-        ~TcpMailClient()
+        private void Dispose(bool disposing)
         {
-            Dispose(false);
+            if (disposing)
+            {
+                Disconnect();
+                _inputStream?.Dispose();
+                _inputStream = null;
+                _tcpClient = null;
+            }
         }
     }
 }

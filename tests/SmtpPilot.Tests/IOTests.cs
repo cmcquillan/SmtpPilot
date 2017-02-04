@@ -23,37 +23,6 @@ namespace SmtpPilot.Tests
             Assert.AreEqual(numEmails, emails.Length);
         }
 
-
-        [Test]
-        public void GetLineFromBufferRetrievesLineData()
-        {
-            string testString = "This is the first line\r\nThis is the second line.\r\n";
-
-            string line = IOHelper.GetLineFromBuffer(testString.ToCharArray(), 0, testString.Length);
-
-            Assert.AreEqual("This is the first line\r\n", line);
-        }
-
-        [Test]
-        public void GetLineFromBufferSkipsOrphanedCarriageReturns()
-        {
-            string testString = "This is\r an \r errant line\r\nThis is the second line.\r\n";
-
-            string line = IOHelper.GetLineFromBuffer(testString.ToCharArray(), 0, testString.Length);
-
-            Assert.AreEqual("This is\r an \r errant line\r\n", line);
-        }
-
-        [Test]
-        public void GetLineFromBufferRetrievesLineDataWithOffset()
-        {
-            string testString = "This is the first line\r\nThis is the second line.\r\n";
-
-            string line = IOHelper.GetLineFromBuffer(testString.ToCharArray(), 24, testString.Length - 24);
-
-            Assert.AreEqual("This is the second line.\r\n", line);
-        }
-
         [Test]
         public void GetCommandParsesSmtpCommands()
         {

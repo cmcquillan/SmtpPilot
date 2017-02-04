@@ -62,32 +62,6 @@ namespace SmtpPilot.Server.IO
             return false;
         }
 
-        public static string GetLineFromBuffer(char[] buffer, int offset, int limit)
-        {
-            bool carriageReturnFound = false;
-            int i, n;
-
-            for(i = offset, n = 0; i < offset + limit; i++, n++)
-            {
-                if (buffer[i] == ASCIICarriageReturn)
-                {
-                    carriageReturnFound = true;
-                    continue;
-                }
-
-                if (buffer[i] == ASCIILineFeed && carriageReturnFound)
-                    break;
-
-                carriageReturnFound = false;
-            }
-
-            n++;
-            char[] strBuf = new char[n];
-
-            Array.Copy(buffer, offset, strBuf, 0, n);
-            return new string(strBuf);
-        }
-
         public static string[] ParseEmails(string s)
         {
             var matches = _mailFromRegex.Matches(s);
