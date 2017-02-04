@@ -8,7 +8,6 @@ namespace SmtpPilot.Tests.Text
     internal class TextMailClient : IMailClient, IDisposable
     {
         private StreamReader _stream;
-        private bool _streamRead;
 
         public TextMailClient(Stream stream)
         {
@@ -26,11 +25,6 @@ namespace SmtpPilot.Tests.Text
         public void Disconnect()
         {
             // Intentionally Empty
-        }
-
-        public SmtpCommand PeekCommand()
-        {
-            throw new NotImplementedException();
         }
 
         public string ReadLine()

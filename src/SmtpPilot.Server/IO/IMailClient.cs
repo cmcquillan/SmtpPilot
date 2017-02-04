@@ -14,8 +14,6 @@ namespace SmtpPilot.Server.IO
 
         string ReadLine();
 
-        SmtpCommand PeekCommand();
-
         void Disconnect();
 
         bool Disconnected { get; }

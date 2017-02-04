@@ -22,5 +22,8 @@ namespace SmtpPilot.Server.Internal
         internal static string OKText { get { return "OK"; } }
         internal static string QuitText { get { return "Server closing transmission channel."; } }
         internal static string BeginDataText { get { return "Start mail input; end with < CRLF >.< CRLF > "; } }
+
+        internal const int BufferCompressionThreshold = 16384;
+        internal const int BufferCompressionScanThreshold = 8192;
     }
 }

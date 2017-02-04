@@ -1,4 +1,5 @@
 ﻿using SmtpPilot.Server.Conversation;
+using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.States;
 using System;
 using System.Collections.Concurrent;
@@ -105,7 +106,7 @@ namespace SmtpPilot.Server.IO
                 {
                     Debug.WriteLine("Found newline in text.  Returning.");
                     foundLine = true;
-                    _scanPosition += 1;
+                    _scanPosition += 2;
                     break;
                 }
             }
@@ -114,23 +115,47 @@ namespace SmtpPilot.Server.IO
 
             if (foundLine)
             {
-                int characterCount = _scanPosition - _readPosition + 1;
+                int characterCount = _scanPosition - _readPosition;
 
                 var str = Encoding.ASCII.GetString(_buffer, _readPosition, characterCount);
                 _readPosition += characterCount;
 
                 Debug.WriteLine($"Receiving from transmission channel: {str}");
+
+                if (_buffer.Length >= Constants.BufferCompressionThreshold
+                    && _scanPosition > Constants.BufferCompressionScanThreshold)
+                {
+                    Debug.WriteLine("Performing buffer compression.");
+                    CompressBuffer();
+                }
+
                 return str;
             }
 
             return null;
         }
 
-        public SmtpCommand PeekCommand()
+        private void CompressBuffer()
         {
-            SmtpCommand cmd = SmtpCommand.NonCommand;
-            Enum.TryParse(Encoding.ASCII.GetString(_buffer, _bufferPosition, 4), out cmd);
-            return cmd;
+            int readIndex = _readPosition, copyPos = 0;
+            for (; readIndex < _buffer.Length; readIndex++, copyPos++)
+            {
+                if (_buffer[readIndex] == _null)
+                    break;
+
+                _buffer[copyPos] = _buffer[readIndex];
+            }
+
+            _bufferPosition = copyPos;
+
+            for (;copyPos < _buffer.Length; copyPos++)
+            {
+                _buffer[copyPos] = _null;
+            }
+
+            _readPosition = 0;
+            _scanPosition = 0;
+
         }
 
         public void Disconnect()
