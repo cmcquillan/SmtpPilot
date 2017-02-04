@@ -84,6 +84,9 @@ namespace SmtpPilot.Server.States
                 string commandString = (line?.Length >= 4) ? line.Substring(0, 4) : String.Empty;
                 Enum.TryParse(commandString, out cmd);
 
+                if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
+                    cmd = SmtpCommand.NonCommand;
+
                 Debug.WriteLine($"Received command: {cmd}.", TraceConstants.StateMachine);
 
                 if (cmd != SmtpCommand.NonCommand)
