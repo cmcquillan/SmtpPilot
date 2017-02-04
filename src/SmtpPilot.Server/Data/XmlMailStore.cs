@@ -29,13 +29,13 @@ namespace SmtpPilot.Server.Data
             }
             else
             {
-                _storagePath = Path.Combine(Path.DirectorySeparatorChar.ToString(), path);
+                _storagePath = Path.Combine(Environment.CurrentDirectory, path);
             }
         }
 
         public void SaveMessage(IMessage message)
         {
-            string fileName = String.Format("{0}-{1}.xml", DateTime.Now.ToString("yyyy-dd-MM"), Guid.NewGuid());
+            string fileName = Path.Combine(_storagePath, String.Format("{0}-{1}.xml", DateTime.Now.ToString("yyyy-dd-MM"), Guid.NewGuid()));
             var msg = XmlMailMessage.FromMessage(message);
 
             using (var stream = File.OpenWrite(fileName))
