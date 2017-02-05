@@ -23,7 +23,7 @@ namespace SmtpPilot
 
             if(options.WriteMailToFolder)
             {
-                config.MailStore = new XmlMailStore(options.WriteMailToFolderPath);
+                config.MailStore = new JsonMailStore(options.WriteMailToFolderPath);
             }
 
             if(options.WriteMailToMemory)
