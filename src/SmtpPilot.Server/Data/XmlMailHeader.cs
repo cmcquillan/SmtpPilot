@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Data
 {
-    [DataContract]
+    [DataContract(Namespace = XmlMailMessage.Namespace)]
     internal class XmlMailHeader
     {
         [DataMember]

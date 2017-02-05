@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Data
 {
-    [CollectionDataContract]
+    [CollectionDataContract(Namespace = XmlMailMessage.Namespace)]
     internal class XmlAddressList : Collection<string>
     {
         protected XmlAddressList() { }

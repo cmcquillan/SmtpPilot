@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Data
 {
-    [DataContract]
+    [DataContract(Namespace = XmlMailMessage.Namespace)]
     internal class XmlMailMessage
     {
-        internal const string Namespace = "https://github.com/cmcquillan/SmtpPilot/08/2016/XmlMail";
+        internal const string Namespace = "https://quilltechnologies.com/Contracts/SmtpPilot/02/2017/XmlMail";
 
         [DataMember(Order = 0)]
         internal string From { get; set; }
