@@ -18,7 +18,7 @@ namespace SmtpPilot.Server.States
 
         public override SmtpCommand AllowedCommands
         {
-            get { return base.AllowedCommands | SmtpCommand.MAIL; }
+            get { return base.AllowedCommands | SmtpCommand.MAIL | SmtpCommand.VRFY; }
         }
 
 
@@ -41,6 +41,9 @@ namespace SmtpPilot.Server.States
                     context.SetFrom(from);
                     
                     return new RecipientConversationState();
+                case SmtpCommand.VRFY:
+                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Format("{0} <{0}@{1}>", cmd.Args, context.Configuration.HostName)));
+                    return this;
                 default:
                     return base.ProcessData(context, cmd, line);
             }

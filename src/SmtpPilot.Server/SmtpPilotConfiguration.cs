@@ -32,7 +32,7 @@ namespace SmtpPilot.Server
         public SmtpPilotConfiguration(IEnumerable<IMailClientListener> listeners, string hostname)
         {
             ClientTimeoutSeconds = DefaultTimeoutSeconds;
-            HostName = hostname;
+            HostName = hostname ?? Environment.MachineName;
 
             foreach (var l in listeners)
                 Listeners.Add(l);
