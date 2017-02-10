@@ -17,7 +17,7 @@ namespace SmtpPilot.Server.Data
 
         public JsonMailStore(string path = ".")
         {
-            if(Path.IsPathRooted(path))
+            if (Path.IsPathRooted(path))
             {
                 _path = path;
             }
@@ -29,7 +29,7 @@ namespace SmtpPilot.Server.Data
             _serializer = new DataContractJsonSerializer(typeof(XmlMailMessage), new DataContractJsonSerializerSettings
             {
                 KnownTypes = new[]
-    {
+                {
                     typeof(XmlMailHeader),
                     typeof(XmlAddressList)
                 },
