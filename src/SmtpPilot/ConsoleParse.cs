@@ -10,6 +10,8 @@ namespace SmtpPilot
     {
         internal const int DefaultPort = 25;
         internal const string DefaultIp = "127.0.0.1";
+        internal const string AnyIpToken = "any";
+        internal const string AnyIp = "0.0.0.0";
         internal const string DefaultPath = ".";
 
         internal static SmtpPilotOptions GetOptions(string[] args)
@@ -32,7 +34,12 @@ namespace SmtpPilot
                         break;
                     case "-i":
                     case "--address":
-                        options.ListenIPAddress = args[++i];
+                        string ipArg = args[++i];
+
+                        if (String.Equals(ipArg, AnyIpToken))
+                            ipArg = AnyIp;
+
+                        options.ListenIPAddress = ipArg;
                         break;
                     case "-p":
                     case "--port":
@@ -55,6 +62,10 @@ namespace SmtpPilot
                     case "-h":
                     case "--host":
                         options.HostName = args[++i];
+                        break;
+                    case "-l":
+                    case "--headless":
+                        options.Headless = true;
                         break;
                     default:
                         ConsoleBehavior.ExitWithError("Unrecognized argument.", ExitCode.InvalidArguments);

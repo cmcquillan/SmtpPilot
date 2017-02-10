@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot
@@ -44,7 +45,16 @@ namespace SmtpPilot
 
             ConsoleHooks.LogInfo("Press 'q' to stop server.");
 
-            while (Console.ReadKey(true).KeyChar != 'q') { }
+            while (true)
+            {
+                if(!options.Headless)
+                {
+                    if (Console.ReadKey().KeyChar == 'q')
+                        break;
+                }
+
+                Thread.Sleep(100);
+            }
 
             ConsoleHooks.LogInfo("Shutting down mock SMTP server.");
             _server.Stop();
