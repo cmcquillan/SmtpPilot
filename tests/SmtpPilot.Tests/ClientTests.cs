@@ -21,7 +21,7 @@ namespace SmtpPilot.Tests
             {
                 var config = TestHelper.GetConfig(TestHelper.BasicMessage);
                 var server = new SMTPServer(config);
-                server.EmailProcessed += (s, evt) =>
+                server.Events.EmailProcessed += (s, evt) =>
                 {
                     server.Stop();  
                 };
@@ -39,7 +39,7 @@ namespace SmtpPilot.Tests
             {
                 var config = TestHelper.GetConfig(TestHelper.LongMessage);
                 var server = new SMTPServer(config);
-                server.EmailProcessed += (s, evt) =>
+                server.Events.EmailProcessed += (s, evt) =>
                 {
                     server.Stop();
                 };

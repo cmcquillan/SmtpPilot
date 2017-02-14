@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using SmtpPilot.Server;
+using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,13 +28,28 @@ namespace SmtpPilot.Tests
         }
 
         [Test]
+        public void ClientConnectedEventPassesServerAsSender()
+        {
+            SMTPServer theServer = null;
+            Server.Events.ClientConnected += (s, e) =>
+            {
+                theServer = s as SMTPServer;
+                Server.Stop();
+            };
+
+            Server.Run();
+            Assert.IsNotNull(theServer);
+            Assert.IsInstanceOf<SMTPServer>(theServer);
+        }
+
+        [Test]
         public void ClientConnectedEventFires()
         {
             bool connected = false;
-            Server.ClientConnected += (s, e) =>
+            Server.Events.ClientConnected += (s, e) =>
             {
                 connected = true;
-                (s as SMTPServer).Stop();
+                Server.Stop();
             };
 
             Server.Run();
@@ -41,13 +57,28 @@ namespace SmtpPilot.Tests
         }
 
         [Test]
+        public void ClientDisconnectedEventPassesServerAsSender()
+        {
+            SMTPServer theServer = null;
+            Server.Events.ClientDisconnected += (s, e) =>
+            {
+                theServer = s as SMTPServer;
+                Server.Stop();
+            };
+
+            Server.Run();
+            Assert.IsNotNull(theServer);
+            Assert.IsInstanceOf<SMTPServer>(theServer);
+        }
+
+        [Test]
         public void ClientDisconnectedEventFires()
         {
             bool disconnected = false;
-            Server.ClientDisconnected += (s, e) =>
+            Server.Events.ClientDisconnected += (s, e) =>
             {
                 disconnected = true;
-                (s as SMTPServer).Stop();
+                Server.Stop();
             };
 
             Server.Run();
@@ -55,10 +86,25 @@ namespace SmtpPilot.Tests
         }
 
         [Test]
+        public void MailSentEventPassesClientAsSender()
+        {
+            IMailClient theClient = null;
+            Server.Events.EmailProcessed += (s, e) =>
+            {
+                theClient = s as IMailClient;
+                Server.Stop();
+            };
+
+            Server.Run();
+            Assert.IsNotNull(theClient);
+            Assert.IsInstanceOf<IMailClient>(theClient);
+        }
+
+        [Test]
         public void MailSentEventFires()
         {
             bool emailSent = false;
-            Server.EmailProcessed += (s, e) =>
+            Server.Events.EmailProcessed += (s, e) =>
             {
                 emailSent = true;
                 Server.Stop();
@@ -72,11 +118,11 @@ namespace SmtpPilot.Tests
         public void ExceptionInConnectedEventDoesNotInterruptServer()
         {
             bool eventFired = false;
-            Server.ClientConnected += (s, e) =>
+            Server.Events.ClientConnected += (s, e) =>
             {
-                (s as SMTPServer).Stop();
+                Server.Stop();
             };
-            Server.ClientConnected += (s, e) =>
+            Server.Events.ClientConnected += (s, e) =>
             {
                 eventFired = true;
                 throw new Exception("I'm a bad monkey.");
@@ -94,11 +140,11 @@ namespace SmtpPilot.Tests
         public void ExceptionInDisconnectedEventDoesNotInterruptServer()
         {
             bool eventFired = false;
-            Server.ClientDisconnected += (s, e) =>
+            Server.Events.ClientDisconnected += (s, e) =>
             {
-                (s as SMTPServer).Stop();
+                Server.Stop();
             };
-            Server.ClientDisconnected += (s, e) =>
+            Server.Events.ClientDisconnected += (s, e) =>
             {
                 eventFired = true;
                 throw new Exception("I'm a bad monkey.");
@@ -116,11 +162,11 @@ namespace SmtpPilot.Tests
         public void ExceptionInMailEventDoesNotInterruptServer()
         {
             bool eventFired = false;
-            Server.EmailProcessed += (s, e) =>
+            Server.Events.EmailProcessed += (s, e) =>
             {
                 Server.Stop();
             };
-            Server.EmailProcessed += (s, e) =>
+            Server.Events.EmailProcessed += (s, e) =>
             {
                 eventFired = true;
                 throw new Exception("I'm a bad monkey.");

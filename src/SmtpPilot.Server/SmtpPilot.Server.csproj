@@ -81,6 +81,7 @@
     <Compile Include="SMTPServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmtpPilotConfiguration.cs" />
+    <Compile Include="SmtpServerEvents.cs" />
     <Compile Include="States\AcceptMailConversationState.cs" />
     <Compile Include="States\DataConversationState.cs" />
     <Compile Include="States\ErrorConversationState.cs" />

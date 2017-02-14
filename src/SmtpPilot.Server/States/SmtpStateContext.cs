@@ -25,24 +25,6 @@ namespace SmtpPilot.Server.States
             _command = command;
         }
 
-        protected virtual void OnEmailProcessed(EmailProcessedEventArgs eventArgs)
-        {
-            EmailProcessedEventHandler handler = EmailProcessed;
-
-            if (handler != null)
-            {
-                foreach (EmailProcessedEventHandler sub in handler.GetInvocationList())
-                {
-                    try
-                    {
-                        sub(this, eventArgs);
-                    }
-                    catch (Exception)
-                    { }
-                }
-            }
-        }
-
         public EmailStatistics Statistics => _stats;
 
         public IMailClient Client => _client;
@@ -111,7 +93,7 @@ namespace SmtpPilot.Server.States
         public void CompleteMessage()
         {
             Conversation.CurrentMessage.Complete();
-            OnEmailProcessed(new EmailProcessedEventArgs(_client, _conversation.CurrentMessage, _stats));
+            Configuration.ServerEvents.OnEmailProcessed(_client, new EmailProcessedEventArgs(_client, _conversation.CurrentMessage, _stats));
         }
 
         public void NewMessage()

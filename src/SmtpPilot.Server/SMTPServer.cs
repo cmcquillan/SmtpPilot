@@ -28,13 +28,13 @@ namespace SmtpPilot.Server
 
         public SMTPServer(SmtpPilotConfiguration configuration)
         {
-            _listeners = new List<IMailClientListener>(configuration.Listeners);
-            EmailProcessed += TrackEmailStatistics;
             _configuration = configuration;
+            _listeners = new List<IMailClientListener>(configuration.Listeners);
+            Events.EmailProcessed += TrackEmailStatistics;
 
             if(_configuration.MailStore != null)
             {
-                EmailProcessed += (o, eva) => _configuration.MailStore.SaveMessage(eva.Message);
+                Events.EmailProcessed += (o, eva) => _configuration.MailStore.SaveMessage(eva.Message);
             }
         }
 
@@ -49,116 +49,15 @@ namespace SmtpPilot.Server
             _emailStats.AddEmailReceived();
         }
 
+        public SmtpServerEvents Events
+        {
+            get
+            {
+                return _configuration.ServerEvents;
+            }
+        }
+
         public EmailStatistics Statistics { get { return _emailStats; } }
-
-        public event MailClientConnectedEventHandler ClientConnected;
-
-        public event MailClientDisconnectedEventHandler ClientDisconnected;
-
-        public event ServerStartedEventHandler ServerStarted;
-
-        public event ServerStoppedEventHandler ServerStopped;
-
-        private event EmailProcessedEventHandler _internalEmailProcessed;
-
-        public event EmailProcessedEventHandler EmailProcessed
-        {
-            /*
-             * CONSIDER:  This could be an expensive operation is lots of 
-             * concurrent connections are taking place.  There might be reason 
-             * to "drop" hooking into existing conversations.  If that is not an
-             * option, we could potentially parallelize this, since event adds/removes
-             * are atomic operations behind the scenes.
-             */
-            add
-            {
-                _internalEmailProcessed += value;
-                foreach (var c in _conversations)
-                {
-                    c.Value.Context.EmailProcessed += value;
-                }
-            }
-            remove
-            {
-                _internalEmailProcessed -= value;
-                foreach (var c in _conversations)
-                {
-                    c.Value.Context.EmailProcessed -= value;
-                }
-            }
-        }
-
-        protected virtual void OnClientConnected(MailClientConnectedEventArgs eventArgs)
-        {
-            MailClientConnectedEventHandler handler = ClientConnected;
-
-            if (handler != null)
-            {
-                foreach (MailClientConnectedEventHandler sub in handler.GetInvocationList())
-                {
-                    try
-                    {
-                        sub(this, eventArgs);
-                    }
-                    catch (Exception)
-                    { }
-                }
-            }
-        }
-
-        protected virtual void OnClientDisconnected(MailClientDisconnectedEventArgs eventArgs)
-        {
-            MailClientDisconnectedEventHandler handler = ClientDisconnected;
-
-            if (handler != null)
-            {
-                foreach (MailClientDisconnectedEventHandler sub in handler.GetInvocationList())
-                {
-                    try
-                    {
-                        sub(this, eventArgs);
-                    }
-                    catch (Exception)
-                    { }
-                }
-            }
-        }
-
-        protected virtual void OnServerStart(ServerEventArgs eventArgs)
-        {
-            ServerStartedEventHandler handler = ServerStarted;
-
-            if(handler != null)
-            {
-                foreach(ServerStartedEventHandler sub in handler.GetInvocationList())
-                {
-                    try
-                    {
-                        sub(this, eventArgs);
-                    }
-                    catch (Exception)
-                    { }
-                }
-            }
-        }
-
-        protected virtual void OnServerStop(ServerEventArgs eventArgs)
-        {
-            ServerStoppedEventHandler handler = ServerStopped;
-
-            if(handler != null)
-            {
-                foreach(ServerStoppedEventHandler sub in handler.GetInvocationList())
-                {
-                    try
-                    {
-                        sub(this, eventArgs);
-                    }
-                    catch (Exception)
-                    { }
-                }
-            }
-        }
 
         public void Start()
         {
@@ -177,7 +76,7 @@ namespace SmtpPilot.Server
             _running = true;
             _emailStats.SetStart();
 
-            OnServerStart(new ServerEventArgs(this, ServerEventType.Started));
+            Events.OnServerStart(this, new ServerEventArgs(this, ServerEventType.Started));
 
             while (_running)
             {
@@ -187,13 +86,12 @@ namespace SmtpPilot.Server
                     {
                         var c = listener.AcceptClient();
 
-                        OnClientConnected(new MailClientConnectedEventArgs(c));
+                        Events.OnClientConnected(this, new MailClientConnectedEventArgs(c));
 
                         _clients.Add(c);
                         _emailStats.AddClient(1);
                         var conversation = new SmtpConversation();
                         var stateMachine = new SmtpStateMachine(c, conversation, _emailStats, _configuration);
-                        stateMachine.Context.EmailProcessed += _internalEmailProcessed;
                         _conversations[c.ClientId] = stateMachine;
                     }
                 }
@@ -203,7 +101,7 @@ namespace SmtpPilot.Server
                     if (client.Disconnected)
                     {
                         _clientsToRemove.Add(client);
-                        OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.ClientDisconnect));
+                        Events.OnClientDisconnected(this, new MailClientDisconnectedEventArgs(client, DisconnectReason.ClientDisconnect));
                         continue;
                     }
 
@@ -211,7 +109,7 @@ namespace SmtpPilot.Server
                     {
                         _clientsToRemove.Add(client);
                         client.Disconnect();
-                        OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.TransactionCompleted));
+                        Events.OnClientDisconnected(this, new MailClientDisconnectedEventArgs(client, DisconnectReason.TransactionCompleted));
                         continue;
                     }
 
@@ -221,7 +119,7 @@ namespace SmtpPilot.Server
                     {
                         _clientsToRemove.Add(client);
                         client.Disconnect();
-                        OnClientDisconnected(new MailClientDisconnectedEventArgs(client, DisconnectReason.ClientTimeout));
+                        Events.OnClientDisconnected(this, new MailClientDisconnectedEventArgs(client, DisconnectReason.ClientTimeout));
                     }
                 }
 
@@ -243,7 +141,7 @@ namespace SmtpPilot.Server
             foreach (var listener in _listeners)
                 (listener as IDisposable)?.Dispose();
 
-            OnServerStop(new ServerEventArgs(this, ServerEventType.Stopped));
+            Events.OnServerStop(this, new ServerEventArgs(this, ServerEventType.Stopped));
         }
     }
 }

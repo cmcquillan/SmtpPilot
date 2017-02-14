@@ -32,15 +32,16 @@ namespace SmtpPilot
                 config.MailStore = new InMemoryMailStore();
             }
 
+            config.ServerEvents.ClientConnected += ConsoleHooks.Server_ClientConnected;
+            config.ServerEvents.ClientDisconnected += ConsoleHooks.Server_ClientDisconnected;
+            config.ServerEvents.EmailProcessed += ConsoleHooks.Server_EmailProcessed;
+            config.ServerEvents.ServerStarted += ConsoleHooks.Server_Started;
+            config.ServerEvents.ServerStopped += ConsoleHooks.Server_Stopped;
+
             _server = new SMTPServer(config);
 
             ConsoleHooks.LogInfo("Starting mock SMTP server.");
 
-            _server.ClientConnected += ConsoleHooks.Server_ClientConnected;
-            _server.ClientDisconnected += ConsoleHooks.Server_ClientDisconnected;
-            _server.EmailProcessed += ConsoleHooks.Server_EmailProcessed;
-            _server.ServerStarted += ConsoleHooks.Server_Started;
-            _server.ServerStopped += ConsoleHooks.Server_Stopped;
             _server.Start();
 
             ConsoleHooks.LogInfo("Press 'q' to stop server.");

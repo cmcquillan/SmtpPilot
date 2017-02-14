@@ -31,6 +31,7 @@ namespace SmtpPilot.Server
 
         public SmtpPilotConfiguration(IEnumerable<IMailClientListener> listeners, string hostname)
         {
+            ServerEvents = new SmtpServerEvents();
             ClientTimeoutSeconds = DefaultTimeoutSeconds;
             HostName = hostname ?? Environment.MachineName;
 
@@ -45,5 +46,7 @@ namespace SmtpPilot.Server
         public int ClientTimeoutSeconds { get; set; }
 
         public IMailStore MailStore { get; set; }
+
+        public SmtpServerEvents ServerEvents { get; set; }
     }
 }
