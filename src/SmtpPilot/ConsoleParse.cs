@@ -38,10 +38,11 @@ namespace SmtpPilot
 
                         foreach (var ipAddr in ipList)
                         {
-                            if (String.Equals(ipAddr, AnyIpToken))
-                                ipArg = AnyIp;
+                            string ipToAdd = ipAddr;
+                            if (String.Equals(ipToAdd, AnyIpToken))
+                                ipToAdd = AnyIp;
 
-                            options.ListenIPAddress.Add(ipAddr);
+                            options.ListenIPAddress.Add(ipToAdd);
                         }
                         break;
                     case "-p":
