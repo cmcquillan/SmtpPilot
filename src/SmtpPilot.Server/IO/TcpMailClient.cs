@@ -24,19 +24,19 @@ namespace SmtpPilot.Server.IO
         private DateTimeOffset _lastDataAvailable;
         private TcpClient _tcpClient;
         private NetworkStream _inputStream;
-        private readonly int _clientId;
+        private readonly Guid _clientId;
         private byte[] _buffer;
         private int _bufferPosition = 0;
         private int _scanPosition = 0;
         private int _readPosition = 0;
 
         public TcpMailClient(TcpClient tcpClient)
-            : this(tcpClient, tcpClient.Client.Handle.ToInt32())
+            : this(tcpClient, Guid.NewGuid())
         {
 
         }
 
-        public TcpMailClient(TcpClient client, int clientId)
+        public TcpMailClient(TcpClient client, Guid clientId)
         {
             _tcpClient = client;
             _clientId = clientId;
@@ -45,7 +45,7 @@ namespace SmtpPilot.Server.IO
             _buffer = new byte[BUFFER_SIZE];
         }
 
-        public int ClientId => _clientId;
+        public Guid ClientId => _clientId;
 
         public bool Disconnected => !(_tcpClient.Connected);
 
@@ -160,7 +160,7 @@ namespace SmtpPilot.Server.IO
 
         public void Disconnect()
         {
-            _tcpClient?.Close();
+            _tcpClient?.Dispose();
         }
 
         public void Dispose()

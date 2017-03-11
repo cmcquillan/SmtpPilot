@@ -11,7 +11,7 @@ namespace SmtpPilot.Server
             ClientId = Client.ClientId;
         }
 
-        public int ClientId { get; }
+        public Guid ClientId { get; }
 
         public IMailClient Client { get; }
     }

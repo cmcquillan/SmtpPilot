@@ -29,7 +29,7 @@ namespace SmtpPilot.Server.Data
             }
             else
             {
-                _storagePath = Path.Combine(Environment.CurrentDirectory, path);
+                _storagePath = Path.Combine(Directory.GetCurrentDirectory(), path);
             }
         }
 

@@ -33,10 +33,8 @@ namespace SmtpPilot.Server.IO
 
         public IMailClient AcceptClient()
         {
-            var client = _listener.AcceptTcpClient();
-            int clientId = client.Client.Handle.ToInt32();
-
-            return new TcpMailClient(client, clientId);
+            var client = _listener.AcceptTcpClientAsync().Result;
+            return new TcpMailClient(client, Guid.NewGuid());
         }
 
         protected void Dispose(bool disposing)
