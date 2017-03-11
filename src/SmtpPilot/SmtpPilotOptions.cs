@@ -18,7 +18,7 @@ namespace SmtpPilot
 
         internal bool WriteMailToMemory { get; set; }
 
-        internal string ListenIPAddress { get; set; }
+        internal List<string> ListenIPAddress { get; set; } = new List<string>();
 
         internal int ListenPort { get; set; }
     }

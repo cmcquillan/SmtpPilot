@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -19,8 +20,18 @@ namespace SmtpPilot.Server.IO
             _ipString = ipString;
             _ipPort = ipPort;
             _ipAddress = IPAddress.Parse(ipString);
-            _listener = new TcpListener(_ipAddress, ipPort);
-            _listener.Start();
+
+            try
+            {
+                _listener = new TcpListener(_ipAddress, ipPort);
+                _listener.Start();
+            }
+            catch (SocketException ex)
+            {
+                string msg = $"Could not open listener connection to {_ipString}: {ex.SocketErrorCode}";
+                Debug.WriteLine(msg, TraceConstants.TcpConnection);
+                throw new MailServerStartupException(msg, ex);
+            }
         }
 
         public bool ClientPending

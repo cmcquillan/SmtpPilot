@@ -19,7 +19,6 @@ namespace SmtpPilot
             var options = new SmtpPilotOptions()
             {
                 ListenPort = DefaultPort,
-                ListenIPAddress = DefaultIp,
                 WriteMailToFolder = false,
                 WriteMailToFolderPath = DefaultPath,
             };
@@ -35,11 +34,15 @@ namespace SmtpPilot
                     case "-i":
                     case "--address":
                         string ipArg = args[++i];
+                        var ipList = ipArg.Split(new[] { ',' }, StringSplitOptions.None);
 
-                        if (String.Equals(ipArg, AnyIpToken))
-                            ipArg = AnyIp;
+                        foreach (var ipAddr in ipList)
+                        {
+                            if (String.Equals(ipAddr, AnyIpToken))
+                                ipArg = AnyIp;
 
-                        options.ListenIPAddress = ipArg;
+                            options.ListenIPAddress.Add(ipAddr);
+                        }
                         break;
                     case "-p":
                     case "--port":
@@ -72,6 +75,10 @@ namespace SmtpPilot
                         break;
                 }
             }
+
+            if (options.ListenIPAddress.Count == 0)
+                options.ListenIPAddress.Add(DefaultIp);
+
             return options;
         }
     }
