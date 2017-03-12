@@ -10,14 +10,14 @@ namespace SmtpPilot.WebHooks.Controllers
     {
         [Route("status")]
         [HttpGet]
-        public IActionResult GetStatus()
+        public virtual IActionResult GetStatus()
         {
             return Ok("Service Online");
         }
 
         [Route("email")]
         [HttpPost]
-        public IActionResult PostEmailEvent([FromBody] EmailProcessedServerEvent emailEvent)
+        public virtual IActionResult PostEmailEvent([FromBody] EmailProcessedServerEvent emailEvent)
         {
             return Ok();
         }
