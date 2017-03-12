@@ -3,10 +3,10 @@ using SmtpPilot.WebHooks.Models;
 using System;
 using System.Linq;
 
-namespace SmtpPilot.Web.Controllers
+namespace SmtpPilot.WebHooks.Controllers
 {
-    [Route("smtppilot/event")]
-    public class EmailEventsController : Controller
+    [Route("event")]
+    public class EmailEventsController : ControllerBase
     {
         [Route("status")]
         [HttpGet]
