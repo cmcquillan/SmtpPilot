@@ -72,7 +72,7 @@ namespace SmtpPilot
                         options.Headless = true;
                         break;
                     default:
-                        ConsoleBehavior.ExitWithError("Unrecognized argument.", ExitCode.InvalidArguments);
+                        ConsoleBehavior.ExitWithError($"Unrecognized argument: {args[i]}", ExitCode.InvalidArguments);
                         break;
                 }
             }
