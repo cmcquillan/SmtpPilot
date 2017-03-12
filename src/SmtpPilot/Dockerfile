@@ -8,4 +8,4 @@ COPY out .
 
 EXPOSE 25
 
-ENTRYPOINT [ "dotnet", "SmtpPilot.dll", "-l", "-i", "any" ,"-m" ]
+ENTRYPOINT [ "dotnet", "SmtpPilot.dll", "-l", "-i", "any" ,"-p", "25" ]
