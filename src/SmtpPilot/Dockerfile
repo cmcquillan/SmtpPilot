@@ -1,4 +1,5 @@
 ﻿FROM microsoft/dotnet:runtime
+ENV COMPlus_DebugWriteToStdErr 1
 
 RUN [ "mkdir", "smtppilot" ]
 
