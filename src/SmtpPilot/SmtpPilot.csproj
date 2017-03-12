@@ -10,7 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <Compile Remove="out\**" />
+    <EmbeddedResource Remove="out\**" />
+    <None Remove="out\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,5 +24,5 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
+  
 </Project>
