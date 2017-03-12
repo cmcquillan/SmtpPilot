@@ -20,6 +20,7 @@ namespace SmtpPilot.Server.IO
             _ipString = ipString;
             _ipPort = ipPort;
             _ipAddress = IPAddress.Parse(ipString);
+            Debug.WriteLine($"Starting listener on {_ipAddress}:{_ipPort}");
 
             try
             {
