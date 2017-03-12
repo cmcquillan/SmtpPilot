@@ -1,4 +1,5 @@
 ﻿FROM microsoft/dotnet:runtime
+ENV COMPlus_DebugWriteToStdErr 1
 
 RUN [ "mkdir", "smtppilot" ]
 
@@ -8,4 +9,4 @@ COPY out .
 
 EXPOSE 25
 
-ENTRYPOINT [ "dotnet", "SmtpPilot.dll", "-l", "-i", "any" ,"-m" ]
+ENTRYPOINT [ "dotnet", "SmtpPilot.dll", "-l", "-i", "any" ,"-p", "25" ]
