@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Builder\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 
