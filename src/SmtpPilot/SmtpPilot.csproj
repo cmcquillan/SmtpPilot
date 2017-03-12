@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmtpPilot.Server\SmtpPilot.Server.csproj" />
+    <ProjectReference Include="..\SmtpPilot.WebHooks\SmtpPilot.WebHooks.csproj" />
   </ItemGroup>
 
   <ItemGroup>

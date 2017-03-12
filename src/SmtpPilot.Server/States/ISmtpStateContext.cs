@@ -15,7 +15,6 @@ namespace SmtpPilot.Server.States
         SmtpConversation Conversation { get; }
         SmtpCommand Command { get; }
         bool HasError { get; }
-        EmailProcessedEventHandler EmailProcessed { get; set; }
 
         void NewMessage();
         void AddHeader(SmtpHeader header);

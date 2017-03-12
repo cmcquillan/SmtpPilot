@@ -45,8 +45,6 @@ namespace SmtpPilot.Server.States
 
         public bool HasError => _conversation.HasError;
 
-        public EmailProcessedEventHandler EmailProcessed { get; set; }
-
         public SmtpPilotConfiguration Configuration => _configuration;
 
         public void AddHeader(SmtpHeader header)

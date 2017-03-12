@@ -14,7 +14,7 @@ namespace SmtpPilot.Client
     {
         static void Main(string[] args)
         {
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             using (var client = new SmtpClient())
             {

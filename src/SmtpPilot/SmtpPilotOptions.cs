@@ -8,6 +8,8 @@ namespace SmtpPilot
 {
     internal class SmtpPilotOptions
     {
+        public string WebHookUri { get; set; }
+
         internal bool Headless { get; set; }
 
         internal string HostName { get; set; }

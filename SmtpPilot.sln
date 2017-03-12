@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot", "src\SmtpPilot\SmtpPilot.csproj", "{B76AC1D5-7AAA-487C-B9CE-AE9699546696}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.Tests", "tests\SmtpPilot.Tests\SmtpPilot.Tests.csproj", "{499DDA43-F051-496C-BBBF-E7A5AA5025D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.Web", "src\SmtpPilot.Web\SmtpPilot.Web.csproj", "{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.WebHooks", "src\SmtpPilot.WebHooks\SmtpPilot.WebHooks.csproj", "{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

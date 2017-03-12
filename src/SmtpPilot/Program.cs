@@ -40,6 +40,11 @@ namespace SmtpPilot
                 config.MailStore = new InMemoryMailStore();
             }
 
+            if(options.WebHookUri != null)
+            {
+                config.AddWebHooks(options.WebHookUri);
+            }
+
             config.ServerEvents.ClientConnected += ConsoleHooks.Server_ClientConnected;
             config.ServerEvents.ClientDisconnected += ConsoleHooks.Server_ClientDisconnected;
             config.ServerEvents.EmailProcessed += ConsoleHooks.Server_EmailProcessed;

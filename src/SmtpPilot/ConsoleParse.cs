@@ -71,6 +71,10 @@ namespace SmtpPilot
                     case "--headless":
                         options.Headless = true;
                         break;
+                    case "-w":
+                    case "--webhook-uri":
+                        options.WebHookUri = args[++i];
+                        break;
                     default:
                         ConsoleBehavior.ExitWithError($"Unrecognized argument: {args[i]}", ExitCode.InvalidArguments);
                         break;
