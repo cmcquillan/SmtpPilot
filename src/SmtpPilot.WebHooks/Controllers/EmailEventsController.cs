@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SmtpPilot.WebHooks.Models;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SmtpPilot.WebHooks.Controllers
