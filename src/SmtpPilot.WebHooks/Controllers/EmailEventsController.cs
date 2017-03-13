@@ -3,6 +3,7 @@ using SmtpPilot.WebHooks.Models;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SmtpPilot.WebHooks.Controllers
 {
@@ -11,16 +12,16 @@ namespace SmtpPilot.WebHooks.Controllers
     {
         [Route("status")]
         [HttpGet]
-        public virtual IActionResult GetStatus()
+        public async virtual Task<IActionResult> GetStatus()
         {
-            return Ok("Service Online");
+            return await Task.FromResult(Ok("Service Online"));
         }
 
         [Route("email")]
         [HttpPost]
-        public virtual IActionResult PostEmailEvent([FromBody] EmailProcessedServerEvent emailEvent)
+        public async virtual Task<IActionResult> PostEmailEvent([FromBody] EmailProcessedServerEvent emailEvent)
         {
-            return Ok();
+            return await Task.FromResult(Ok());
         }
     }
 }
