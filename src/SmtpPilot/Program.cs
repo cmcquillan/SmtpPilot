@@ -42,7 +42,7 @@ namespace SmtpPilot
 
             if(options.WebHookUri != null)
             {
-                config.AddWebHooks(options.WebHookUri);
+                config.AddWebHooks(options.WebHookUri, 15, 1);
             }
 
             config.ServerEvents.ClientConnected += ConsoleHooks.Server_ClientConnected;

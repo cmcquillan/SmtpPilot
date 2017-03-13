@@ -5,6 +5,7 @@ using SmtpPilot.Server.Conversation;
 using SmtpPilot.WebHooks.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -39,6 +40,10 @@ namespace SmtpPilot.WebHooks
             config.ServerEvents.ServerStopped += ServerStopped;
         }
 
+        internal int MaxWebHookAttempts { get; set; }
+
+        internal int WebHookRetryTimeFactor { get; set; }
+
         private void ServerStopped(object sender, ServerEventArgs eventArgs)
         {
             _cancellationTokenSource.Cancel();
@@ -61,7 +66,28 @@ namespace SmtpPilot.WebHooks
         {
             var evt = EmailProcessedServerEvent.CreateMessageProcessed(message);
             var data = await Task.Factory.StartNew(() => JsonConvert.SerializeObject(evt, Formatting.None, _settings), token);
-            await _client.PostAsync(_webHookUrl + "event/email", new StringContent(data, Encoding.UTF8, "application/json"), token);
+            string uri = _webHookUrl + "event/email";
+
+            int attemptNumber = 0;
+            HttpResponseMessage result = null;
+
+            do
+            {
+                await Task.Delay(attemptNumber * WebHookRetryTimeFactor * 1000, token);
+                attemptNumber++;
+
+                if (token.IsCancellationRequested)
+                    break;
+
+                Debug.WriteLine($"Firing webhook to {uri}, attempt #{attemptNumber}", WebHookConstants.TraceCategory);
+
+                try
+                {
+                    result = await _client.PostAsync(uri, new StringContent(data, Encoding.UTF8, "application/json"), token);
+                }
+                catch (HttpRequestException) { }
+                
+            } while (result?.IsSuccessStatusCode != true && attemptNumber < MaxWebHookAttempts);
         }
     }
 }
