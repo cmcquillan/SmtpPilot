@@ -49,13 +49,16 @@ namespace SmtpPilot.Server.States
                     _headersAreOver = true;
                 }
             }
-            else if (line.Equals(Constants.EndOfDataElement))
+            else
+            {
+                context.Conversation.CurrentMessage.AppendLine(choppedLine);
+            }
+
+            if (_headersAreOver && line.Equals(Constants.EndOfDataElement))
             {
                 context.CompleteMessage();
                 return new AcceptMailConversationState();
             }
-
-            context.Conversation.CurrentMessage.AppendLine(choppedLine);
 
             return this;
         }

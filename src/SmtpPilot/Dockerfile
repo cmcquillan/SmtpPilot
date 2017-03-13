@@ -1,10 +1,12 @@
-﻿FROM microsoft/windowsservercore:latest
+﻿FROM microsoft/dotnet:runtime
+ENV COMPlus_DebugWriteToStdErr 1
 
-RUN mkdir smtppilot
+RUN [ "mkdir", "smtppilot" ]
 
-COPY * /smtppilot/
+WORKDIR /smtppilot
+
+COPY out .
+
 EXPOSE 25
 
-WORKDIR /smtppilot/
-
-ENTRYPOINT powershell -NoProfile -Command ./smtppilot.exe -l -i any -m
+ENTRYPOINT [ "dotnet", "SmtpPilot.dll", "-l", "-i", "any" ,"-p", "25" ]

@@ -13,7 +13,7 @@ namespace SmtpPilot.Server
     {
         private readonly IList<IMailClientListener> _listeners;
         private readonly List<IMailClient> _clients = new List<IMailClient>();
-        private readonly Dictionary<int, SmtpStateMachine> _conversations = new Dictionary<int, SmtpStateMachine>();
+        private readonly Dictionary<Guid, SmtpStateMachine> _conversations = new Dictionary<Guid, SmtpStateMachine>();
         private readonly SmtpPilotConfiguration _configuration;
         private readonly List<IMailClient> _clientsToRemove = new List<IMailClient>();
 

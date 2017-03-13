@@ -11,6 +11,7 @@ namespace SmtpPilot.Server
     public class SmtpPilotConfiguration
     {
         public const string Localhost = "127.0.0.1";
+        public const string DefaultHostName = "smtp-pilot.local";
         public const int DefaultSmtpPort = 25;
         public const int DefaultTimeoutSeconds = 60;
 
@@ -20,7 +21,7 @@ namespace SmtpPilot.Server
         }
 
         public SmtpPilotConfiguration(string listenIp, int portNumber)
-            : this(listenIp, portNumber, Environment.MachineName)
+            : this(listenIp, portNumber, DefaultHostName)
         {
         }
 
@@ -33,7 +34,7 @@ namespace SmtpPilot.Server
         {
             ServerEvents = new SmtpServerEvents();
             ClientTimeoutSeconds = DefaultTimeoutSeconds;
-            HostName = hostname ?? Environment.MachineName;
+            HostName = hostname ?? DefaultHostName;
 
             foreach (var l in listeners)
                 Listeners.Add(l);

@@ -19,7 +19,6 @@ namespace SmtpPilot
             var options = new SmtpPilotOptions()
             {
                 ListenPort = DefaultPort,
-                ListenIPAddress = DefaultIp,
                 WriteMailToFolder = false,
                 WriteMailToFolderPath = DefaultPath,
             };
@@ -35,11 +34,16 @@ namespace SmtpPilot
                     case "-i":
                     case "--address":
                         string ipArg = args[++i];
+                        var ipList = ipArg.Split(new[] { ',' }, StringSplitOptions.None);
 
-                        if (String.Equals(ipArg, AnyIpToken))
-                            ipArg = AnyIp;
+                        foreach (var ipAddr in ipList)
+                        {
+                            string ipToAdd = ipAddr;
+                            if (String.Equals(ipToAdd, AnyIpToken))
+                                ipToAdd = AnyIp;
 
-                        options.ListenIPAddress = ipArg;
+                            options.ListenIPAddress.Add(ipToAdd);
+                        }
                         break;
                     case "-p":
                     case "--port":
@@ -67,11 +71,19 @@ namespace SmtpPilot
                     case "--headless":
                         options.Headless = true;
                         break;
+                    case "-w":
+                    case "--webhook-uri":
+                        options.WebHookUri = args[++i];
+                        break;
                     default:
-                        ConsoleBehavior.ExitWithError("Unrecognized argument.", ExitCode.InvalidArguments);
+                        ConsoleBehavior.ExitWithError($"Unrecognized argument: {args[i]}", ExitCode.InvalidArguments);
                         break;
                 }
             }
+
+            if (options.ListenIPAddress.Count == 0)
+                options.ListenIPAddress.Add(DefaultIp);
+
             return options;
         }
     }

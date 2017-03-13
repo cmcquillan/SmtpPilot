@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MailKit.Net.Smtp;
+using MimeKit;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Mail;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,25 +14,26 @@ namespace SmtpPilot.Client
     {
         static void Main(string[] args)
         {
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             using (var client = new SmtpClient())
             {
-                var message = new MailMessage("testfrom@test.com", "testto@test.com")
-                {
-                    Subject = "Hello, World",
-                    Body = "This is my message"
-                };
+                client.LocalDomain = "localhost";
+
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("testfrom@test.com"));
+                message.To.Add(new MailboxAddress("testto@test.com"));
+                message.Subject = "Hello, World";
+                message.Body = new TextPart("plain") { Text = "This is my message." };
+
+                client.Connect("localhost", 25, MailKit.Security.SecureSocketOptions.None);
+
                 for (int i = 0; i < 200; i++)
                 {
-                    message.To.Clear();
-                    message.To.Add($"test{i}@test.com");
                     client.Send(message);
                 }
-                    
-                client.Send(message);
-                client.Send(message);
-                client.Send(message);
+
+                client.Disconnect(true);
             }
         }
     }

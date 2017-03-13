@@ -1,5 +1,6 @@
 ﻿using SmtpPilot.Server;
 using SmtpPilot.Server.Data;
+using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,14 @@ namespace SmtpPilot
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
             var options = ConsoleParse.GetOptions(args);
-            var config = new SmtpPilotConfiguration(options.ListenIPAddress, options.ListenPort, options.HostName)
+            List<IMailClientListener> listeners = new List<IMailClientListener>();
+
+            foreach(var ipAddr in options.ListenIPAddress)
+            {
+                listeners.Add(new TcpClientListener(ipAddr, options.ListenPort));
+            }
+
+            var config = new SmtpPilotConfiguration(listeners, options.HostName)
             {
                 ClientTimeoutSeconds = 1000,
             };
@@ -30,6 +38,11 @@ namespace SmtpPilot
             if(options.WriteMailToMemory)
             {
                 config.MailStore = new InMemoryMailStore();
+            }
+
+            if(options.WebHookUri != null)
+            {
+                config.AddWebHooks(options.WebHookUri, 15, 1);
             }
 
             config.ServerEvents.ClientConnected += ConsoleHooks.Server_ClientConnected;

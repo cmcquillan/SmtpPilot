@@ -31,7 +31,7 @@ namespace SmtpPilot.Server.States
             switch(cmd.Command)
             {
                 case SmtpCommand.HELO:
-                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, Environment.MachineName));
+                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, context.Configuration.HostName));
                     return new AcceptMailConversationState();
                 default:
                     return base.ProcessData(context, cmd, line);   

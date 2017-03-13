@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "SmtpPilot": {
+      "commandName": "Project",
+      "commandLineArgs": "-i any -w http://localhost:5000/smtppilot/",
+      "environmentVariables": {
+        "COMPlus_DebugWriteToStdErr": "1"
+      }
+    }
+  }
+}

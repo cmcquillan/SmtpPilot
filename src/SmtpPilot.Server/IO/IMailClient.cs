@@ -8,7 +8,7 @@ namespace SmtpPilot.Server.IO
 {
     public interface IMailClient
     {
-        int ClientId { get; }
+        Guid ClientId { get; }
 
         void Write(string message);
 

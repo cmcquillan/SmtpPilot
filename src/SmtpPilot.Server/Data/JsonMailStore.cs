@@ -23,7 +23,7 @@ namespace SmtpPilot.Server.Data
             }
             else
             {
-                _path = Path.Combine(Environment.CurrentDirectory, path);
+                _path = Path.Combine(Directory.GetCurrentDirectory(), path);
             }
 
             _serializer = new DataContractJsonSerializer(typeof(XmlMailMessage), new DataContractJsonSerializerSettings

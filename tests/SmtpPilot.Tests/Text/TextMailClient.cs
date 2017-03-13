@@ -14,7 +14,7 @@ namespace SmtpPilot.Tests.Text
             _stream = new StreamReader(stream);
         }
 
-        public int ClientId => 1;
+        public Guid ClientId => Guid.Empty;
 
         public bool Disconnected => _stream.EndOfStream;
 
