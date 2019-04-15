@@ -1,19 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot", "src\SmtpPilot\SmtpPilot.csproj", "{B76AC1D5-7AAA-487C-B9CE-AE9699546696}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmtpPilot", "src\SmtpPilot\SmtpPilot.csproj", "{B76AC1D5-7AAA-487C-B9CE-AE9699546696}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.Server", "src\SmtpPilot.Server\SmtpPilot.Server.csproj", "{8FB5811A-F595-4EE9-9392-6BC9332CACC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmtpPilot.Server", "src\SmtpPilot.Server\SmtpPilot.Server.csproj", "{8FB5811A-F595-4EE9-9392-6BC9332CACC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.Client", "src\SmtpPilot.Client\SmtpPilot.Client.csproj", "{A34ED4AA-A994-4EE4-880C-DEFF221EF3A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmtpPilot.Client", "src\SmtpPilot.Client\SmtpPilot.Client.csproj", "{A34ED4AA-A994-4EE4-880C-DEFF221EF3A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.Tests", "tests\SmtpPilot.Tests\SmtpPilot.Tests.csproj", "{499DDA43-F051-496C-BBBF-E7A5AA5025D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmtpPilot.Tests", "tests\SmtpPilot.Tests\SmtpPilot.Tests.csproj", "{499DDA43-F051-496C-BBBF-E7A5AA5025D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.Web", "src\SmtpPilot.Web\SmtpPilot.Web.csproj", "{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpPilot.WebHooks", "src\SmtpPilot.WebHooks\SmtpPilot.WebHooks.csproj", "{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmtpPilot.WebHooks", "src\SmtpPilot.WebHooks\SmtpPilot.WebHooks.csproj", "{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +35,6 @@ Global
 		{499DDA43-F051-496C-BBBF-E7A5AA5025D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{499DDA43-F051-496C-BBBF-E7A5AA5025D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{499DDA43-F051-496C-BBBF-E7A5AA5025D6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E751697F-A1B8-4FB3-BE60-4714B54CFBB7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3530493-9F4E-49E4-8D15-7DBEE3138E2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,5 +42,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F84B6F14-B85D-4824-A082-B1C5A3C7FFEA}
 	EndGlobalSection
 EndGlobal
