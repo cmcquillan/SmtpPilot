@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <Description>Basic console client for hosting a mock smtp server.  Easy to stand up for small-scale tests.</Description>
     <Company>Quill Technologies, LLC</Company>
     <Authors>Casey McQuillan</Authors>
