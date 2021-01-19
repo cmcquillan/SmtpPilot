@@ -26,7 +26,7 @@ namespace SmtpPilot.Server.States
             get { return base.AllowedCommands | SmtpCommand.EHLO | SmtpCommand.HELO; }
         }
 
-        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
         {
             switch(cmd.Command)
             {

@@ -101,7 +101,7 @@ namespace SmtpPilot.Server.States
                     (Conversation.LastElement as IAppendable)?.Append(line);
                 }
 
-                CurrentState = CurrentState.ProcessData(_context, command, line);
+                CurrentState = CurrentState.ProcessData(_context, command, line.AsSpan());
             }
         }
 

@@ -21,9 +21,9 @@ namespace SmtpPilot.Server.Conversation
             _headers.Add(header);
         }
 
-        public void AppendLine(string line)
+        public void AppendLine(ReadOnlySpan<char> line)
         {
-            _data.AppendLine(line);
+            _data.Append(line).Append(Environment.NewLine.AsSpan());
         }
 
         public IAddress FromAddress

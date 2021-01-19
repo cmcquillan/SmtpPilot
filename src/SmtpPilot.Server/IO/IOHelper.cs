@@ -41,7 +41,7 @@ namespace SmtpPilot.Server.IO
             return command;
         }
 
-        public static bool LooksLikeHeader(string line)
+        public static bool LooksLikeHeader(ReadOnlySpan<char> line)
         {
             /*
              * Looking for a space or a colon.  If we find
