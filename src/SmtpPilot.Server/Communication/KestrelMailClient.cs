@@ -95,8 +95,7 @@ namespace SmtpPilot.Server.Communication
         public void Write(string message)
         {
             var newlines = Encoding.ASCII.GetBytes(Environment.NewLine);
-
-            var flush = _writer.WriteAsync(Encoding.ASCII.GetBytes(message)).GetAwaiter().GetResult();
+            _writer.WriteAsync(Encoding.ASCII.GetBytes(message)).GetAwaiter().GetResult();
             _writer.WriteAsync(newlines).GetAwaiter().GetResult();
         }
     }

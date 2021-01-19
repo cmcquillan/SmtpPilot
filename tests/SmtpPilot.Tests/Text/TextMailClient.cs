@@ -1,14 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.IO;
 
 namespace SmtpPilot.Tests.Text
 {
     internal class TextMailClient : IMailClient, IDisposable
     {
-        private StreamReader _stream;
+        private readonly StreamReader _stream;
 
         public TextMailClient(Stream stream)
         {

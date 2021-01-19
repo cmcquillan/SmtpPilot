@@ -16,9 +16,7 @@ namespace SmtpPilot.Server.IO
             _mailFromRegex = new Regex(Constants.EmailAddressRegex, RegexOptions.Singleline|RegexOptions.Compiled);
         }
 
-        private const char ASCIISpace = (char)0x20;
-        private const char ASCIICarriageReturn = (char)0x0D;
-        private const char ASCIILineFeed = (char)0x0A;
+        private const char _space = (char)0x20;
         private static readonly Regex _mailFromRegex;
 
         public static SmtpCommand GetCommand(IEnumerable<char> input)
@@ -27,7 +25,7 @@ namespace SmtpPilot.Server.IO
 
             for (int i = 0; i < input.Count(); i++)
             {
-                if (input.ElementAt(i) == ASCIISpace)
+                if (input.ElementAt(i) == _space)
                     break;
 
                 cmd[i] = input.ElementAt(i);
@@ -35,8 +33,7 @@ namespace SmtpPilot.Server.IO
 
             string commandText = new string(cmd);
 
-            SmtpCommand command = SmtpCommand.NonCommand;
-            Enum.TryParse<SmtpCommand>(commandText, out command);
+            Enum.TryParse(commandText, out SmtpCommand command);
 
             return command;
         }
@@ -52,7 +49,7 @@ namespace SmtpPilot.Server.IO
              */
             for(int i = 0; i < line.Length; i++)
             {
-                if (Char.Equals(line[i], ASCIISpace))
+                if (Char.Equals(line[i], _space))
                     return false;
 
                 if (Char.Equals(line[i], ':'))

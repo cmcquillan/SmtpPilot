@@ -10,8 +10,8 @@ namespace SmtpPilot.Server.Conversation
     {
         private readonly List<SmtpHeader> _headers = new List<SmtpHeader>();
         private IAddress _fromAddress;
-        private List<IAddress> _toAddresses = new List<IAddress>();
-        private StringBuilder _data = new StringBuilder();
+        private readonly List<IAddress> _toAddresses = new List<IAddress>();
+        private readonly StringBuilder _data = new StringBuilder();
         private bool _complete = false;
 
         public ReadOnlyCollection<SmtpHeader> Headers { get { return _headers.AsReadOnly(); } }

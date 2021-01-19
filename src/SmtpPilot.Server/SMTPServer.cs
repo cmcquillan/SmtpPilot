@@ -17,10 +17,7 @@ namespace SmtpPilot.Server
         private readonly Dictionary<Guid, SmtpStateMachine> _conversations = new Dictionary<Guid, SmtpStateMachine>();
         private readonly SmtpPilotConfiguration _configuration;
         private readonly List<IMailClient> _clientsToRemove = new List<IMailClient>();
-
-        private volatile bool _running;
-        private Thread _runThread;
-        private EmailStatistics _emailStats = new EmailStatistics();
+        private readonly EmailStatistics _emailStats = new EmailStatistics();
 
         public SMTPServer(string ipString, int ipPort)
             : this(new SmtpPilotConfiguration(ipString, ipPort))
@@ -62,7 +59,6 @@ namespace SmtpPilot.Server
 
         public async Task Run(CancellationToken cancellationToken = default)
         {
-            _running = true;
             _emailStats.SetStart();
 
             Events.OnServerStart(this, new ServerEventArgs(this, ServerEventType.Started));

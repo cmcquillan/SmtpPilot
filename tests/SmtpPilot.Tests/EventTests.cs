@@ -180,7 +180,7 @@ namespace SmtpPilot.Tests
             Assert.True(eventFired);
         }
 
-        private SMTPServer GetServer()
+        private static SMTPServer GetServer()
         {
             var config = TestHelper.GetConfig(TestHelper.BasicMessage);
             var server = new SMTPServer(config);
