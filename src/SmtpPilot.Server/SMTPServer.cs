@@ -72,14 +72,14 @@ namespace SmtpPilot.Server
             _runThread?.Join();
         }
 
-        public async Task Run()
+        public async Task Run(CancellationToken cancellationToken = default)
         {
             _running = true;
             _emailStats.SetStart();
 
             Events.OnServerStart(this, new ServerEventArgs(this, ServerEventType.Started));
 
-            while (_running)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 foreach (var listener in _listeners)
                 {
@@ -124,7 +124,7 @@ namespace SmtpPilot.Server
                     }
                 }
 
-                Thread.Sleep(5);
+                await Task.Delay(5);
 
                 _emailStats.RemoveClient(_clientsToRemove.Count);
 

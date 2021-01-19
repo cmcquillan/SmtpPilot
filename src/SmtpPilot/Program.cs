@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SmtpPilot.Server;
 using SmtpPilot.Server.Communication;
 using SmtpPilot.Server.Data;
 using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,10 +16,10 @@ namespace SmtpPilot
 {
     class Program
     {
-        private static SMTPServer _server;
+        public static SMTPServer Server = null;
         public static KestrelClientListenerAdapter AdapterInstance = new KestrelClientListenerAdapter();
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
             var options = ConsoleParse.GetOptions(args);
@@ -38,17 +36,17 @@ namespace SmtpPilot
                 ClientTimeoutSeconds = 1000,
             };
 
-            if(options.WriteMailToFolder)
+            if (options.WriteMailToFolder)
             {
                 config.MailStore = new JsonMailStore(options.WriteMailToFolderPath);
             }
 
-            if(options.WriteMailToMemory)
+            if (options.WriteMailToMemory)
             {
                 config.MailStore = new InMemoryMailStore();
             }
 
-            if(options.WebHookUri != null)
+            if (options.WebHookUri != null)
             {
                 config.AddWebHooks(options.WebHookUri, 15, 1);
             }
@@ -59,19 +57,17 @@ namespace SmtpPilot
             config.ServerEvents.ServerStarted += ConsoleHooks.Server_Started;
             config.ServerEvents.ServerStopped += ConsoleHooks.Server_Stopped;
 
-            _server = new SMTPServer(config);
+            Server = new SMTPServer(config);
 
             ConsoleHooks.LogInfo("Starting mock SMTP server.");
 
-            _server.Start();
-
-            CreateHostBuilder(args).Build().Run();
+            await CreateHostBuilder(args).Build().RunAsync();
 
             ConsoleHooks.LogInfo("Press 'q' to stop server.");
 
             while (true)
             {
-                if(!options.Headless)
+                if (!options.Headless)
                 {
                     if (Console.ReadKey().KeyChar == 'q')
                         break;
@@ -81,13 +77,12 @@ namespace SmtpPilot
             }
 
             ConsoleHooks.LogInfo("Shutting down mock SMTP server.");
-            _server.Stop();
+            Server.Stop();
         }
 
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             ConsoleHooks.LogInfo($"Received shutdown signal.");
-            _server.Stop();
         }
 
         public static IWebHostBuilder CreateHostBuilder(string[] args) =>
@@ -110,22 +105,5 @@ namespace SmtpPilot
                     });
                 })
                 .UseStartup<Startup>();
-    }
-
-    internal class SmtpPilotConnectionHandler : ConnectionHandler
-    {
-        private readonly KestrelClientListenerAdapter _adapter;
-        private readonly ILogger<SmtpPilotConnectionHandler> _logger;
-
-        public SmtpPilotConnectionHandler(KestrelClientListenerAdapter adapter, ILogger<SmtpPilotConnectionHandler> logger)
-        {
-            _adapter = adapter;
-            _logger = logger;
-        }
-
-        public override Task OnConnectedAsync(ConnectionContext connection)
-        {
-            return _adapter.ExecuteNewConnection(connection);
-        }
     }
 }
