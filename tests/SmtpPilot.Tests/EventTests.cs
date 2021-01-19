@@ -17,7 +17,6 @@ namespace SmtpPilot.Tests
 
         protected SMTPServer Server { get; set; }
 
-
         [SetUp]
         public void SetupServer()
         {
@@ -25,7 +24,6 @@ namespace SmtpPilot.Tests
             _cts = new CancellationTokenSource();
             _cts.CancelAfter(TimeSpan.FromSeconds(5));
         }
-
 
         [Test]
         public async Task ClientConnectedEventPassesServerAsSender()
