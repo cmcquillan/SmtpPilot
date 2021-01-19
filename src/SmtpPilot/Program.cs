@@ -28,32 +28,13 @@ namespace SmtpPilot
                 new KestrelClientListener(AdapterInstance)
             };
 
-            var config = new SmtpPilotConfiguration(listeners, options.HostName)
-            {
-                ClientTimeoutSeconds = 1000,
-            };
-
-            if (options.WriteMailToFolder)
-            {
-                config.MailStore = new JsonMailStore(options.WriteMailToFolderPath);
-            }
-
-            if (options.WriteMailToMemory)
-            {
-                config.MailStore = new InMemoryMailStore();
-            }
-
-            if (options.WebHookUri != null)
-            {
-                config.AddWebHooks(options.WebHookUri, 15, 1);
-            }
-
+            var config = options.ToConfiguration(listeners);
+            config.ClientTimeoutSeconds = 1000;
             config.ServerEvents.ClientConnected += ConsoleHooks.Server_ClientConnected;
             config.ServerEvents.ClientDisconnected += ConsoleHooks.Server_ClientDisconnected;
             config.ServerEvents.EmailProcessed += ConsoleHooks.Server_EmailProcessed;
             config.ServerEvents.ServerStarted += ConsoleHooks.Server_Started;
             config.ServerEvents.ServerStopped += ConsoleHooks.Server_Stopped;
-
 
             ConsoleHooks.LogInfo("Starting mock SMTP server.");
 
