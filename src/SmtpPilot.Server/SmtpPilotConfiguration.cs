@@ -1,14 +1,10 @@
 ﻿using SmtpPilot.Server.Data;
 using SmtpPilot.Server.IO;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmtpPilot.Server
 {
-    public class SmtpPilotConfiguration
+    public class SmtpPilotConfiguration : ISmtpPilotConfiguration
     {
         public const string Localhost = "127.0.0.1";
         public const string DefaultHostName = "smtp-pilot.local";
@@ -35,14 +31,12 @@ namespace SmtpPilot.Server
             ServerEvents = new SmtpServerEvents();
             ClientTimeoutSeconds = DefaultTimeoutSeconds;
             HostName = hostname ?? DefaultHostName;
-
-            foreach (var l in listeners)
-                Listeners.Add(l);
+            Listeners = new List<IMailClientListener>(listeners);
         }
 
         public string HostName { get; set; }
 
-        public IList<IMailClientListener> Listeners { get; } = new List<IMailClientListener>();
+        public IReadOnlyList<IMailClientListener> Listeners { get; }
 
         public int ClientTimeoutSeconds { get; set; }
 
