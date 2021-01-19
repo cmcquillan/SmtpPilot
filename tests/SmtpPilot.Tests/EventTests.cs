@@ -5,111 +5,112 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot.Tests
 {
     [TestFixture]
-    class EventTests
+    public class EventTests
     {
-        SMTPServer Server { get; set; }
+        private CancellationTokenSource _cts;
+
+        protected SMTPServer Server { get; set; }
+
 
         [SetUp]
         public void SetupServer()
         {
             Server = GetServer();
+            _cts = new CancellationTokenSource();
+            _cts.CancelAfter(TimeSpan.FromSeconds(5));
         }
 
-        [TearDown]
-        public void TearDownServer()
-        {
-            Server.Stop();
-        }
 
         [Test]
-        public void ClientConnectedEventPassesServerAsSender()
+        public async Task ClientConnectedEventPassesServerAsSender()
         {
             SMTPServer theServer = null;
             Server.Events.ClientConnected += (s, e) =>
             {
                 theServer = s as SMTPServer;
-                Server.Stop();
+                _cts.Cancel();
             };
 
-            Server.Run();
+            await Server.Run(_cts.Token);
             Assert.IsNotNull(theServer);
             Assert.IsInstanceOf<SMTPServer>(theServer);
         }
 
         [Test]
-        public void ClientConnectedEventFires()
+        public async Task ClientConnectedEventFires()
         {
             bool connected = false;
             Server.Events.ClientConnected += (s, e) =>
             {
                 connected = true;
-                Server.Stop();
+                _cts.Cancel();
             };
 
-            Server.Run();
+            await Server.Run(_cts.Token);
             Assert.True(connected);
         }
 
         [Test]
-        public void ClientDisconnectedEventPassesServerAsSender()
+        public async Task ClientDisconnectedEventPassesServerAsSender()
         {
             SMTPServer theServer = null;
             Server.Events.ClientDisconnected += (s, e) =>
             {
                 theServer = s as SMTPServer;
-                Server.Stop();
+                _cts.Cancel();
             };
 
-            Server.Run();
+            await Server.Run(_cts.Token);
             Assert.IsNotNull(theServer);
             Assert.IsInstanceOf<SMTPServer>(theServer);
         }
 
         [Test]
-        public void ClientDisconnectedEventFires()
+        public async Task ClientDisconnectedEventFires()
         {
             bool disconnected = false;
             Server.Events.ClientDisconnected += (s, e) =>
             {
                 disconnected = true;
-                Server.Stop();
+                _cts.Cancel();
             };
 
-            Server.Run();
+            await Server.Run(_cts.Token);
             Assert.True(disconnected);
         }
 
         [Test]
-        public void MailSentEventPassesClientAsSender()
+        public async Task MailSentEventPassesClientAsSender()
         {
             IMailClient theClient = null;
             Server.Events.EmailProcessed += (s, e) =>
             {
                 theClient = s as IMailClient;
-                Server.Stop();
+                _cts.Cancel();
             };
 
-            Server.Run();
+            await Server.Run(_cts.Token);
             Assert.IsNotNull(theClient);
             Assert.IsInstanceOf<IMailClient>(theClient);
         }
 
         [Test]
-        public void MailSentEventFires()
+        public async Task MailSentEventFires()
         {
             bool emailSent = false;
             Server.Events.EmailProcessed += (s, e) =>
             {
                 emailSent = true;
-                Server.Stop();
+                _cts.Cancel();
             };
 
-            Server.Run();
+            await Server.Run(_cts.Token);
             Assert.True(emailSent);
         }
 
@@ -119,7 +120,7 @@ namespace SmtpPilot.Tests
             bool eventFired = false;
             Server.Events.ClientConnected += (s, e) =>
             {
-                Server.Stop();
+                _cts.Cancel();
             };
             Server.Events.ClientConnected += (s, e) =>
             {
@@ -127,9 +128,9 @@ namespace SmtpPilot.Tests
                 throw new Exception("I'm a bad monkey.");
             };
 
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
-                Server.Run();
+                await Server.Run(_cts.Token);
             });
 
             Assert.True(eventFired);
@@ -141,7 +142,7 @@ namespace SmtpPilot.Tests
             bool eventFired = false;
             Server.Events.ClientDisconnected += (s, e) =>
             {
-                Server.Stop();
+                _cts.Cancel();
             };
             Server.Events.ClientDisconnected += (s, e) =>
             {
@@ -149,9 +150,9 @@ namespace SmtpPilot.Tests
                 throw new Exception("I'm a bad monkey.");
             };
 
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
-                Server.Run();
+                await Server.Run(_cts.Token);
             });
 
             Assert.True(eventFired);
@@ -163,7 +164,7 @@ namespace SmtpPilot.Tests
             bool eventFired = false;
             Server.Events.EmailProcessed += (s, e) =>
             {
-                Server.Stop();
+                _cts.Cancel();
             };
             Server.Events.EmailProcessed += (s, e) =>
             {
@@ -171,9 +172,9 @@ namespace SmtpPilot.Tests
                 throw new Exception("I'm a bad monkey.");
             };
 
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
-                Server.Run();
+                await Server.Run(_cts.Token);
             });
 
             Assert.True(eventFired);

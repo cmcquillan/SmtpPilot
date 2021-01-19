@@ -16,20 +16,17 @@ namespace SmtpPilot
 {
     class Program
     {
-        public static SMTPServer Server = null;
         public static KestrelClientListenerAdapter AdapterInstance = new KestrelClientListenerAdapter();
 
         static async Task Main(string[] args)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
-            var options = ConsoleParse.GetOptions(args);
-            List<IMailClientListener> listeners = new List<IMailClientListener>();
 
-            //foreach(var ipAddr in options.ListenIPAddress)
-            //{
-            //    listeners.Add(new TcpClientListener(ipAddr, options.ListenPort));
-            //}
-            listeners.Add(new KestrelClientListener(AdapterInstance));
+            var options = ConsoleParse.GetOptions(args);
+            List<IMailClientListener> listeners = new List<IMailClientListener>
+            {
+                new KestrelClientListener(AdapterInstance)
+            };
 
             var config = new SmtpPilotConfiguration(listeners, options.HostName)
             {
@@ -57,27 +54,13 @@ namespace SmtpPilot
             config.ServerEvents.ServerStarted += ConsoleHooks.Server_Started;
             config.ServerEvents.ServerStopped += ConsoleHooks.Server_Stopped;
 
-            Server = new SMTPServer(config);
 
             ConsoleHooks.LogInfo("Starting mock SMTP server.");
 
-            await CreateHostBuilder(args).Build().RunAsync();
+            await CreateHostBuilder(args, config).Build().RunAsync();
 
             ConsoleHooks.LogInfo("Press 'q' to stop server.");
-
-            while (true)
-            {
-                if (!options.Headless)
-                {
-                    if (Console.ReadKey().KeyChar == 'q')
-                        break;
-                }
-
-                Thread.Sleep(100);
-            }
-
             ConsoleHooks.LogInfo("Shutting down mock SMTP server.");
-            Server.Stop();
         }
 
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
@@ -85,8 +68,14 @@ namespace SmtpPilot
             ConsoleHooks.LogInfo($"Received shutdown signal.");
         }
 
-        public static IWebHostBuilder CreateHostBuilder(string[] args) =>
+        public static IWebHostBuilder CreateHostBuilder(string[] args, SmtpPilotConfiguration config) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureServices(services =>
+                {
+                    services.AddSingleton(config);
+                    services.AddSingleton(AdapterInstance);
+                    services.AddHostedService<SmtpHostedService>();
+                })
                 .UseKestrel(options =>
                 {
                     // TCP 25

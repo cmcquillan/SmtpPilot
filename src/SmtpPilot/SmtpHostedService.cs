@@ -9,9 +9,9 @@ namespace SmtpPilot
     {
         private readonly SMTPServer _server;
 
-        public SmtpHostedService(SMTPServer server)
+        public SmtpHostedService(SmtpPilotConfiguration config)
         {
-            _server = server;
+            _server = new SMTPServer(config);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

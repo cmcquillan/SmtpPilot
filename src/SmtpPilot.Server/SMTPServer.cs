@@ -60,18 +60,6 @@ namespace SmtpPilot.Server
 
         public EmailStatistics Statistics { get { return _emailStats; } }
 
-        public void Start()
-        {
-            _runThread = new Thread(new ThreadStart(async () => await Run()));
-            _runThread?.Start();
-        }
-
-        public void Stop()
-        {
-            _running = false;
-            _runThread?.Join();
-        }
-
         public async Task Run(CancellationToken cancellationToken = default)
         {
             _running = true;
