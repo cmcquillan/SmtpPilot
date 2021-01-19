@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SmtpPilot.Server
 {
@@ -61,7 +62,7 @@ namespace SmtpPilot.Server
 
         public void Start()
         {
-            _runThread = new Thread(new ThreadStart(Run));
+            _runThread = new Thread(new ThreadStart(async () => await Run()));
             _runThread?.Start();
         }
 
@@ -71,7 +72,7 @@ namespace SmtpPilot.Server
             _runThread?.Join();
         }
 
-        public void Run()
+        public async Task Run()
         {
             _running = true;
             _emailStats.SetStart();
@@ -113,7 +114,7 @@ namespace SmtpPilot.Server
                         continue;
                     }
 
-                    _conversations[client.ClientId].ProcessLine();
+                    await _conversations[client.ClientId].ProcessLine();
 
                     if(client.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
                     {

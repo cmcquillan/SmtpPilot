@@ -4,6 +4,7 @@ using System;
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Communication
 {
@@ -38,18 +39,16 @@ namespace SmtpPilot.Server.Communication
             _writer.Complete();
         }
 
-        public string ReadLine()
+        public async Task<string> ReadLine()
         {
-            if(_reader.TryRead(out var read))
-            {
-                var buffer = read.Buffer;
+            var read = await _reader.ReadAsync();
+            var buffer = read.Buffer;
 
-                if(TryReadLine(ref buffer, out ReadOnlySequence<byte> line))
-                {
-                    var ret = GetLine(line);
-                    _reader.AdvanceTo(buffer.Start);
-                    return ret;
-                }
+            if (TryReadLine(ref buffer, out ReadOnlySequence<byte> line))
+            {
+                var ret = GetLine(line);
+                _reader.AdvanceTo(buffer.Start);
+                return ret;
             }
 
             return null;
@@ -62,7 +61,7 @@ namespace SmtpPilot.Server.Communication
             var length = line.Length;
             var processed = 0;
 
-            foreach(var bytes in line)
+            foreach (var bytes in line)
             {
                 processed += bytes.Length;
                 var last = processed == length;
@@ -80,7 +79,7 @@ namespace SmtpPilot.Server.Communication
         {
             var position = buffer.PositionOf((byte)'\n');
 
-            if(position == null)
+            if (position == null)
             {
                 line = default;
                 return false;

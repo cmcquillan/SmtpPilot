@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.IO
 {
@@ -70,7 +71,7 @@ namespace SmtpPilot.Server.IO
             }
         }
 
-        public string ReadLine()
+        public async Task<string> ReadLine()
         {
             bool foundLine = false;
 
@@ -87,7 +88,7 @@ namespace SmtpPilot.Server.IO
                 }
 
                 // Fill the buffer.
-                _bufferPosition += _inputStream.Read(_buffer, _bufferPosition, remainingSpace);
+                _bufferPosition += await _inputStream.ReadAsync(_buffer, _bufferPosition, remainingSpace);
             }
 
             int initialScanPosition = _scanPosition;

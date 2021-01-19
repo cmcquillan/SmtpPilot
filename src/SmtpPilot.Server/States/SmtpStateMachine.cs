@@ -62,7 +62,7 @@ namespace SmtpPilot.Server.States
             get { return _conversation; }
         }
 
-        public void ProcessLine()
+        public async Task ProcessLine()
         {
             /* Steps:
              * 1) Grab a line, exit if null received.
@@ -75,7 +75,7 @@ namespace SmtpPilot.Server.States
              * 4) Set new state according to return value of ProcessData().
              */
 
-            var line = Client.ReadLine();
+            var line = await Client.ReadLine();
 
             if (line != null)
             {
