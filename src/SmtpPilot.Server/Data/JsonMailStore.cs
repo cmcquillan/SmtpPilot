@@ -41,10 +41,8 @@ namespace SmtpPilot.Server.Data
             string fileName = Path.Combine(_path, String.Format("{0}-{1}.json", DateTime.Now.ToString("yyyy-dd-MM"), Guid.NewGuid()));
             var msg = XmlMailMessage.FromMessage(message);
 
-            using (var stream = File.OpenWrite(fileName))
-            {
-                _serializer.WriteObject(stream, msg);
-            }
+            using var stream = File.OpenWrite(fileName);
+            _serializer.WriteObject(stream, msg);
         }
     }
 }
