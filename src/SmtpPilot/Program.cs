@@ -1,9 +1,15 @@
-﻿using SmtpPilot.Server;
+﻿using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using SmtpPilot.Server;
+using SmtpPilot.Server.Communication;
 using SmtpPilot.Server.Data;
 using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +19,7 @@ namespace SmtpPilot
     class Program
     {
         private static SMTPServer _server;
+        public static KestrelClientListenerAdapter AdapterInstance = new KestrelClientListenerAdapter();
 
         static void Main(string[] args)
         {
@@ -20,10 +27,11 @@ namespace SmtpPilot
             var options = ConsoleParse.GetOptions(args);
             List<IMailClientListener> listeners = new List<IMailClientListener>();
 
-            foreach(var ipAddr in options.ListenIPAddress)
-            {
-                listeners.Add(new TcpClientListener(ipAddr, options.ListenPort));
-            }
+            //foreach(var ipAddr in options.ListenIPAddress)
+            //{
+            //    listeners.Add(new TcpClientListener(ipAddr, options.ListenPort));
+            //}
+            listeners.Add(new KestrelClientListener(AdapterInstance));
 
             var config = new SmtpPilotConfiguration(listeners, options.HostName)
             {
@@ -57,6 +65,8 @@ namespace SmtpPilot
 
             _server.Start();
 
+            CreateHostBuilder(args).Build().Run();
+
             ConsoleHooks.LogInfo("Press 'q' to stop server.");
 
             while (true)
@@ -78,6 +88,44 @@ namespace SmtpPilot
         {
             ConsoleHooks.LogInfo($"Received shutdown signal.");
             _server.Stop();
+        }
+
+        public static IWebHostBuilder CreateHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseKestrel(options =>
+                {
+                    // TCP 25
+                    options.ListenLocalhost(25, builder =>
+                    {
+                        builder.UseConnectionHandler<SmtpPilotConnectionHandler>();
+                    });
+
+                    // HTTP 5000
+                    options.ListenLocalhost(5000);
+
+                    // HTTPS 5001
+                    options.ListenLocalhost(5001, builder =>
+                    {
+                        builder.UseHttps();
+                    });
+                })
+                .UseStartup<Startup>();
+    }
+
+    internal class SmtpPilotConnectionHandler : ConnectionHandler
+    {
+        private readonly KestrelClientListenerAdapter _adapter;
+        private readonly ILogger<SmtpPilotConnectionHandler> _logger;
+
+        public SmtpPilotConnectionHandler(KestrelClientListenerAdapter adapter, ILogger<SmtpPilotConnectionHandler> logger)
+        {
+            _adapter = adapter;
+            _logger = logger;
+        }
+
+        public override Task OnConnectedAsync(ConnectionContext connection)
+        {
+            return _adapter.ExecuteNewConnection(connection);
         }
     }
 }

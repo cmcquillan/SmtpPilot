@@ -49,8 +49,6 @@ namespace SmtpPilot.Server.IO
 
         public bool Disconnected => !(_tcpClient.Connected);
 
-        public bool HasData => _inputStream.DataAvailable;
-
         public int SecondsClientHasBeenSilent => (int)(DateTimeOffset.UtcNow - _lastDataAvailable).TotalSeconds;
 
         public void Write(string message)

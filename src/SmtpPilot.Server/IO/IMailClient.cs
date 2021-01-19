@@ -18,8 +18,6 @@ namespace SmtpPilot.Server.IO
 
         bool Disconnected { get; }
 
-        bool HasData { get; }
-
         int SecondsClientHasBeenSilent { get; }
     }
 }

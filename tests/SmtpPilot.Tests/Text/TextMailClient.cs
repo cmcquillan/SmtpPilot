@@ -18,8 +18,6 @@ namespace SmtpPilot.Tests.Text
 
         public bool Disconnected => _stream.EndOfStream;
 
-        public bool HasData => !(_stream.EndOfStream);
-
         public int SecondsClientHasBeenSilent => 0;
 
         public void Disconnect()

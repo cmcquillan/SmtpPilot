@@ -19,6 +19,7 @@ namespace SmtpPilot.Client
             using (var client = new SmtpClient())
             {
                 client.LocalDomain = "localhost";
+                client.Timeout = Int32.MaxValue;
 
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("testfrom@test.com"));
