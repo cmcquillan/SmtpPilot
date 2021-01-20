@@ -15,6 +15,7 @@ namespace SmtpPilot.Server.States
         SmtpConversation Conversation { get; }
         SmtpCommand Command { get; }
         bool HasError { get; }
+        IDictionary<object, object> Items { get; }
 
         void NewMessage();
         void AddHeader(SmtpHeader header);

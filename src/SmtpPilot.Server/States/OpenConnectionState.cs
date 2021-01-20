@@ -32,7 +32,7 @@ namespace SmtpPilot.Server.States
             {
                 case SmtpCommand.HELO:
                     context.Reply(new SmtpReply(SmtpReplyCode.Code250, context.Configuration.HostName));
-                    return new AcceptMailConversationState();
+                    return ConversationStates.Accept;
                 default:
                     return base.ProcessData(context, cmd, line);   
             }   

@@ -39,14 +39,14 @@ namespace SmtpPilot.Server.States
                 case SmtpCommand.RSET:
                     context.Conversation.Reset();
                     context.Reply(SmtpReply.OK);
-                    return new AcceptMailConversationState();
+                    return ConversationStates.Accept;
                 case SmtpCommand.QUIT:
-                    return new QuitConversationState();
+                    return ConversationStates.Quit;
                 case SmtpCommand.HELP:
                     context.Reply(new SmtpReply(SmtpReplyCode.Code250, HandleHelp()));
                     return this;
                 default:
-                    return new ErrorConversationState();
+                    return ConversationStates.Error;
             }
         }
 

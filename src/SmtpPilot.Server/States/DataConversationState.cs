@@ -6,7 +6,8 @@ namespace SmtpPilot.Server.States
 {
     public class DataConversationState : IConversationState
     {
-        private bool _headersAreOver;
+        private readonly object _headersCompleteKey = new object();
+        private readonly object _headersCompleteValue = new object();
 
         public SmtpCommand AllowedCommands
         {
@@ -22,7 +23,6 @@ namespace SmtpPilot.Server.States
         {
             context.Reply(SmtpReply.BeginData);
             context.Conversation.AddElement(new SmtpData());
-            _headersAreOver = false;
         }
 
         public void LeaveState(ISmtpStateContext context)
@@ -39,7 +39,7 @@ namespace SmtpPilot.Server.States
             var lengthWithoutNewLine = index != -1 ? index : line.Length;
             ReadOnlySpan<char> choppedLine = line.Slice(0, lengthWithoutNewLine);
 
-            if (!_headersAreOver)
+            if (!HeadersAreComplete(context))
             {
                 if (IO.IOHelper.LooksLikeHeader(line))
                 {
@@ -47,7 +47,7 @@ namespace SmtpPilot.Server.States
                 }
                 else
                 {
-                    _headersAreOver = true;
+                    SetHeadersComplete(context, true);
                 }
             }
             else
@@ -55,13 +55,24 @@ namespace SmtpPilot.Server.States
                 context.Conversation.CurrentMessage.AppendLine(choppedLine);
             }
 
-            if (_headersAreOver && line.SequenceEqual(Constants.EndOfDataElement.AsSpan()))
+            if (HeadersAreComplete(context) && line.SequenceEqual(Constants.EndOfDataElement.AsSpan()))
             {
                 context.CompleteMessage();
-                return new AcceptMailConversationState();
+                SetHeadersComplete(context, false);
+                return ConversationStates.Accept;
             }
 
             return this;
+        }
+
+        private void SetHeadersComplete(ISmtpStateContext context, bool value)
+        {
+            context.Items[_headersCompleteKey] = value ? _headersCompleteValue : null;
+        }
+
+        private bool HeadersAreComplete(ISmtpStateContext context)
+        {
+            return context.Items.ContainsKey(_headersCompleteKey) && context.Items[_headersCompleteKey] == _headersCompleteValue;
         }
     }
 }

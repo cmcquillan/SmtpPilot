@@ -33,7 +33,7 @@ namespace SmtpPilot.Server.States
                     context.Reply(SmtpReply.OK);
                     return this;
                 case SmtpCommand.DATA:
-                    return new DataConversationState();
+                    return ConversationStates.DataRead;
                 default:
                     return base.ProcessData(context, cmd, line);
             }
