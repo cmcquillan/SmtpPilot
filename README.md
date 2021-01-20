@@ -1,5 +1,7 @@
 # SmtpPilot
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/cmcquillan/SmtpPilot/Run%20.NET%20Tests?label=Build&style=for-the-badge)
+
 SmtpPilot is a mock SMTP server which allows developers to code e-mail functions and applications without the fear of sending to real addresses.  SmtpPilot can run standalone as a server or in-process (if you are developing a .NET application).  The goal of SmtpPilot is to comply with a substantial portion of [RFC 5321](https://tools.ietf.org/html/rfc5321) (as much as makes sense for a mock server) for the purposes of processing e-mail.
 
 ## Setting Up a Server
