@@ -29,8 +29,7 @@ namespace SmtpPilot.Server.Conversation
         {
             get
             {
-                SmtpCommand cmd = SmtpCommand.EHLO;
-                return Enum.TryParse(Preamble, out cmd);
+                return Enum.TryParse(Preamble, out SmtpCommand _);
             }
         }
 

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SmtpPilot.Server
 {
@@ -16,10 +17,7 @@ namespace SmtpPilot.Server
         private readonly Dictionary<Guid, SmtpStateMachine> _conversations = new Dictionary<Guid, SmtpStateMachine>();
         private readonly SmtpPilotConfiguration _configuration;
         private readonly List<IMailClient> _clientsToRemove = new List<IMailClient>();
-
-        private volatile bool _running;
-        private Thread _runThread;
-        private EmailStatistics _emailStats = new EmailStatistics();
+        private readonly EmailStatistics _emailStats = new EmailStatistics();
 
         public SMTPServer(string ipString, int ipPort)
             : this(new SmtpPilotConfiguration(ipString, ipPort))
@@ -59,26 +57,13 @@ namespace SmtpPilot.Server
 
         public EmailStatistics Statistics { get { return _emailStats; } }
 
-        public void Start()
+        public async Task Run(CancellationToken cancellationToken = default)
         {
-            _runThread = new Thread(new ThreadStart(Run));
-            _runThread?.Start();
-        }
-
-        public void Stop()
-        {
-            _running = false;
-            _runThread?.Join();
-        }
-
-        public void Run()
-        {
-            _running = true;
             _emailStats.SetStart();
 
             Events.OnServerStart(this, new ServerEventArgs(this, ServerEventType.Started));
 
-            while (_running)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 foreach (var listener in _listeners)
                 {
@@ -113,7 +98,7 @@ namespace SmtpPilot.Server
                         continue;
                     }
 
-                    _conversations[client.ClientId].ProcessLine();
+                    await _conversations[client.ClientId].ProcessLine();
 
                     if(client.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
                     {
@@ -123,7 +108,7 @@ namespace SmtpPilot.Server
                     }
                 }
 
-                Thread.Sleep(5);
+                await Task.Delay(5);
 
                 _emailStats.RemoveClient(_clientsToRemove.Count);
 

@@ -13,6 +13,15 @@ namespace SmtpPilot.Server.Conversation
         public const string TO_HEADER = @"To";
         public const string SUBJECT_HEADER = @"Subject";
 
+        public static SmtpHeader Parse(ReadOnlySpan<char> choppedLine)
+        {
+            var splitIndex = choppedLine.IndexOf(':');
+
+            return new SmtpHeader(
+                choppedLine[0..splitIndex].ToString(),
+                choppedLine[(splitIndex + 2)..].ToString());
+        }
+
         public SmtpHeader(string name, string value)
         {
             Name = name;
@@ -20,6 +29,7 @@ namespace SmtpPilot.Server.Conversation
         }
 
         public string Name { get; }
+
         public string Value { get; }
 
         public override string ToString()

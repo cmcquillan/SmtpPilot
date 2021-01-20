@@ -32,7 +32,7 @@ namespace SmtpPilot.Server.States
             throw new NotImplementedException();
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, Conversation.SmtpCmd cmd, string line)
+        public IConversationState ProcessData(ISmtpStateContext context, Conversation.SmtpCmd cmd, ReadOnlySpan<char> line)
         {
             throw new NotImplementedException();
         }

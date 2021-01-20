@@ -14,8 +14,8 @@ namespace SmtpPilot.Server.States
         private readonly SmtpConversation _conversation;
         private readonly IMailClient _client;
         private IConversationState _currentState;
-        private ISmtpStateContext _context;
-        SmtpCommand _currentCommand = SmtpCommand.NonCommand;
+        private readonly ISmtpStateContext _context;
+        private readonly SmtpCommand _currentCommand = SmtpCommand.NonCommand;
         private readonly EmailStatistics _emailStats;
         private readonly SmtpPilotConfiguration _configuration;
 
@@ -62,7 +62,7 @@ namespace SmtpPilot.Server.States
             get { return _conversation; }
         }
 
-        public void ProcessLine()
+        public async Task ProcessLine()
         {
             /* Steps:
              * 1) Grab a line, exit if null received.
@@ -75,7 +75,7 @@ namespace SmtpPilot.Server.States
              * 4) Set new state according to return value of ProcessData().
              */
 
-            var line = Client.ReadLine();
+            var line = await Client.ReadLine();
 
             if (line != null)
             {
@@ -101,17 +101,15 @@ namespace SmtpPilot.Server.States
                     (Conversation.LastElement as IAppendable)?.Append(line);
                 }
 
-                CurrentState = CurrentState.ProcessData(_context, command, line);
+                CurrentState = CurrentState.ProcessData(_context, command, line.AsSpan());
             }
         }
 
         private static SmtpCmd GetCommandFromLine(string line)
         {
             SmtpCmd command;
-            SmtpCommand cmd = SmtpCommand.NonCommand;
-
             string commandString = (line?.Length >= 4) ? line.Substring(0, 4) : String.Empty;
-            Enum.TryParse(commandString, out cmd);
+            Enum.TryParse(commandString, out SmtpCommand cmd);
 
             if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
                 cmd = SmtpCommand.NonCommand;

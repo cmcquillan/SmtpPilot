@@ -12,7 +12,7 @@ namespace SmtpPilot.Server.States
     {
         void EnterState(ISmtpStateContext context);
         void LeaveState(ISmtpStateContext context);
-        IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line);
+        IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line);
         SmtpCommand AllowedCommands { get; }
         bool AcceptingCommands { get; }
     }

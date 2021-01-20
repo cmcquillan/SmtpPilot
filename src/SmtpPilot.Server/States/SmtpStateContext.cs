@@ -10,42 +10,33 @@ namespace SmtpPilot.Server.States
 {
     public class SmtpStateContext : ISmtpStateContext
     {
-        private SmtpCommand _command;
-        private readonly SmtpConversation _conversation;
-        private readonly IMailClient _client;
-        private readonly EmailStatistics _stats;
-        private readonly SmtpPilotConfiguration _configuration;
-
         internal SmtpStateContext(IMailClient client, SmtpConversation conversation, SmtpCommand command, EmailStatistics stats, SmtpPilotConfiguration configuration)
         {
-            _configuration = configuration;
-            _stats = stats;
-            _client = client;
-            _conversation = conversation;
-            _command = command;
+            Configuration = configuration;
+            Statistics = stats;
+            Client = client;
+            Conversation = conversation;
+            Command = command;
         }
 
-        public EmailStatistics Statistics => _stats;
+        public EmailStatistics Statistics { get; }
 
-        public IMailClient Client => _client;
+        public IMailClient Client { get; }
 
-        public SmtpConversation Conversation => _conversation;
+        public SmtpConversation Conversation { get; }
 
-        public SmtpCommand Command
-        {
-            get { return _command; }
+        public SmtpCommand Command { get;
 
             /* Has a setter, which is more than the Interface contains.
              * This is done to hide the setter from the IConversationState
              * objects and make clear the read-only intent when operating
              * in that context.
              */
-            set { _command = value; }
-        }
+            set; }
 
-        public bool HasError => _conversation.HasError;
+        public bool HasError => Conversation.HasError;
 
-        public SmtpPilotConfiguration Configuration => _configuration;
+        public ISmtpPilotConfiguration Configuration { get; }
 
         public void AddHeader(SmtpHeader header)
         {
@@ -91,7 +82,7 @@ namespace SmtpPilot.Server.States
         public void CompleteMessage()
         {
             Conversation.CurrentMessage.Complete();
-            Configuration.ServerEvents.OnEmailProcessed(_client, new EmailProcessedEventArgs(_client, _conversation.CurrentMessage, _stats));
+            Configuration.ServerEvents.OnEmailProcessed(Client, new EmailProcessedEventArgs(Client, Conversation.CurrentMessage, Statistics));
         }
 
         public void NewMessage()

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 
 namespace SmtpPilot.Server.Conversation
@@ -14,7 +14,7 @@ namespace SmtpPilot.Server.Conversation
 
         void AddAddresses(IAddress[] email);
         void AddHeader(SmtpHeader header);
-        void AppendLine(string line);
+        void AppendLine(ReadOnlySpan<char> line);
         void Complete();
     }
 }

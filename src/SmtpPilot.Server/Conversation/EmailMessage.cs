@@ -10,8 +10,8 @@ namespace SmtpPilot.Server.Conversation
     {
         private readonly List<SmtpHeader> _headers = new List<SmtpHeader>();
         private IAddress _fromAddress;
-        private List<IAddress> _toAddresses = new List<IAddress>();
-        private StringBuilder _data = new StringBuilder();
+        private readonly List<IAddress> _toAddresses = new List<IAddress>();
+        private readonly StringBuilder _data = new StringBuilder();
         private bool _complete = false;
 
         public ReadOnlyCollection<SmtpHeader> Headers { get { return _headers.AsReadOnly(); } }
@@ -21,9 +21,9 @@ namespace SmtpPilot.Server.Conversation
             _headers.Add(header);
         }
 
-        public void AppendLine(string line)
+        public void AppendLine(ReadOnlySpan<char> line)
         {
-            _data.AppendLine(line);
+            _data.Append(line).Append(Environment.NewLine.AsSpan());
         }
 
         public IAddress FromAddress

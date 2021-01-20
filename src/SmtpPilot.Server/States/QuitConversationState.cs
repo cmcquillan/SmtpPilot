@@ -24,7 +24,7 @@ namespace SmtpPilot.Server.States
         {
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
         {
             return this;
         }

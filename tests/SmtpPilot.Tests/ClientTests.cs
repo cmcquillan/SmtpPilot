@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot.Tests
@@ -16,16 +17,17 @@ namespace SmtpPilot.Tests
         [Test]
         public void BasicEmailSendsSuccessfully()
         {
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
+                var cts = new CancellationTokenSource();
                 var config = TestHelper.GetConfig(TestHelper.BasicMessage);
                 var server = new SMTPServer(config);
                 server.Events.EmailProcessed += (s, evt) =>
                 {
-                    server.Stop();  
+                    cts.Cancel();
                 };
 
-                server.Run();
+                await server.Run(cts.Token);
 
                 Assert.AreEqual(1, server.Statistics.EmailsReceived);
             });
@@ -34,16 +36,17 @@ namespace SmtpPilot.Tests
         [Test]
         public void LargeEmailSendsSuccessfully()
         {
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
+                var cts = new CancellationTokenSource();
                 var config = TestHelper.GetConfig(TestHelper.LongMessage);
                 var server = new SMTPServer(config);
                 server.Events.EmailProcessed += (s, evt) =>
                 {
-                    server.Stop();
+                    cts.Cancel();
                 };
 
-                server.Run();
+                await server.Run(cts.Token);
 
                 Assert.AreEqual(1, server.Statistics.EmailsReceived);
             });

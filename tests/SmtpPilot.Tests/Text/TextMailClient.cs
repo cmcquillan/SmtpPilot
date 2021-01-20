@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
-using SmtpPilot.Server.Conversation;
+using System.Threading.Tasks;
 using SmtpPilot.Server.IO;
 
 namespace SmtpPilot.Tests.Text
 {
     internal class TextMailClient : IMailClient, IDisposable
     {
-        private StreamReader _stream;
+        private readonly StreamReader _stream;
 
         public TextMailClient(Stream stream)
         {
@@ -18,8 +18,6 @@ namespace SmtpPilot.Tests.Text
 
         public bool Disconnected => _stream.EndOfStream;
 
-        public bool HasData => !(_stream.EndOfStream);
-
         public int SecondsClientHasBeenSilent => 0;
 
         public void Disconnect()
@@ -27,9 +25,9 @@ namespace SmtpPilot.Tests.Text
             // Intentionally Empty
         }
 
-        public string ReadLine()
+        public async Task<string> ReadLine()
         {
-            return _stream.ReadLine() + "\r\n";
+            return await Task.FromResult(_stream.ReadLine() + "\r\n");
         }
 
         public void Write(string message)

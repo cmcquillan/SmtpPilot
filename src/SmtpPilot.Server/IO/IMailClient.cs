@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.IO
 {
@@ -12,13 +13,11 @@ namespace SmtpPilot.Server.IO
 
         void Write(string message);
 
-        string ReadLine();
+        Task<string> ReadLine();
 
         void Disconnect();
 
         bool Disconnected { get; }
-
-        bool HasData { get; }
 
         int SecondsClientHasBeenSilent { get; }
     }

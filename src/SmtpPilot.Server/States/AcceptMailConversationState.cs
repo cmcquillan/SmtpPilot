@@ -27,7 +27,7 @@ namespace SmtpPilot.Server.States
             
         }
 
-        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
         {
             switch(cmd.Command)
             {

@@ -30,19 +30,20 @@ namespace SmtpPilot.Server.States
             context.Reply(SmtpReply.OK);
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, string line)
+        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
         {
-            if (line.Equals(Constants.CarriageReturnLineFeed))
+            if (line.SequenceEqual(Constants.CarriageReturnLineFeed.AsSpan()))
                 return this;
 
-            string choppedLine = line.Replace(Environment.NewLine, String.Empty);
+            var index = line.LastIndexOf(Environment.NewLine.AsSpan());
+            var lengthWithoutNewLine = index != -1 ? index : line.Length;
+            ReadOnlySpan<char> choppedLine = line.Slice(0, lengthWithoutNewLine);
 
             if (!_headersAreOver)
             {
                 if (IO.IOHelper.LooksLikeHeader(line))
                 {
-                    string[] header = choppedLine.Split(new char[] { ':' }, 2);
-                    context.AddHeader(new SmtpHeader(header[0], header[1]));
+                    context.AddHeader(SmtpHeader.Parse(choppedLine));
                 }
                 else
                 {
@@ -54,7 +55,7 @@ namespace SmtpPilot.Server.States
                 context.Conversation.CurrentMessage.AppendLine(choppedLine);
             }
 
-            if (_headersAreOver && line.Equals(Constants.EndOfDataElement))
+            if (_headersAreOver && line.SequenceEqual(Constants.EndOfDataElement.AsSpan()))
             {
                 context.CompleteMessage();
                 return new AcceptMailConversationState();
