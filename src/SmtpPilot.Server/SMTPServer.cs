@@ -98,7 +98,7 @@ namespace SmtpPilot.Server
                         continue;
                     }
 
-                    await _conversations[client.ClientId].ProcessLine();
+                    await _conversations[client.ClientId].ProcessData();
 
                     if(client.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
                     {

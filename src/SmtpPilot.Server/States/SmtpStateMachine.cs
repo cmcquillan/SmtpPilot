@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.States
 {
-    public class SmtpStateMachine
+    internal class SmtpStateMachine
     {
         private readonly SmtpConversation _conversation;
         private readonly IMailClient _client;
@@ -19,19 +19,19 @@ namespace SmtpPilot.Server.States
         private readonly EmailStatistics _emailStats;
         private readonly SmtpPilotConfiguration _configuration;
 
-        public SmtpStateMachine(IMailClient client, SmtpConversation conversation, EmailStatistics statistics, SmtpPilotConfiguration configuration)
+        internal SmtpStateMachine(IMailClient client, SmtpConversation conversation, EmailStatistics statistics, SmtpPilotConfiguration configuration)
         {
             _configuration = configuration;
             _emailStats = statistics;
             _client = client;
             _conversation = conversation;
             _context = new SmtpStateContext(Client, Conversation, _currentCommand, _emailStats, _configuration);
-            CurrentState = new OpenConnectionState();
+            CurrentState = ConversationStates.OpenConnection;
         }
 
-        public ISmtpStateContext Context { get { return _context; } }
+        internal ISmtpStateContext Context { get { return _context; } }
 
-        public IConversationState CurrentState
+        internal IConversationState CurrentState
         {
             get
             {
@@ -57,12 +57,12 @@ namespace SmtpPilot.Server.States
             }
         }
 
-        public SmtpConversation Conversation
+        internal SmtpConversation Conversation
         {
             get { return _conversation; }
         }
 
-        public async Task ProcessLine()
+        internal async Task ProcessData()
         {
             /* Steps:
              * 1) Grab a line, exit if null received.
@@ -121,9 +121,9 @@ namespace SmtpPilot.Server.States
             return command;
         }
 
-        public IMailClient Client { get { return _client; } }
+        internal IMailClient Client { get { return _client; } }
 
-        public bool IsInQuitState { get { return _currentState is QuitConversationState; } }
+        internal bool IsInQuitState { get { return _currentState is QuitConversationState; } }
 
     }
 }
