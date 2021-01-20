@@ -47,5 +47,17 @@ namespace SmtpPilot.Tests.Text
                 _stream?.Dispose();
             }
         }
+
+        public int ReadLine(Span<char> buffer)
+        {
+            var line = _stream.ReadLine() + "\r\n";
+
+            for(int i = 0; i < line.Length; i++)
+            {
+                buffer[i] = line[i];
+            }
+
+            return line.Length;
+        }
     }
 }

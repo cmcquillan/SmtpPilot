@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmtpPilot.Server.Communication;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -46,7 +47,8 @@ namespace SmtpPilot.Server.IO
         public IMailClient AcceptClient()
         {
             var client = _listener.AcceptTcpClientAsync().Result;
-            return new TcpMailClient(client, Guid.NewGuid());
+
+            return new KestrelMailClient(client);
         }
 
         protected void Dispose(bool disposing)
