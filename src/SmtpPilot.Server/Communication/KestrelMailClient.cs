@@ -11,7 +11,6 @@ namespace SmtpPilot.Server.Communication
 {
     public class KestrelMailClient : IMailClient
     {
-        private readonly StringBuilder _builder = new StringBuilder();
         private readonly Func<bool> _closedFunc;
         private readonly PipeReader _reader;
         private readonly PipeWriter _writer;
