@@ -4,18 +4,65 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot.Tests
 {
     internal static class TestHelper
     {
-        internal static SmtpPilotConfiguration GetConfig(string text)
+        private const string _loopback = "127.0.0.1";
+        private const int _portNumber = 25;
+
+        internal static Task SendAndRun(string text, SMTPServer server, CancellationToken cancellationToken = default)
+            => Task.WhenAll(server.Run(cancellationToken), SendToLoopback(text, cancellationToken: cancellationToken));
+
+        internal static Task SendAndRunThenDisconnect(string text, SMTPServer server, CancellationToken cancellationToken = default)
+            => Task.WhenAll(server.Run(cancellationToken), SendToLoopback(text, true, cancellationToken: cancellationToken));
+
+        internal static Task SendToLoopback(string text, bool closeOnComplete = false, CancellationToken cancellationToken = default)
         {
-            var ms = new MemoryStream(Encoding.ASCII.GetBytes(text));
-            var listener = new TextClientListener(ms);
-            var config = new SmtpPilotConfiguration(new[] { listener }, "Test");
+            var tcs = new TaskCompletionSource();
+            ThreadPool.QueueUserWorkItem(async (completion) =>
+            {
+                var tcs = completion as TaskCompletionSource;
+
+                try
+                {
+                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    cancellationToken.Register(() =>
+                    {
+                        socket.Shutdown(SocketShutdown.Both);
+                        socket.Close();
+                        tcs.TrySetCanceled();
+                    });
+
+                    await socket.ConnectAsync(_loopback, _portNumber);
+                    var bytes = Encoding.ASCII.GetBytes(text);
+                    await socket.SendAsync(bytes, SocketFlags.None);
+
+                    if(closeOnComplete)
+                    {
+                        socket.Shutdown(SocketShutdown.Both);
+                        socket.Close();
+                    }
+
+                    tcs.TrySetResult();
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            }, (object)tcs, false);
+
+            return tcs.Task;
+        }
+
+        internal static SmtpPilotConfiguration GetConfig()
+        {
+            var config = new SmtpPilotConfiguration(_loopback, _portNumber, "Test");
 
             return config;
         }

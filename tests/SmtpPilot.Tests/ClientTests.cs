@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static SmtpPilot.Tests.TestHelper;
 
 namespace SmtpPilot.Tests
 {
@@ -20,14 +22,15 @@ namespace SmtpPilot.Tests
             Assert.DoesNotThrowAsync(async () =>
             {
                 var cts = new CancellationTokenSource();
-                var config = TestHelper.GetConfig(TestHelper.BasicMessage);
-                var server = new SMTPServer(config);
+                var config = GetConfig();
+                var server = SMTPServer.CreateSmtpHost(Array.Empty<string>(), config);
+
                 server.Events.EmailProcessed += (s, evt) =>
                 {
                     cts.Cancel();
                 };
 
-                await server.Run(cts.Token);
+                await SendAndRun(BasicMessage, server, cts.Token);
 
                 Assert.AreEqual(1, server.Statistics.EmailsReceived);
             });
@@ -39,14 +42,15 @@ namespace SmtpPilot.Tests
             Assert.DoesNotThrowAsync(async () =>
             {
                 var cts = new CancellationTokenSource();
-                var config = TestHelper.GetConfig(TestHelper.LongMessage);
-                var server = new SMTPServer(config);
+                //cts.CancelAfter(10000);
+                var config = GetConfig();
+                var server = SMTPServer.CreateSmtpHost(Array.Empty<string>(), config);
                 server.Events.EmailProcessed += (s, evt) =>
                 {
                     cts.Cancel();
                 };
 
-                await server.Run(cts.Token);
+                await SendAndRun(LongMessage, server, cts.Token);
 
                 Assert.AreEqual(1, server.Statistics.EmailsReceived);
             });

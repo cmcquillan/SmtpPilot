@@ -50,10 +50,8 @@ namespace SmtpPilot.Server.States
                     SetHeadersComplete(context, true);
                 }
             }
-            else
-            {
-                context.Conversation.CurrentMessage.AppendLine(choppedLine);
-            }
+            
+            context.Conversation.CurrentMessage.AppendLine(choppedLine);
 
             if (HeadersAreComplete(context) && line.SequenceEqual(Constants.EndOfDataElement.AsSpan()))
             {

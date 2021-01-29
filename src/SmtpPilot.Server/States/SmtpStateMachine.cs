@@ -116,7 +116,7 @@ namespace SmtpPilot.Server.States
             } 
             finally
             {
-                _arrayPool.Return(buffer);
+                _arrayPool.Return(buffer, true);
             }
         }
 

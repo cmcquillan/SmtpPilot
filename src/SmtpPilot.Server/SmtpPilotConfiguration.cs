@@ -1,6 +1,7 @@
 ﻿using SmtpPilot.Server.Data;
 using SmtpPilot.Server.IO;
 using System.Collections.Generic;
+using System.Net;
 
 namespace SmtpPilot.Server
 {
@@ -16,27 +17,27 @@ namespace SmtpPilot.Server
         {
         }
 
-        public SmtpPilotConfiguration(string listenIp, int portNumber)
+        public SmtpPilotConfiguration(string listenIp, ushort portNumber)
             : this(listenIp, portNumber, DefaultHostName)
         {
         }
 
-        public SmtpPilotConfiguration(string listenIp, int portNumber, string hostname)
-            : this(new[] { new TcpClientListener(listenIp, portNumber) }, hostname)
+        public SmtpPilotConfiguration(string listenIp, ushort portNumber, string hostname)
+            : this(new[] { new TcpListenerParameters(IPAddress.Parse(listenIp), portNumber) }, hostname)
         {
         }
 
-        public SmtpPilotConfiguration(IEnumerable<IMailClientListener> listeners, string hostname)
+        public SmtpPilotConfiguration(IEnumerable<TcpListenerParameters> listenParameters, string hostname)
         {
             ServerEvents = new SmtpServerEvents();
             ClientTimeoutSeconds = DefaultTimeoutSeconds;
             HostName = hostname ?? DefaultHostName;
-            Listeners = new List<IMailClientListener>(listeners);
+            ListenParameters = new List<TcpListenerParameters>(listenParameters);
         }
 
         public string HostName { get; set; }
 
-        public IReadOnlyList<IMailClientListener> Listeners { get; }
+        public IReadOnlyList<TcpListenerParameters> ListenParameters { get; }
 
         public int ClientTimeoutSeconds { get; set; }
 

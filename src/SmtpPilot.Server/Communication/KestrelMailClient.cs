@@ -5,12 +5,12 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Communication
 {
     public class KestrelMailClient : IMailClient
     {
+        private bool _isClosed = false;
         private readonly Func<bool> _closedFunc;
         private readonly PipeReader _reader;
         private readonly PipeWriter _writer;
@@ -21,11 +21,10 @@ namespace SmtpPilot.Server.Communication
             _reader = context.Transport.Input;
             _writer = context.Transport.Output;
 
-            object isClosed = false;
-            _closedFunc = () => (bool)isClosed;
+            _closedFunc = () => _isClosed;
             void OnClosed()
             {
-                isClosed = true;
+                _isClosed = true;
             }
         }
 
@@ -102,7 +101,7 @@ namespace SmtpPilot.Server.Communication
                 var last = processed == length;
                 var span = bytes.Span;
                 var chars = decoder.GetChars(span, buffer, last);
-                buffer = buffer.Slice(0, chars);
+                buffer = buffer.Slice(chars + 1);
                 written += chars;
             }
 

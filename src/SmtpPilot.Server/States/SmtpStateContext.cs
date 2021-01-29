@@ -86,6 +86,7 @@ namespace SmtpPilot.Server.States
         {
             Conversation.CurrentMessage.Complete();
             Configuration.ServerEvents.OnEmailProcessed(Client, new EmailProcessedEventArgs(Client, Conversation.CurrentMessage, Statistics));
+            Statistics.AddEmailReceived();
         }
 
         public void NewMessage()

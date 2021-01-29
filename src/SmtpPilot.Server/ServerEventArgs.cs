@@ -8,14 +8,11 @@ namespace SmtpPilot.Server
 {
     public class ServerEventArgs : EventArgs
     {
-        public ServerEventArgs(SMTPServer server, ServerEventType type)
+        public ServerEventArgs(ServerEventType type)
         {
-            Server = server;
             EventType = type;
             EventTime = DateTimeOffset.Now;
         }
-
-        public SMTPServer Server { get; }
 
         public ServerEventType EventType { get; }
 
