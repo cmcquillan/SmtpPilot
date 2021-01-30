@@ -14,27 +14,24 @@ namespace SmtpPilot.Server.Communication
     {
         private readonly SmtpPilotConfiguration _configuration;
         private readonly EmailStatistics _statistics;
-        private readonly SmtpConversation _conversation;
-        private IMailClient _mailClient;
-        private SmtpStateMachine _machine;
 
         public KestrelConnectionHandler(SmtpPilotConfiguration configuration, EmailStatistics statistics)
         {
             _configuration = configuration;
             _statistics = statistics;
-            _conversation = new SmtpConversation();
         }
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
         {
-            _mailClient = new KestrelMailClient(connection);
-            _machine = new SmtpStateMachine(_mailClient, _conversation, _statistics, _configuration);
+            var conversation = new SmtpConversation();
+            var mailClient = new KestrelMailClient(connection);
+            var machine = new SmtpStateMachine(mailClient, conversation, _statistics, _configuration);
 
-            while (!_mailClient.Disconnected)
+            while (!mailClient.Disconnected)
             {
-                await _machine.ProcessData();
+                await machine.ProcessData();
 
-                if (_mailClient.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
+                if (mailClient.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
                 {
                     break;
                 }
@@ -42,7 +39,7 @@ namespace SmtpPilot.Server.Communication
                 await Task.Delay(1);
             }
 
-            _configuration.ServerEvents.OnClientDisconnected(this, new MailClientDisconnectedEventArgs(_mailClient, DisconnectReason.ClientDisconnect));
+            _configuration.ServerEvents.OnClientDisconnected(this, new MailClientDisconnectedEventArgs(mailClient, DisconnectReason.ClientDisconnect));
         }
     }
 }
