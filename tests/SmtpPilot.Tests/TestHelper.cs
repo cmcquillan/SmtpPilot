@@ -14,7 +14,7 @@ namespace SmtpPilot.Tests
     internal static class TestHelper
     {
         private const string _loopback = "127.0.0.1";
-        private const int _portNumber = 25;
+        private const int _portNumber = 32025;
 
         internal static Task SendAndRun(string text, SMTPServer server, CancellationToken cancellationToken = default)
             => Task.WhenAll(server.Run(cancellationToken), SendToLoopback(text, cancellationToken: cancellationToken));
