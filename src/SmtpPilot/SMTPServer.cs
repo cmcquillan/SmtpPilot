@@ -37,22 +37,14 @@ namespace SmtpPilot
                 })
                 .UseKestrel(options =>
                 {
-                    // TCP 25
-                    options.ListenLocalhost(25, builder =>
+                    foreach(var item in configuration.ListenParameters)
                     {
-                        builder.UseConnectionHandler<KestrelConnectionHandler>();
-                    });
-
-                    // HTTP 5000
-                    options.ListenLocalhost(5000);
-
-                    // HTTPS 5001
-                    options.ListenLocalhost(5001, builder =>
-                    {
-                        builder.UseHttps();
-                    });
-                })
-                .UseStartup<Startup>();
+                        options.Listen(item.Address, item.Port, builder =>
+                        {
+                            builder.UseConnectionHandler<KestrelConnectionHandler>();
+                        });
+                    }
+                }).UseStartup<Startup>();
             
             var host = builder.Build();
             var stats = host.Services.GetRequiredService<EmailStatistics>();
