@@ -11,6 +11,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:5.0
+      ports: 
+      - 32025
+
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -23,3 +28,4 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      
