@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Communication
@@ -19,6 +20,7 @@ namespace SmtpPilot.Server.Communication
         {
             _configuration = configuration;
             _statistics = statistics;
+            _statistics.SetStart();
         }
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
@@ -31,10 +33,11 @@ namespace SmtpPilot.Server.Communication
             {
                 await machine.ProcessData();
 
-                if (mailClient.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
-                {
+                if (mailClient.Disconnected)
                     break;
-                }
+
+                if (mailClient.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
+                    break;
 
                 await Task.Delay(1);
             }
