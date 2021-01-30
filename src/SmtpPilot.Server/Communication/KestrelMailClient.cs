@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Connections;
+using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.IO;
 using System;
 using System.Buffers;
@@ -67,7 +68,7 @@ namespace SmtpPilot.Server.Communication
 
         public void Write(string message)
         {
-            var newlines = Encoding.ASCII.GetBytes(Environment.NewLine);
+            var newlines = Encoding.ASCII.GetBytes(Constants.CarriageReturnLineFeed);
             _writer.WriteAsync(Encoding.ASCII.GetBytes(message)).GetAwaiter().GetResult();
             _writer.WriteAsync(newlines).GetAwaiter().GetResult();
         }

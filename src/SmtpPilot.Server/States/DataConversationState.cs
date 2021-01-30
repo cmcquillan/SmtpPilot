@@ -35,7 +35,7 @@ namespace SmtpPilot.Server.States
             if (line.SequenceEqual(Constants.CarriageReturnLineFeed.AsSpan()))
                 return this;
 
-            var index = line.LastIndexOf(Environment.NewLine.AsSpan());
+            var index = line.LastIndexOf(Constants.CarriageReturnLineFeed.AsSpan());
             var lengthWithoutNewLine = index != -1 ? index : line.Length;
             ReadOnlySpan<char> choppedLine = line.Slice(0, lengthWithoutNewLine);
 
