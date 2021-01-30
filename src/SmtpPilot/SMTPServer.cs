@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SmtpPilot
 {
@@ -30,10 +31,19 @@ namespace SmtpPilot
         public static SMTPServer CreateSmtpHost(string[] args, SmtpPilotConfiguration configuration)
         {
             var builder = WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                })
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton(configuration);
                     services.AddSingleton<EmailStatistics>();
+                })
+                .ConfigureKestrel(kestrel =>
+                {
+                    kestrel.Limits.MaxConcurrentConnections = 1000;
                 })
                 .UseKestrel(options =>
                 {
