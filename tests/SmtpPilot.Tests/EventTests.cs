@@ -27,7 +27,7 @@ namespace SmtpPilot.Tests
         {
             Server = GetServer();
             _cts = new CancellationTokenSource();
-            _cts.CancelAfter(TimeSpan.FromSeconds(60));
+            _cts.CancelAfter(TimeSpan.FromSeconds(30));
         }
 
         [Test]

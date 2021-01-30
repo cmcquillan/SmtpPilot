@@ -22,6 +22,7 @@ namespace SmtpPilot.Tests
             Assert.DoesNotThrowAsync(async () =>
             {
                 var cts = new CancellationTokenSource();
+                cts.CancelAfter(30000);
                 var config = GetConfig();
                 var server = SMTPServer.CreateSmtpHost(Array.Empty<string>(), config);
 
@@ -42,7 +43,7 @@ namespace SmtpPilot.Tests
             Assert.DoesNotThrowAsync(async () =>
             {
                 var cts = new CancellationTokenSource();
-                //cts.CancelAfter(10000);
+                cts.CancelAfter(30000);
                 var config = GetConfig();
                 var server = SMTPServer.CreateSmtpHost(Array.Empty<string>(), config);
                 server.Events.EmailProcessed += (s, evt) =>
