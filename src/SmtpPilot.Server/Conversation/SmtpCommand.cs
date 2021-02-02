@@ -8,7 +8,7 @@ namespace SmtpPilot.Server.Conversation
     [Flags]
     public enum SmtpCommand : int
     {
-        NonCommand = 0,
+        None = 0,
         EHLO = 1,
         HELO = EHLO,
         MAIL = 1 << 1,

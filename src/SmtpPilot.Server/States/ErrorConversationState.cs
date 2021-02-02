@@ -39,7 +39,7 @@ namespace SmtpPilot.Server.States
 
         public Conversation.SmtpCommand AllowedCommands
         {
-            get { return Conversation.SmtpCommand.NonCommand; }
+            get { return Conversation.SmtpCommand.None; }
         }
 
         public bool AcceptingCommands => false;

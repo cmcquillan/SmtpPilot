@@ -13,7 +13,7 @@ namespace SmtpPilot.Server.States
         {
             get
             {
-                return SmtpCommand.NonCommand;
+                return SmtpCommand.None;
             }
         }
 

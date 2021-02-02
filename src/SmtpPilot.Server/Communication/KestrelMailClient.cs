@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
+using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
 using System;
 using System.Buffers;
@@ -87,16 +88,45 @@ namespace SmtpPilot.Server.Communication
             processed = 0;
             written = 0;
 
-            foreach(var bytes in line)
+            foreach (var bytes in line)
             {
                 processed += bytes.Length;
                 var last = processed == length;
                 var span = bytes.Span;
                 var chars = decoder.GetChars(span, buffer, last);
-                buffer = buffer.Slice(chars + 1);
+                buffer = buffer[(chars + 1)..];
                 written += chars;
             }
 
+        }
+
+        private void FillCount(ReadOnlySequence<byte> read, Span<char> buffer, int count)
+        {
+            var decoder = Encoding.ASCII.GetDecoder();
+            var num = 0;
+
+            foreach (var segment in read.Slice(0, count))
+            {
+                var maximum = Math.Min(buffer.Length - num, segment.Length);
+                var chars = decoder.GetChars(segment.Span[0..maximum], buffer, true);
+                buffer = buffer[(chars + 1)..];
+                num += chars;
+            }
+        }
+
+        public bool Read(int count, Span<char> buffer)
+        {
+            if (_reader.TryRead(out var result))
+            {
+                if (result.Buffer.Length >= count)
+                {
+                    FillCount(result.Buffer, buffer, count);
+                    _reader.AdvanceTo(result.Buffer.GetPosition(count));
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

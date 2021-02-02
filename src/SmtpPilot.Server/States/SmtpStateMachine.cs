@@ -19,8 +19,8 @@ namespace SmtpPilot.Server.States
         private readonly SmtpConversation _conversation;
         private readonly IMailClient _client;
         private IConversationState _currentState;
-        private readonly ISmtpStateContext _context;
-        private readonly SmtpCommand _currentCommand = SmtpCommand.NonCommand;
+        private readonly SmtpStateContext _context;
+        private readonly SmtpCommand _currentCommand = SmtpCommand.None;
         private readonly EmailStatistics _emailStats;
         private readonly SmtpPilotConfiguration _configuration;
         private readonly ILogger<SmtpStateMachine> _logger;
@@ -94,8 +94,6 @@ namespace SmtpPilot.Server.States
                 Memory<char> memory = buffer.AsMemory();
                 var read = Client.ReadLine(memory.Span);
 
-                //var line = await Client.ReadLine();
-
                 if (read > 0)
                 {
                     SmtpCmd command = null;
@@ -103,12 +101,12 @@ namespace SmtpPilot.Server.States
                     if (CurrentState.AcceptingCommands)
                     {
                         command = GetCommandFromLine(memory.Span.Slice(0, read));
-                        (_context as SmtpStateContext).Command = command.Command;
+                        _context.Command = command.Command;
                         Conversation.AddElement(command);
 
                         if (!CurrentState.AllowedCommands.HasFlag(command.Command))
                         {
-                            CurrentState = new ErrorConversationState();
+                            TransitionTo(ConversationStates.Error);
                             return;
                         }
 
@@ -129,6 +127,8 @@ namespace SmtpPilot.Server.States
             }
         }
 
+        private void TransitionTo(IConversationState newState) => CurrentState = newState;
+
         private SmtpCmd GetCommandFromLine(Span<char> line)
         {
             SmtpCmd command;
@@ -136,7 +136,7 @@ namespace SmtpPilot.Server.States
             Enum.TryParse(commandString, out SmtpCommand cmd);
 
             if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
-                cmd = SmtpCommand.NonCommand;
+                cmd = SmtpCommand.None;
 
             _logger.LogDebug("Received {command}", cmd);
 

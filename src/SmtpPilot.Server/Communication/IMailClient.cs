@@ -18,5 +18,7 @@ namespace SmtpPilot.Server.Communication
         int SecondsClientHasBeenSilent { get; }
 
         int ReadLine(Span<char> buffer);
+
+        bool Read(int count, Span<char> buffer);
     }
 }
