@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
+using NUnit.Framework;
 using SmtpPilot.Server;
 using SmtpPilot.Tests.Text;
 using System;
@@ -16,6 +17,10 @@ namespace SmtpPilot.Tests
     [TestFixture]
     public class ClientTests
     {
+        public ClientTests()
+        {
+        }
+
         [Test]
         public void BasicEmailSendsSuccessfully()
         {

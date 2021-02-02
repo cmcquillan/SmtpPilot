@@ -1,4 +1,5 @@
-﻿using SmtpPilot.Server.Conversation;
+﻿using Microsoft.Extensions.Logging;
+using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.IO;
 using System;
 using System.Buffers;
@@ -21,10 +22,17 @@ namespace SmtpPilot.Server.States
         private readonly SmtpCommand _currentCommand = SmtpCommand.NonCommand;
         private readonly EmailStatistics _emailStats;
         private readonly SmtpPilotConfiguration _configuration;
+        private readonly ILogger<SmtpStateMachine> _logger;
 
-        internal SmtpStateMachine(IMailClient client, SmtpConversation conversation, EmailStatistics statistics, SmtpPilotConfiguration configuration)
+        internal SmtpStateMachine(
+            IMailClient client, 
+            SmtpConversation conversation, 
+            EmailStatistics statistics, 
+            SmtpPilotConfiguration configuration,
+            ILogger<SmtpStateMachine> logger)
         {
             _configuration = configuration;
+            _logger = logger;
             _emailStats = statistics;
             _client = client;
             _conversation = conversation;
@@ -47,16 +55,16 @@ namespace SmtpPilot.Server.States
 
                 if (_currentState != null)
                 {
-                    Debug.WriteLine($"Leaving State {_currentState.GetType().Name}", TraceConstants.StateMachine);
+                    _logger.LogDebug("Leaving State {state}", _currentState);
                     _currentState.LeaveState(_context);
-                    Debug.WriteLine($"Left State {_currentState.GetType().Name}", TraceConstants.StateMachine);
+                    _logger.LogDebug("Left State {state}", _currentState);
                 }
                     
                 _currentState = value;
 
-                Debug.WriteLine($"Entering State {_currentState.GetType().Name}", TraceConstants.StateMachine);
+                _logger.LogDebug("Entering State {state}", _currentState);
                 _currentState.EnterState(_context);
-                Debug.WriteLine($"Entered State {_currentState.GetType().Name}", TraceConstants.StateMachine);
+                _logger.LogDebug("Entered State {state}", _currentState);
             }
         }
 
@@ -120,7 +128,7 @@ namespace SmtpPilot.Server.States
             }
         }
 
-        private static SmtpCmd GetCommandFromLine(Span<char> line)
+        private SmtpCmd GetCommandFromLine(Span<char> line)
         {
             SmtpCmd command;
             string commandString = (line.Length >= 4) ? line.Slice(0, 4).ToString() : String.Empty;
@@ -129,8 +137,7 @@ namespace SmtpPilot.Server.States
             if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
                 cmd = SmtpCommand.NonCommand;
 
-            Debug.WriteLine($"Received command: {cmd}.", TraceConstants.StateMachine);
-
+            _logger.LogDebug("Received {command}", cmd);
 
             command = new SmtpCmd(cmd, line.ToString());
             return command;

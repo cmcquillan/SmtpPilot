@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Connections;
+using Microsoft.Extensions.Logging;
 using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.IO;
 using System;
@@ -15,8 +16,9 @@ namespace SmtpPilot.Server.Communication
         private readonly Func<bool> _closedFunc;
         private readonly PipeReader _reader;
         private readonly PipeWriter _writer;
+        private readonly ILogger<KestrelMailClient> _logger;
 
-        public KestrelMailClient(ConnectionContext context)
+        public KestrelMailClient(ConnectionContext context, Microsoft.Extensions.Logging.ILogger<KestrelMailClient> logger)
         {
             context.ConnectionClosed.Register(OnClosed);
             _reader = context.Transport.Input;
@@ -27,6 +29,7 @@ namespace SmtpPilot.Server.Communication
             {
                 _isClosed = true;
             }
+            _logger = logger;
         }
 
         public KestrelMailClient(TcpClient client)
@@ -63,6 +66,7 @@ namespace SmtpPilot.Server.Communication
 
             line = buffer.Slice(0, slicePosition);
             buffer = buffer.Slice(slicePosition);
+            _logger.LogInformation("Read to {byteCount} from socket", line.Length);
             return true;
         }
 
