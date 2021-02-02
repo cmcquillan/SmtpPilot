@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using SmtpPilot.Server;
-using SmtpPilot.Tests.Text;
 using System;
 using System.Collections.Generic;
 using System.IO;

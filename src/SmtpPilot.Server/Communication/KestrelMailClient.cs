@@ -66,7 +66,7 @@ namespace SmtpPilot.Server.Communication
 
             line = buffer.Slice(0, slicePosition);
             buffer = buffer.Slice(slicePosition);
-            _logger.LogInformation("Read to {byteCount} from socket", line.Length);
+            _logger.LogTrace("Read to {byteCount} from socket", line.Length);
             return true;
         }
 
