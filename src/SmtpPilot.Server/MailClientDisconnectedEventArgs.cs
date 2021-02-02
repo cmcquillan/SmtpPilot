@@ -1,4 +1,4 @@
-﻿using SmtpPilot.Server.IO;
+﻿using SmtpPilot.Server.Communication;
 
 namespace SmtpPilot.Server
 {

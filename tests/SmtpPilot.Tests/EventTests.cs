@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using NUnit.Framework;
 using SmtpPilot.Server;
-using SmtpPilot.Server.IO;
+using SmtpPilot.Server.Communication;
 using System;
 using System.Collections.Generic;
 using System.IO.Pipelines;

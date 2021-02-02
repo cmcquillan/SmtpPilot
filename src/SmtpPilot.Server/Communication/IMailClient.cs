@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SmtpPilot.Server.IO
+namespace SmtpPilot.Server.Communication
 {
     public interface IMailClient
     {

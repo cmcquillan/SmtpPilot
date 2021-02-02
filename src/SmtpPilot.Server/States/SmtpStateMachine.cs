@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using SmtpPilot.Server.Communication;
 using SmtpPilot.Server.Conversation;
-using SmtpPilot.Server.IO;
 using System;
 using System.Buffers;
 using System.Collections.Generic;

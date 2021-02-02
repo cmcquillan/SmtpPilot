@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using SmtpPilot.Server.Internal;
-using SmtpPilot.Server.IO;
 using System;
 using System.Buffers;
 using System.IO.Pipelines;

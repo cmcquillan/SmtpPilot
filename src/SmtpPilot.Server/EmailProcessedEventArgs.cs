@@ -1,5 +1,5 @@
-﻿using SmtpPilot.Server.Conversation;
-using SmtpPilot.Server.IO;
+﻿using SmtpPilot.Server.Communication;
+using SmtpPilot.Server.Conversation;
 using System;
 
 namespace SmtpPilot.Server
