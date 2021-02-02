@@ -25,9 +25,9 @@ namespace SmtpPilot
 
         internal List<string> ListenIPAddress { get; set; } = new List<string>();
 
-        internal int ListenPort { get; set; }
+        internal ushort ListenPort { get; set; }
 
-        internal SmtpPilotConfiguration ToConfiguration(IEnumerable<IMailClientListener> listeners)
+        internal SmtpPilotConfiguration ToConfiguration(IEnumerable<TcpListenerParameters> listeners)
         {
             var config = new SmtpPilotConfiguration(listeners, HostName);
             if (WriteMailToFolder)

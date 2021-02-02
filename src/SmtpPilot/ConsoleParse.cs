@@ -47,7 +47,7 @@ namespace SmtpPilot
                         break;
                     case "-p":
                     case "--port":
-                        if (!Int32.TryParse(args[++i], out int port))
+                        if (!UInt16.TryParse(args[++i], out var port))
                         {
                             ConsoleBehavior.ExitWithError("Invalid port number.", ExitCode.InvalidArguments);
                         }

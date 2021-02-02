@@ -13,12 +13,12 @@ namespace SmtpPilot.Server.IO
 
         void Write(string message);
 
-        Task<string> ReadLine();
-
         void Disconnect();
 
         bool Disconnected { get; }
 
         int SecondsClientHasBeenSilent { get; }
+
+        int ReadLine(Span<char> buffer);
     }
 }

@@ -18,6 +18,7 @@ namespace SmtpPilot.Server.States
         public void EnterState(ISmtpStateContext context)
         {
             context.Reply(SmtpReply.ServerClosing);
+            context.Configuration.ServerEvents.OnClientDisconnected(this, new MailClientDisconnectedEventArgs(context.Client, DisconnectReason.TransactionCompleted));
         }
 
         public void LeaveState(ISmtpStateContext context)

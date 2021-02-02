@@ -52,7 +52,7 @@ namespace SmtpPilot.Server.Conversation
 
         public override string ToString()
         {
-            return FullText + Environment.NewLine;
+            return FullText + Constants.CarriageReturnLineFeed;
         }
 
         public override string Preamble

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmtpPilot.Server.Internal;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace SmtpPilot.Server.Conversation
 
         public void AppendLine(ReadOnlySpan<char> line)
         {
-            _data.Append(line).Append(Environment.NewLine.AsSpan());
+            _data.Append(line).Append(Constants.CarriageReturnLineFeed.AsSpan());
         }
 
         public IAddress FromAddress

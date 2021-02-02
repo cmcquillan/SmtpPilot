@@ -1,78 +1,55 @@
 ﻿using Microsoft.AspNetCore.Connections;
+using Microsoft.Extensions.Logging;
+using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.IO;
 using System;
 using System.Buffers;
 using System.IO.Pipelines;
+using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Communication
 {
     public class KestrelMailClient : IMailClient
     {
-        private readonly StringBuilder _builder = new StringBuilder();
-        private readonly ConnectionContext _context;
-        private bool _closed;
+        private bool _isClosed = false;
+        private readonly Func<bool> _closedFunc;
         private readonly PipeReader _reader;
         private readonly PipeWriter _writer;
+        private readonly ILogger<KestrelMailClient> _logger;
 
-        public KestrelMailClient(ConnectionContext context)
+        public KestrelMailClient(ConnectionContext context, Microsoft.Extensions.Logging.ILogger<KestrelMailClient> logger)
         {
-            _context = context;
-            _context.ConnectionClosed.Register(OnClosed);
-            _reader = _context.Transport.Input;
-            _writer = _context.Transport.Output;
+            context.ConnectionClosed.Register(OnClosed);
+            _reader = context.Transport.Input;
+            _writer = context.Transport.Output;
+
+            _closedFunc = () => _isClosed;
+            void OnClosed()
+            {
+                _isClosed = true;
+            }
+            _logger = logger;
         }
 
-        private void OnClosed()
+        public KestrelMailClient(TcpClient client)
         {
-            _closed = true;
+            var stream = client.GetStream();
+            _reader = PipeReader.Create(stream);
+            _writer = PipeWriter.Create(stream);
+            _closedFunc = () => !client.Connected;
         }
 
         public Guid ClientId { get; } = Guid.NewGuid();
-        public bool Disconnected => _closed;
+        
+        public bool Disconnected => _closedFunc();
+        
         public int SecondsClientHasBeenSilent => 1;
 
         public void Disconnect()
         {
             // Maybe?
             _writer.Complete();
-        }
-
-        public async Task<string> ReadLine()
-        {
-            var read = await _reader.ReadAsync();
-            var buffer = read.Buffer;
-
-            if (TryReadLine(ref buffer, out ReadOnlySequence<byte> line))
-            {
-                var ret = GetLine(line);
-                _reader.AdvanceTo(buffer.Start);
-                return ret;
-            }
-
-            return null;
-        }
-
-        private string GetLine(ReadOnlySequence<byte> line)
-        {
-            var decoder = Encoding.ASCII.GetDecoder();
-            var builder = new StringBuilder();
-            var length = line.Length;
-            var processed = 0;
-
-            foreach (var bytes in line)
-            {
-                processed += bytes.Length;
-                var last = processed == length;
-                var span = bytes.Span;
-                var count = decoder.GetCharCount(span, last);
-                Span<char> buffer = stackalloc char[count];
-                decoder.GetChars(span, buffer, last);
-                builder.Append(buffer);
-            }
-
-            return builder.ToString();
         }
 
         private bool TryReadLine(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> line)
@@ -89,14 +66,50 @@ namespace SmtpPilot.Server.Communication
 
             line = buffer.Slice(0, slicePosition);
             buffer = buffer.Slice(slicePosition);
+            _logger.LogTrace("Read to {byteCount} from socket", line.Length);
             return true;
         }
 
         public void Write(string message)
         {
-            var newlines = Encoding.ASCII.GetBytes(Environment.NewLine);
+            var newlines = Encoding.ASCII.GetBytes(Constants.CarriageReturnLineFeed);
             _writer.WriteAsync(Encoding.ASCII.GetBytes(message)).GetAwaiter().GetResult();
             _writer.WriteAsync(newlines).GetAwaiter().GetResult();
+        }
+
+        public int ReadLine(Span<char> outBuffer)
+        {
+            if (_reader.TryRead(out var read))
+            {
+                var inBuffer = read.Buffer;
+                if (TryReadLine(ref inBuffer, out var line))
+                {
+                    FillLine(line, outBuffer, out var processed, out var written);
+                    _reader.AdvanceTo(inBuffer.Start);
+                    return written;
+                }
+            }
+
+            return 0;
+        }
+
+        private void FillLine(ReadOnlySequence<byte> line, Span<char> buffer, out int processed, out int written)
+        {
+            var decoder = Encoding.ASCII.GetDecoder();
+            var length = buffer.Length;
+            processed = 0;
+            written = 0;
+
+            foreach(var bytes in line)
+            {
+                processed += bytes.Length;
+                var last = processed == length;
+                var span = bytes.Span;
+                var chars = decoder.GetChars(span, buffer, last);
+                buffer = buffer.Slice(chars + 1);
+                written += chars;
+            }
+
         }
     }
 }

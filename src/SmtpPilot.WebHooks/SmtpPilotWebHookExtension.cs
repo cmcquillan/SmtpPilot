@@ -27,6 +27,8 @@ namespace SmtpPilot.WebHooks
         internal SmtpPilotWebHookExtension(SmtpPilotConfiguration config, string webHookUrl)
         {
             _webHookUrl = webHookUrl;
+            _client = new HttpClient();
+
 
             if (!_webHookUrl.EndsWith("/"))
             {
@@ -36,25 +38,11 @@ namespace SmtpPilot.WebHooks
             _cancellationTokenSource = new CancellationTokenSource();
 
             config.ServerEvents.EmailProcessed += EmailProcessedWebHook;
-            config.ServerEvents.ServerStarted += ServerStarted;
-            config.ServerEvents.ServerStopped += ServerStopped;
         }
 
         internal int MaxWebHookAttempts { get; set; }
 
         internal int WebHookRetryTimeFactor { get; set; }
-
-        private void ServerStopped(object sender, ServerEventArgs eventArgs)
-        {
-            _cancellationTokenSource.Cancel();
-            _client?.Dispose();
-            _client = null;
-        }
-
-        private void ServerStarted(object sender, ServerEventArgs eventArgs)
-        {
-            _client = new HttpClient();
-        }
 
         private void EmailProcessedWebHook(object sender, EmailProcessedEventArgs eventArgs)
         {

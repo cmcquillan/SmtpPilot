@@ -18,7 +18,7 @@ namespace SmtpPilot.Server.States
 
         public override void LeaveState(ISmtpStateContext context)
         {
-            
+
         }
 
         public override SmtpCommand AllowedCommands
@@ -28,14 +28,15 @@ namespace SmtpPilot.Server.States
 
         public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
         {
-            switch(cmd.Command)
+            switch (cmd.Command)
             {
                 case SmtpCommand.HELO:
+                    context.Configuration.ServerEvents.OnClientConnected(this, new MailClientConnectedEventArgs(context.Client));
                     context.Reply(new SmtpReply(SmtpReplyCode.Code250, context.Configuration.HostName));
-                    return new AcceptMailConversationState();
+                    return ConversationStates.Accept;
                 default:
-                    return base.ProcessData(context, cmd, line);   
-            }   
+                    return base.ProcessData(context, cmd, line);
+            }
         }
 
         internal override string HandleHelp()

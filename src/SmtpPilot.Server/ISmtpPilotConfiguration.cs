@@ -8,7 +8,7 @@ namespace SmtpPilot.Server
     {
         int ClientTimeoutSeconds { get; }
         string HostName { get; }
-        IReadOnlyList<IMailClientListener> Listeners { get; }
+        IReadOnlyList<TcpListenerParameters> ListenParameters { get; }
         IMailStore MailStore { get; }
         SmtpServerEvents ServerEvents { get; }
     }

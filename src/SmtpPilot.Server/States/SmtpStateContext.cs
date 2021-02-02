@@ -17,6 +17,7 @@ namespace SmtpPilot.Server.States
             Client = client;
             Conversation = conversation;
             Command = command;
+            Items = new Dictionary<object, object>();
         }
 
         public EmailStatistics Statistics { get; }
@@ -37,6 +38,8 @@ namespace SmtpPilot.Server.States
         public bool HasError => Conversation.HasError;
 
         public ISmtpPilotConfiguration Configuration { get; }
+
+        public IDictionary<object, object> Items { get; }
 
         public void AddHeader(SmtpHeader header)
         {
@@ -83,6 +86,7 @@ namespace SmtpPilot.Server.States
         {
             Conversation.CurrentMessage.Complete();
             Configuration.ServerEvents.OnEmailProcessed(Client, new EmailProcessedEventArgs(Client, Conversation.CurrentMessage, Statistics));
+            Statistics.AddEmailReceived();
         }
 
         public void NewMessage()

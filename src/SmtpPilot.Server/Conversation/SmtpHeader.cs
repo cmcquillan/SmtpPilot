@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Conversation
 {
-    public struct SmtpHeader
+    public readonly struct SmtpHeader
     {
         public const string DATE_HEADER = @"Date";
         public const string FROM_HEADER = @"From";
@@ -28,9 +28,9 @@ namespace SmtpPilot.Server.Conversation
             Value = value;
         }
 
-        public string Name { get; }
+        public readonly string Name { get; }
 
-        public string Value { get; }
+        public readonly string Value { get; }
 
         public override string ToString()
         {

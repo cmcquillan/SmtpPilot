@@ -66,6 +66,8 @@ namespace SmtpPilot.Server
         public TimeSpan RunningTime { get { return TimeSpan.FromTicks(DateTimeOffset.UtcNow.Ticks - _startTime); } }
 
         public int ActiveClients { get { return _activeClients; } }
+
+        public double EmailRate => EmailsReceived / TimeSpan.FromTicks(DateTimeOffset.UtcNow.Ticks - _startTime).TotalMinutes;
         #endregion
     }
 }

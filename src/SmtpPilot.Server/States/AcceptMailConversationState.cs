@@ -34,13 +34,13 @@ namespace SmtpPilot.Server.States
                 case SmtpCommand.MAIL:
                     string[] matches = IO.IOHelper.ParseEmails(cmd.Args);
                     if (matches.Length != 1)
-                        return new ErrorConversationState();
+                        return ConversationStates.Error;
 
                     string from = matches[0];
                     context.NewMessage();
                     context.SetFrom(from);
-                    
-                    return new RecipientConversationState();
+
+                    return ConversationStates.Recipient;
                 case SmtpCommand.VRFY:
                     context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Format("{0} <{0}@{1}>", cmd.Args, context.Configuration.HostName)));
                     return this;

@@ -1,12 +1,17 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Connections;
+using NUnit.Framework;
 using SmtpPilot.Server;
 using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
+using System.IO.Pipelines;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static SmtpPilot.Tests.TestHelper;
 
 namespace SmtpPilot.Tests
 {
@@ -22,22 +27,21 @@ namespace SmtpPilot.Tests
         {
             Server = GetServer();
             _cts = new CancellationTokenSource();
-            _cts.CancelAfter(TimeSpan.FromSeconds(5));
+            _cts.CancelAfter(TimeSpan.FromSeconds(30));
         }
 
         [Test]
         public async Task ClientConnectedEventPassesServerAsSender()
         {
-            SMTPServer theServer = null;
+            bool connected = false;
             Server.Events.ClientConnected += (s, e) =>
             {
-                theServer = s as SMTPServer;
+                connected = true;
                 _cts.Cancel();
             };
 
-            await Server.Run(_cts.Token);
-            Assert.IsNotNull(theServer);
-            Assert.IsInstanceOf<SMTPServer>(theServer);
+            await SendAndRun(BasicMessage, Server, _cts.Token);
+            Assert.True(connected);
         }
 
         [Test]
@@ -49,24 +53,10 @@ namespace SmtpPilot.Tests
                 connected = true;
                 _cts.Cancel();
             };
+            
+            await SendAndRun(BasicMessage, Server, _cts.Token);
 
-            await Server.Run(_cts.Token);
             Assert.True(connected);
-        }
-
-        [Test]
-        public async Task ClientDisconnectedEventPassesServerAsSender()
-        {
-            SMTPServer theServer = null;
-            Server.Events.ClientDisconnected += (s, e) =>
-            {
-                theServer = s as SMTPServer;
-                _cts.Cancel();
-            };
-
-            await Server.Run(_cts.Token);
-            Assert.IsNotNull(theServer);
-            Assert.IsInstanceOf<SMTPServer>(theServer);
         }
 
         [Test]
@@ -79,7 +69,8 @@ namespace SmtpPilot.Tests
                 _cts.Cancel();
             };
 
-            await Server.Run(_cts.Token);
+            await SendAndRunThenDisconnect(BasicMessage, Server, _cts.Token);
+
             Assert.True(disconnected);
         }
 
@@ -93,7 +84,8 @@ namespace SmtpPilot.Tests
                 _cts.Cancel();
             };
 
-            await Server.Run(_cts.Token);
+            await SendAndRun(BasicMessage, Server, _cts.Token);
+
             Assert.IsNotNull(theClient);
             Assert.IsInstanceOf<IMailClient>(theClient);
         }
@@ -108,7 +100,8 @@ namespace SmtpPilot.Tests
                 _cts.Cancel();
             };
 
-            await Server.Run(_cts.Token);
+            await SendAndRun(BasicMessage, Server, _cts.Token);
+
             Assert.True(emailSent);
         }
 
@@ -128,7 +121,7 @@ namespace SmtpPilot.Tests
 
             Assert.DoesNotThrowAsync(async () =>
             {
-                await Server.Run(_cts.Token);
+                await SendAndRun(BasicMessage, Server, _cts.Token);
             });
 
             Assert.True(eventFired);
@@ -150,7 +143,7 @@ namespace SmtpPilot.Tests
 
             Assert.DoesNotThrowAsync(async () =>
             {
-                await Server.Run(_cts.Token);
+                await SendAndRunThenDisconnect(BasicMessage, Server, _cts.Token);
             });
 
             Assert.True(eventFired);
@@ -172,7 +165,7 @@ namespace SmtpPilot.Tests
 
             Assert.DoesNotThrowAsync(async () =>
             {
-                await Server.Run(_cts.Token);
+                await SendAndRun(BasicMessage, Server, _cts.Token);
             });
 
             Assert.True(eventFired);
@@ -180,9 +173,11 @@ namespace SmtpPilot.Tests
 
         private static SMTPServer GetServer()
         {
-            var config = TestHelper.GetConfig(TestHelper.BasicMessage);
-            var server = new SMTPServer(config);
+            var config = GetConfig();
+            var server = SMTPServer.CreateSmtpHost(Array.Empty<string>(), config);
             return server;
         }
+
+
     }
 }
