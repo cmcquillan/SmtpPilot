@@ -39,7 +39,7 @@ namespace SmtpPilot.Server.Communication
 
             while (!machine.IsInQuitState && !connection.ConnectionClosed.IsCancellationRequested)
             {
-                await machine.ProcessData(connection.ConnectionClosed);
+                machine.ProcessData();
 
                 if (mailClient.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
                     break;

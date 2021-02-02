@@ -74,7 +74,7 @@ namespace SmtpPilot.Server.States
             get { return _conversation; }
         }
 
-        internal async Task ProcessData(CancellationToken cancellationToken = default)
+        internal void ProcessData()
         {
             /* Steps:
              * 1) Grab a line, exit if null received.
@@ -120,7 +120,7 @@ namespace SmtpPilot.Server.States
 
                     CurrentState = CurrentState.ProcessData(_context, command, memory.Span.Slice(0, read));
                 }
-            } 
+            }
             finally
             {
                 _arrayPool.Return(buffer, true);
