@@ -11,23 +11,14 @@ namespace SmtpPilot.Server.Communication
 {
     public class KestrelMailClient : IMailClient
     {
-        private bool _isClosed = false;
-        private readonly Func<bool> _closedFunc;
         private readonly PipeReader _reader;
         private readonly PipeWriter _writer;
         private readonly ILogger<KestrelMailClient> _logger;
 
-        public KestrelMailClient(ConnectionContext context, Microsoft.Extensions.Logging.ILogger<KestrelMailClient> logger)
+        public KestrelMailClient(IDuplexPipe pipe, ILogger<KestrelMailClient> logger)
         {
-            context.ConnectionClosed.Register(OnClosed);
-            _reader = context.Transport.Input;
-            _writer = context.Transport.Output;
-
-            _closedFunc = () => _isClosed;
-            void OnClosed()
-            {
-                _isClosed = true;
-            }
+            _reader = pipe.Input;
+            _writer = pipe.Output;
             _logger = logger;
         }
 
@@ -36,12 +27,11 @@ namespace SmtpPilot.Server.Communication
             var stream = client.GetStream();
             _reader = PipeReader.Create(stream);
             _writer = PipeWriter.Create(stream);
-            _closedFunc = () => !client.Connected;
         }
 
         public Guid ClientId { get; } = Guid.NewGuid();
-        
-        public bool Disconnected => _closedFunc();
+
+        public bool Disconnected => false;
         
         public int SecondsClientHasBeenSilent => 1;
 

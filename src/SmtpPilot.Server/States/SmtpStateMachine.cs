@@ -6,6 +6,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.States
@@ -73,7 +74,7 @@ namespace SmtpPilot.Server.States
             get { return _conversation; }
         }
 
-        internal async Task ProcessData()
+        internal async Task ProcessData(CancellationToken cancellationToken = default)
         {
             /* Steps:
              * 1) Grab a line, exit if null received.

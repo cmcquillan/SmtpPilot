@@ -39,6 +39,7 @@ namespace SmtpPilot
                 })
                 .ConfigureServices(services =>
                 {
+                    services.AddSmtpPilotCore();
                     services.AddSingleton(configuration);
                     services.AddSingleton<EmailStatistics>();
                 })

@@ -18,7 +18,7 @@ namespace SmtpPilot.Client
 
             var tasks = new List<Task>();
 
-            const int threadCount = 10;
+            const int threadCount = 1;
 
             for (int i = 0; i < threadCount; i++)
             {
@@ -45,7 +45,7 @@ namespace SmtpPilot.Client
 
             await client.ConnectAsync("localhost", 25, MailKit.Security.SecureSocketOptions.None);
 
-            while (true)
+            for (int i = 0; i < 10; i++)
             {
                 await client.SendAsync(message);
             }
