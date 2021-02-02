@@ -31,8 +31,6 @@ namespace SmtpPilot.Server.Communication
 
         public Guid ClientId { get; } = Guid.NewGuid();
 
-        public bool Disconnected => false;
-        
         public int SecondsClientHasBeenSilent => 1;
 
         public void Disconnect()

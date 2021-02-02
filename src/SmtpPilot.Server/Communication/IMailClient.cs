@@ -15,8 +15,6 @@ namespace SmtpPilot.Server.Communication
 
         void Disconnect();
 
-        bool Disconnected { get; }
-
         int SecondsClientHasBeenSilent { get; }
 
         int ReadLine(Span<char> buffer);
