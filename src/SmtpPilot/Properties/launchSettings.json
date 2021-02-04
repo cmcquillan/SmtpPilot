@@ -2,7 +2,7 @@
   "profiles": {
     "SmtpPilot": {
       "commandName": "Project",
-      "commandLineArgs": "-i any ",
+      "commandLineArgs": "-i any -s C:\\data\\mail",
       "environmentVariables": {
         "COMPlus_DebugWriteToStdErr": "1"
       }

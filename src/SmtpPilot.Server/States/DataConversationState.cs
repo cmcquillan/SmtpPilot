@@ -23,14 +23,14 @@ namespace SmtpPilot.Server.States
             {
                 context.AdvanceBuffer(count);
 
-                context.Conversation.CurrentMessage.Append(buffer.Span);
+                context.Conversation.CurrentMessage.Append(buffer.Span.Slice(0, count));
                 context.Conversation.CurrentMessage.Complete();
 
                 context.Events.OnEmailProcessed(this, new EmailProcessedEventArgs(context.Client, context.Conversation.CurrentMessage, context.EmailStats));
                 context.EmailStats.AddEmailReceived();
-                
+
                 context.Reply(SmtpReply.OK);
-                
+
                 return ConversationStates.Accept;
             }
             // Otherwise just fill the buffer and append. We'll cycle back through this method.
