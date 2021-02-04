@@ -15,6 +15,7 @@ namespace SmtpPilot.Server.Conversation
         void AddAddresses(IAddress[] email);
         void AddHeader(SmtpHeader header);
         void AppendLine(ReadOnlySpan<char> line);
+        void Append(ReadOnlySpan<char> data);
         void Complete();
     }
 }

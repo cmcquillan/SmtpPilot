@@ -13,7 +13,7 @@ namespace SmtpPilot.Server.IO
     {
         static IOHelper()
         {
-            _mailFromRegex = new Regex(Constants.EmailAddressRegex, RegexOptions.Singleline|RegexOptions.Compiled);
+            _mailFromRegex = new Regex(Constants.EmailAddressRegex, RegexOptions.Singleline | RegexOptions.Compiled);
         }
 
         private const char _space = (char)0x20;
@@ -23,7 +23,7 @@ namespace SmtpPilot.Server.IO
         {
             char[] cmd = new char[4];
 
-            for (int i = 0; i < input.Count(); i++)
+            for (int i = 0; i < Math.Min(4, input.Count()); i++)
             {
                 if (input.ElementAt(i) == _space)
                     break;
@@ -47,7 +47,7 @@ namespace SmtpPilot.Server.IO
              * If we never find a colon, then it was definitely not
              * a header.
              */
-            for(int i = 0; i < line.Length; i++)
+            for (int i = 0; i < line.Length; i++)
             {
                 if (Char.Equals(line[i], _space))
                     return false;
@@ -64,7 +64,7 @@ namespace SmtpPilot.Server.IO
             var matches = _mailFromRegex.Matches(s);
             string[] emails = new string[matches.Count];
 
-            for(int i = 0; i < matches.Count; i++)
+            for (int i = 0; i < matches.Count; i++)
             {
                 emails[i] = matches[i].Value;
             }

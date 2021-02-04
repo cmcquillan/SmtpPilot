@@ -26,4 +26,11 @@ namespace SmtpPilot.Server.Internal
         internal const int BufferCompressionThreshold = 16384;
         internal const int BufferCompressionScanThreshold = 8192;
     }
+
+    internal static class Markers
+    {
+        internal static readonly byte[] Space = new[] { (byte)' ' };
+        internal static readonly byte[] CarriageReturnLineFeed = new[] { (byte)'\r', (byte)'\n' };
+        internal static readonly byte[] EndOfDataSegment = new[] { (byte)'\r', (byte)'\n', (byte)'.', (byte)'\r', (byte)'\n' };
+    }
 }

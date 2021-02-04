@@ -12,13 +12,13 @@ namespace SmtpPilot.Client
 {
     class Program
     {
-        static async Task Main()
+        static void Main()
         {
             Thread.Sleep(5000);
 
             var tasks = new List<Task>();
 
-            const int threadCount = 1;
+            const int threadCount = 10;
 
             for (int i = 0; i < threadCount; i++)
             {
@@ -45,7 +45,7 @@ namespace SmtpPilot.Client
 
             await client.ConnectAsync("localhost", 25, MailKit.Security.SecureSocketOptions.None);
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 await client.SendAsync(message);
             }

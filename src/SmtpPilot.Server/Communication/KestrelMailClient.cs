@@ -14,6 +14,7 @@ namespace SmtpPilot.Server.Communication
     {
         private readonly PipeReader _reader;
         private readonly PipeWriter _writer;
+        private readonly Decoder _decoder = Encoding.ASCII.GetDecoder();
         private readonly ILogger<KestrelMailClient> _logger;
 
         public KestrelMailClient(IDuplexPipe pipe, ILogger<KestrelMailClient> logger)
@@ -114,6 +115,43 @@ namespace SmtpPilot.Server.Communication
             }
         }
 
+        public bool ReadUntil(byte[] marker, Span<char> buffer, int startIndex, out int count)
+        {
+            count = 0;
+            if(_reader.TryRead(out var result))
+            {
+                var sr = new SequenceReader<byte>(result.Buffer);
+
+                if(sr.TryReadTo(out var newSequence, marker, true))
+                {
+                    count = DecodeAndConsume(ref newSequence, buffer[startIndex..]);
+                    _reader.AdvanceTo(sr.Position);
+
+                    return true;
+                }
+
+                _reader.AdvanceTo(result.Buffer.Start);
+            }
+
+            return false;
+        }
+
+        private int DecodeAndConsume(ref ReadOnlySequence<byte> newSequence, Span<char> buffer)
+        {
+            var decoder = Encoding.ASCII.GetDecoder();
+            var length = newSequence.Length;
+            var processed = 0;
+
+            foreach(var item in newSequence)
+            {
+                processed += item.Length;
+                var chars = _decoder.GetChars(item.Span, buffer, processed == length);
+                buffer = buffer[(chars + 1)..];
+            }
+
+            return processed;
+        }
+
         public bool Read(int count, Span<char> buffer)
         {
             if (_reader.TryRead(out var result))
@@ -124,6 +162,8 @@ namespace SmtpPilot.Server.Communication
                     _reader.AdvanceTo(result.Buffer.GetPosition(count));
                     return true;
                 }
+
+                _reader.AdvanceTo(result.Buffer.Start);
             }
 
             return false;

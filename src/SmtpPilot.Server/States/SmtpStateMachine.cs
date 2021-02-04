@@ -26,9 +26,9 @@ namespace SmtpPilot.Server.States
         private readonly ILogger<SmtpStateMachine> _logger;
 
         internal SmtpStateMachine(
-            IMailClient client, 
-            SmtpConversation conversation, 
-            EmailStatistics statistics, 
+            IMailClient client,
+            SmtpConversation conversation,
+            EmailStatistics statistics,
             SmtpPilotConfiguration configuration,
             ILogger<SmtpStateMachine> logger)
         {
@@ -54,13 +54,6 @@ namespace SmtpPilot.Server.States
                 if (IConversationState.ReferenceEquals(CurrentState, value))
                     return;
 
-                if (_currentState != null)
-                {
-                    _logger.LogDebug("Leaving State {state}", _currentState);
-                    _currentState.LeaveState(_context);
-                    _logger.LogDebug("Left State {state}", _currentState);
-                }
-                    
                 _currentState = value;
 
                 _logger.LogDebug("Entering State {state}", _currentState);
@@ -92,34 +85,15 @@ namespace SmtpPilot.Server.States
             {
                 buffer = _arrayPool.Rent(MinimumBufferSize);
                 Memory<char> memory = buffer.AsMemory();
-                var read = Client.ReadLine(memory.Span);
 
-                if (read > 0)
-                {
-                    SmtpCmd command = null;
-
-                    if (CurrentState.AcceptingCommands)
-                    {
-                        command = GetCommandFromLine(memory.Span.Slice(0, read));
-                        _context.Command = command.Command;
-                        Conversation.AddElement(command);
-
-                        if (!CurrentState.AllowedCommands.HasFlag(command.Command))
-                        {
-                            TransitionTo(ConversationStates.Error);
-                            return;
-                        }
-
-                        if (!(CurrentState is ErrorConversationState))
-                            _emailStats.AddCommandProcessed();
-                    }
-                    else
-                    {
-                        (Conversation.LastElement as IAppendable)?.Append(memory.Span.Slice(0, read).ToString());
-                    }
-
-                    CurrentState = CurrentState.ProcessData(_context, command, memory.Span.Slice(0, read));
-                }
+                var context = new SmtpStateContext2(_configuration, _client, _conversation, _emailStats, _configuration.ServerEvents);
+                var next = CurrentState.Advance(context);
+                TransitionTo(next);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Critical path exception");
+                throw;
             }
             finally
             {
@@ -129,24 +103,8 @@ namespace SmtpPilot.Server.States
 
         private void TransitionTo(IConversationState newState) => CurrentState = newState;
 
-        private SmtpCmd GetCommandFromLine(Span<char> line)
-        {
-            SmtpCmd command;
-            string commandString = (line.Length >= 4) ? line.Slice(0, 4).ToString() : String.Empty;
-            Enum.TryParse(commandString, out SmtpCommand cmd);
-
-            if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
-                cmd = SmtpCommand.None;
-
-            _logger.LogDebug("Received {command}", cmd);
-
-            command = new SmtpCmd(cmd, line.ToString());
-            return command;
-        }
-
         internal IMailClient Client { get { return _client; } }
 
         internal bool IsInQuitState { get { return _currentState is QuitConversationState; } }
-
     }
 }

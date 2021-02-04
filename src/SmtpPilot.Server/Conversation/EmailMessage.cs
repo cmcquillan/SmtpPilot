@@ -71,5 +71,10 @@ namespace SmtpPilot.Server.Conversation
         {
             _complete = true;
         }
+
+        public void Append(ReadOnlySpan<char> data)
+        {
+            _data.Append(data);
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace SmtpPilot.Server.States
         private readonly string _errorMessage;
 
         public ErrorConversationState()
-            :this("You have performed an illegal operation.")
+            : this("You have performed an illegal operation.")
         {
 
         }
@@ -27,21 +27,11 @@ namespace SmtpPilot.Server.States
             context.Reply(new Conversation.SmtpReply(Conversation.SmtpReplyCode.Code503, _errorMessage));
         }
 
-        public void LeaveState(ISmtpStateContext context)
+        public IConversationState Advance(SmtpStateContext2 context)
         {
-            throw new NotImplementedException();
+            return this;
         }
 
-        public IConversationState ProcessData(ISmtpStateContext context, Conversation.SmtpCmd cmd, ReadOnlySpan<char> line)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Conversation.SmtpCommand AllowedCommands
-        {
-            get { return Conversation.SmtpCommand.None; }
-        }
-
-        public bool AcceptingCommands => false;
+        public bool ShouldDisconnect { get; }
     }
 }
