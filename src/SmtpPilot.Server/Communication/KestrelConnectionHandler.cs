@@ -35,7 +35,7 @@ namespace SmtpPilot.Server.Communication
             var factory = _serviceProvider.GetRequiredService<IMailClientFactory>();
             var mailClient = factory.CreateClient(connection.Transport, _loggerFactory);
 
-            var machine = new SmtpStateMachine(mailClient, conversation, _statistics, _configuration, _loggerFactory.CreateLogger<SmtpStateMachine>());
+            var machine = new SmtpStateMachine(_serviceProvider, mailClient, conversation, _statistics, _configuration, _loggerFactory.CreateLogger<SmtpStateMachine>());
 
             while (!machine.IsInQuitState && !connection.ConnectionClosed.IsCancellationRequested)
             {

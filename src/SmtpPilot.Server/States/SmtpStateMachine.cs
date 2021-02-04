@@ -39,6 +39,7 @@ namespace SmtpPilot.Server.States
             _serviceProvider = serviceProvider;
             _client = client;
             _conversation = conversation;
+            _context = new SmtpStateContext(_serviceProvider, _configuration, _client, _conversation, _emailStats, _configuration.ServerEvents);
             CurrentState = ConversationStates.OpenConnection;
         }
 
@@ -58,7 +59,7 @@ namespace SmtpPilot.Server.States
                 _currentState = value;
 
                 _logger.LogDebug("Entering State {state}", _currentState);
-                _currentState.EnterState(_context);
+                _currentState.EnterState(Context);
                 _logger.LogDebug("Entered State {state}", _currentState);
             }
         }
@@ -87,8 +88,7 @@ namespace SmtpPilot.Server.States
                 buffer = _arrayPool.Rent(MinimumBufferSize);
                 Memory<char> memory = buffer.AsMemory();
 
-                var context = new SmtpStateContext(_serviceProvider, _configuration, _client, _conversation, _emailStats, _configuration.ServerEvents);
-                var next = CurrentState.Advance(context);
+                var next = CurrentState.Advance(_context);
                 TransitionTo(next);
             }
             catch (Exception ex)
