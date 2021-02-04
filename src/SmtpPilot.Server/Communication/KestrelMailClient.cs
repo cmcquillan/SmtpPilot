@@ -108,26 +108,34 @@ namespace SmtpPilot.Server.Communication
 
             foreach (var segment in read.Slice(0, count))
             {
-                var maximum = Math.Min(buffer.Length - num, segment.Length);
-                var chars = decoder.GetChars(segment.Span[0..maximum], buffer, true);
-                buffer = buffer[(chars + 1)..];
+                var amountToRead = Math.Min(buffer.Length, segment.Length);
+                var chars = decoder.GetChars(segment.Span[0..amountToRead], buffer, true);
+                
                 num += chars;
+
+                if (num >= count)
+                    return;
+
+                buffer = buffer[chars..];
             }
         }
 
         public bool ReadUntil(byte[] marker, Span<char> buffer, int startIndex, out int count)
         {
             count = 0;
-            if(_reader.TryRead(out var result))
+            if (_reader.TryRead(out var result))
             {
                 var sr = new SequenceReader<byte>(result.Buffer);
 
-                if(sr.TryReadTo(out var newSequence, marker, true))
+                if (sr.TryReadTo(out var newSequence, marker, true))
                 {
-                    count = DecodeAndConsume(ref newSequence, buffer[startIndex..]);
-                    _reader.AdvanceTo(sr.Position);
+                    if (newSequence.Length <= buffer.Length)
+                    {
+                        count = DecodeAndConsume(ref newSequence, buffer[startIndex..]);
+                        _reader.AdvanceTo(sr.Position);
 
-                    return true;
+                        return true;
+                    }
                 }
 
                 _reader.AdvanceTo(result.Buffer.Start);
@@ -142,7 +150,7 @@ namespace SmtpPilot.Server.Communication
             var length = newSequence.Length;
             var processed = 0;
 
-            foreach(var item in newSequence)
+            foreach (var item in newSequence)
             {
                 processed += item.Length;
                 var chars = _decoder.GetChars(item.Span, buffer, processed == length);

@@ -75,22 +75,6 @@ namespace SmtpPilot.Tests
         }
 
         [Test]
-        public async Task MailSentEventPassesClientAsSender()
-        {
-            IMailClient theClient = null;
-            Server.Events.EmailProcessed += (s, e) =>
-            {
-                theClient = s as IMailClient;
-                _cts.Cancel();
-            };
-
-            await SendAndRun(BasicMessage, Server, _cts.Token);
-
-            Assert.IsNotNull(theClient);
-            Assert.IsInstanceOf<IMailClient>(theClient);
-        }
-
-        [Test]
         public async Task MailSentEventFires()
         {
             bool emailSent = false;
