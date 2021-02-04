@@ -1,4 +1,5 @@
-﻿using SmtpPilot.Server.Conversation;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.IO;
 using System;
@@ -11,12 +12,12 @@ namespace SmtpPilot.Server.States
 {
     public class AcceptMailConversationState : MinimalConversationState
     {
-        public override void EnterState(ISmtpStateContext context)
+        public override void EnterState(SmtpStateContext context)
         {
 
         }
 
-        public override IConversationState Advance(SmtpStateContext2 context)
+        public override IConversationState Advance(SmtpStateContext context)
         {
             var buffer = context.GetBufferSegment(1024);
             if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer.Span, 0, out var count))
@@ -33,7 +34,10 @@ namespace SmtpPilot.Server.States
                             return ConversationStates.Error;
 
                         string from = matches[0];
-                        context.Conversation.NewMessage();
+
+                        var messageFactory = context.ServiceProvider.GetRequiredService<IEmailMessageFactory>();
+                        context.Conversation.NewMessage(messageFactory.CreateNewMessage());
+
                         context.Conversation.CurrentMessage.FromAddress = new EmailAddress(from, AddressType.From);
                         context.Reply(SmtpReply.OK);
                         return ConversationStates.Recipient;

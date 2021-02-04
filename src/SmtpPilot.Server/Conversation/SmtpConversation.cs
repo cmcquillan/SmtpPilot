@@ -87,9 +87,9 @@ namespace SmtpPilot.Server.Conversation
             _elements.Add(element);
         }
 
-        public void NewMessage()
+        public void NewMessage(IMessage message)
         {
-            _messages.Push(new EmailMessage());
+            _messages.Push(message);
         }
 
         public override string ToString()

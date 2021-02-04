@@ -17,15 +17,16 @@ namespace SmtpPilot.Server.States
 
         private readonly ArrayPool<char> _arrayPool = ArrayPool<char>.Shared;
         private readonly SmtpConversation _conversation;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IMailClient _client;
         private IConversationState _currentState;
         private readonly SmtpStateContext _context;
-        private readonly SmtpCommand _currentCommand = SmtpCommand.None;
         private readonly EmailStatistics _emailStats;
         private readonly SmtpPilotConfiguration _configuration;
         private readonly ILogger<SmtpStateMachine> _logger;
 
         internal SmtpStateMachine(
+            IServiceProvider serviceProvider,
             IMailClient client,
             SmtpConversation conversation,
             EmailStatistics statistics,
@@ -35,13 +36,13 @@ namespace SmtpPilot.Server.States
             _configuration = configuration;
             _logger = logger;
             _emailStats = statistics;
+            _serviceProvider = serviceProvider;
             _client = client;
             _conversation = conversation;
-            _context = new SmtpStateContext(Client, Conversation, _currentCommand, _emailStats, _configuration);
             CurrentState = ConversationStates.OpenConnection;
         }
 
-        internal ISmtpStateContext Context { get { return _context; } }
+        internal SmtpStateContext Context { get { return _context; } }
 
         internal IConversationState CurrentState
         {
@@ -86,7 +87,7 @@ namespace SmtpPilot.Server.States
                 buffer = _arrayPool.Rent(MinimumBufferSize);
                 Memory<char> memory = buffer.AsMemory();
 
-                var context = new SmtpStateContext2(_configuration, _client, _conversation, _emailStats, _configuration.ServerEvents);
+                var context = new SmtpStateContext(_serviceProvider, _configuration, _client, _conversation, _emailStats, _configuration.ServerEvents);
                 var next = CurrentState.Advance(context);
                 TransitionTo(next);
             }

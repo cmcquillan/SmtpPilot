@@ -11,9 +11,9 @@ namespace SmtpPilot.Server.States
     {
         public bool ShouldDisconnect => true;
 
-        public abstract IConversationState Advance(SmtpStateContext2 context);
+        public abstract IConversationState Advance(SmtpStateContext context);
 
-        public IConversationState ProcessBaseCommands(SmtpCommand smtpCommand, SmtpStateContext2 context)
+        public IConversationState ProcessBaseCommands(SmtpCommand smtpCommand, SmtpStateContext context)
         {
             switch (smtpCommand)
             {
@@ -34,7 +34,7 @@ namespace SmtpPilot.Server.States
             }
         }
 
-        public virtual void EnterState(ISmtpStateContext context)
+        public virtual void EnterState(SmtpStateContext context)
         {
 
         }

@@ -6,7 +6,7 @@ namespace SmtpPilot.Server.States
 {
     public class OpenConnectionState : MinimalConversationState
     {
-        public override void EnterState(ISmtpStateContext context)
+        public override void EnterState(SmtpStateContext context)
         {
             context.Reply(new SmtpReply(SmtpReplyCode.Code220, $"{context.Configuration.HostName} Mock SMTP Server Ready"));
         }
@@ -16,7 +16,7 @@ namespace SmtpPilot.Server.States
             return Constants.HelpTextOpenState;
         }
 
-        public override IConversationState Advance(SmtpStateContext2 context)
+        public override IConversationState Advance(SmtpStateContext context)
         {
             var line = context.GetBufferSegment(1024);
             if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, line.Span, 0, out var count))

@@ -21,13 +21,13 @@ namespace SmtpPilot.Server.States
             _errorMessage = errorMessage;
         }
 
-        public void EnterState(ISmtpStateContext context)
+        public void EnterState(SmtpStateContext context)
         {
-            context.Statistics.AddErrorGenerated();
+            context.EmailStats.AddErrorGenerated();
             context.Reply(new Conversation.SmtpReply(Conversation.SmtpReplyCode.Code503, _errorMessage));
         }
 
-        public IConversationState Advance(SmtpStateContext2 context)
+        public IConversationState Advance(SmtpStateContext context)
         {
             return this;
         }

@@ -8,7 +8,7 @@ namespace SmtpPilot.Server.States
 {
     public class RecipientConversationState : MinimalConversationState
     {
-        public override IConversationState Advance(SmtpStateContext2 context)
+        public override IConversationState Advance(SmtpStateContext context)
         {
             var buffer = context.GetBufferSegment(1024);
 
@@ -34,7 +34,7 @@ namespace SmtpPilot.Server.States
             return this;
         }
 
-        public override void EnterState(ISmtpStateContext context)
+        public override void EnterState(SmtpStateContext context)
         {
         }
 
