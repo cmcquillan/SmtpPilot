@@ -73,13 +73,9 @@ namespace SmtpPilot.Server.States
              * 3) Read a line of conversation element and run ProcessData() on CurrentState.
              * 4) Set new state according to return value of ProcessData().
              */
-            char[] buffer = null;
 
             try
             {
-                buffer = _arrayPool.Rent(MinimumBufferSize);
-                Memory<char> memory = buffer.AsMemory();
-
                 var next = CurrentState.Advance(_context);
                 TransitionTo(next);
             }
@@ -87,10 +83,6 @@ namespace SmtpPilot.Server.States
             {
                 _logger.LogCritical(ex, "Critical path exception");
                 throw;
-            }
-            finally
-            {
-                _arrayPool.Return(buffer, true);
             }
         }
 
