@@ -17,16 +17,15 @@ namespace SmtpPilot.Server.States
             IServiceProvider serviceProvider,
             SmtpPilotConfiguration configuration,
             IMailClient client, 
-            SmtpConversation conversation, 
             EmailStatistics emailStats, 
             SmtpServerEvents events)
         {
             ServiceProvider = serviceProvider;
             Configuration = configuration;
             Client = client;
-            Conversation = conversation;
             EmailStats = emailStats;
             Events = events;
+            Conversation = new SmtpConversation();
         }
 
         public EmailStatistics EmailStats { get; }

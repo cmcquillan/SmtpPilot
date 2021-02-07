@@ -16,7 +16,6 @@ namespace SmtpPilot.Server.States
         internal const int MinimumBufferSize = 4096;
 
         private readonly ArrayPool<char> _arrayPool = ArrayPool<char>.Shared;
-        private readonly SmtpConversation _conversation;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMailClient _client;
         private IConversationState _currentState;
@@ -28,7 +27,6 @@ namespace SmtpPilot.Server.States
         internal SmtpStateMachine(
             IServiceProvider serviceProvider,
             IMailClient client,
-            SmtpConversation conversation,
             EmailStatistics statistics,
             SmtpPilotConfiguration configuration,
             ILogger<SmtpStateMachine> logger)
@@ -38,8 +36,7 @@ namespace SmtpPilot.Server.States
             _emailStats = statistics;
             _serviceProvider = serviceProvider;
             _client = client;
-            _conversation = conversation;
-            _context = new SmtpStateContext(_serviceProvider, _configuration, _client, _conversation, _emailStats, _configuration.ServerEvents);
+            _context = new SmtpStateContext(_serviceProvider, _configuration, _client, _emailStats, _configuration.ServerEvents);
             CurrentState = ConversationStates.OpenConnection;
         }
 
@@ -62,11 +59,6 @@ namespace SmtpPilot.Server.States
                 _currentState.EnterState(Context);
                 _logger.LogDebug("Entered State {state}", _currentState);
             }
-        }
-
-        internal SmtpConversation Conversation
-        {
-            get { return _conversation; }
         }
 
         internal void ProcessData()
