@@ -1,5 +1,4 @@
-﻿using System;
-using SmtpPilot.Server.Conversation;
+﻿using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
 
 namespace SmtpPilot.Server.States

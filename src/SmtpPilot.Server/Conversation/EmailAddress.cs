@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Conversation
 {
@@ -22,10 +19,13 @@ namespace SmtpPilot.Server.Conversation
             /*
              * Count from the right to avoid any issues with quoted users or display names.
              */
-            for (ampPos = emailAddress.Length - 1; ampPos > 0; ampPos--)
+            for (var i = emailAddress.Length - 1; i > 0; i--)
             {
-                if (emailAddress[ampPos] == '@')
+                if (emailAddress[i] == '@')
+                {
+                    ampPos = i;
                     break;
+                }
             }
 
             if (ampPos == 0)
@@ -104,9 +104,9 @@ namespace SmtpPilot.Server.Conversation
             if (obj == null)
                 return false;
 
-            if (obj is EmailAddress)
+            if (obj is EmailAddress address)
             {
-                return Equals((EmailAddress)obj);
+                return Equals(address);
             }
 
             return false;

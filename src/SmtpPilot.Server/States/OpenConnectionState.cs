@@ -22,7 +22,7 @@ namespace SmtpPilot.Server.States
             if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, line.Span, 0, out var count))
             {
                 context.AdvanceBuffer(count);
-                var command = IOHelper.GetCommand(line.Slice(0,4).ToArray());
+                var command = IOHelper.GetCommand(line.Slice(0, 4).ToArray());
                 context.Conversation.AddElement(new SmtpCmd(command, line.ToString()));
                 if (command == SmtpCommand.HELO)
                 {

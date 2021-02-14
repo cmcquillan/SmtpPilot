@@ -1,14 +1,5 @@
-﻿using Microsoft.AspNetCore.Connections;
-using NUnit.Framework;
-using SmtpPilot.Server;
-using SmtpPilot.Server.Communication;
+﻿using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static SmtpPilot.Tests.TestHelper;
@@ -53,7 +44,7 @@ namespace SmtpPilot.Tests
                 connected = true;
                 _cts.Cancel();
             };
-            
+
             await SendAndRun(BasicMessage, Server, _cts.Token);
 
             Assert.True(connected);

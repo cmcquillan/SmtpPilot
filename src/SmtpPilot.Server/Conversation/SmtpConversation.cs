@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
 namespace SmtpPilot.Server.Conversation
 {
-    public class SmtpConversation 
+    public class SmtpConversation
     {
         private readonly List<ConversationElement> _elements = new List<ConversationElement>();
         private Stack<IMessage> _messages = new Stack<IMessage>();
 
-        
+
         public SmtpConversation()
         {
         }
@@ -40,7 +39,7 @@ namespace SmtpPilot.Server.Conversation
 
         public ConversationElement LastElement
         {
-            get 
+            get
             {
                 if (_elements.Count == 0)
                     return null;
@@ -96,7 +95,7 @@ namespace SmtpPilot.Server.Conversation
         {
             var sb = new StringBuilder();
 
-            foreach(var e in _elements)
+            foreach (var e in _elements)
             {
                 sb.Append(e.ToString());
             }

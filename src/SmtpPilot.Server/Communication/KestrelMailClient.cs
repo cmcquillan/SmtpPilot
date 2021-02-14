@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Connections;
-using Microsoft.Extensions.Logging;
-using SmtpPilot.Server.Conversation;
+﻿using Microsoft.Extensions.Logging;
 using SmtpPilot.Server.Internal;
 using System;
 using System.Buffers;
@@ -73,7 +71,7 @@ namespace SmtpPilot.Server.Communication
                 var inBuffer = read.Buffer;
                 if (TryReadLine(ref inBuffer, out var line))
                 {
-                    FillLine(line, outBuffer, out var processed, out var written);
+                    FillLine(line, outBuffer, out _, out var written);
                     _reader.AdvanceTo(inBuffer.Start);
                     return written;
                 }
@@ -110,7 +108,7 @@ namespace SmtpPilot.Server.Communication
             {
                 var amountToRead = Math.Min(buffer.Length, segment.Length);
                 var chars = decoder.GetChars(segment.Span[0..amountToRead], buffer, true);
-                
+
                 num += chars;
 
                 if (num >= count)

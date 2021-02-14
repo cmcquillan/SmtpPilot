@@ -2,8 +2,6 @@
 using SmtpPilot.Server.Conversation;
 using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SmtpPilot.Server.States
 {
@@ -16,8 +14,8 @@ namespace SmtpPilot.Server.States
         public SmtpStateContext(
             IServiceProvider serviceProvider,
             SmtpPilotConfiguration configuration,
-            IMailClient client, 
-            EmailStatistics emailStats, 
+            IMailClient client,
+            EmailStatistics emailStats,
             SmtpServerEvents events)
         {
             ServiceProvider = serviceProvider;

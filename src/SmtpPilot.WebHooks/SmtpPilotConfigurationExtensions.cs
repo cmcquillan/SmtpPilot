@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using SmtpPilot.WebHooks;
+﻿using SmtpPilot.WebHooks;
 
 namespace SmtpPilot.Server
 {
