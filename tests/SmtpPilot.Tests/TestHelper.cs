@@ -1,8 +1,5 @@
 ﻿using SmtpPilot.Server;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -42,7 +39,7 @@ namespace SmtpPilot.Tests
                     var bytes = Encoding.ASCII.GetBytes(text);
                     await socket.SendAsync(bytes, SocketFlags.None);
 
-                    if(closeOnComplete)
+                    if (closeOnComplete)
                     {
                         socket.Shutdown(SocketShutdown.Both);
                         socket.Close();

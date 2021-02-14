@@ -1,16 +1,7 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using SmtpPilot.Server;
-using SmtpPilot.Server.Communication;
-using SmtpPilot.Server.Data;
-using SmtpPilot.Server.IO;
+﻿using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot
@@ -40,7 +31,7 @@ namespace SmtpPilot
 
         private static IEnumerable<TcpListenerParameters> GetListenParameters(SmtpPilotOptions options)
         {
-            foreach(var item in options.ListenIPAddress)
+            foreach (var item in options.ListenIPAddress)
             {
                 yield return new TcpListenerParameters(IPAddress.Parse(item), options.ListenPort);
             }

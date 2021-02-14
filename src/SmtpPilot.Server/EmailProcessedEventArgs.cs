@@ -1,6 +1,5 @@
 ﻿using SmtpPilot.Server.Communication;
 using SmtpPilot.Server.Conversation;
-using System;
 
 namespace SmtpPilot.Server
 {

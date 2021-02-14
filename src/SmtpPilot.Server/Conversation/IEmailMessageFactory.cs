@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SmtpPilot.Server.Conversation
+﻿namespace SmtpPilot.Server.Conversation
 {
     public interface IEmailMessageFactory
     {

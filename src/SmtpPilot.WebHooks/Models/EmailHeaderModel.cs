@@ -1,7 +1,4 @@
 ﻿using SmtpPilot.Server.Conversation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SmtpPilot.WebHooks.Models
 {

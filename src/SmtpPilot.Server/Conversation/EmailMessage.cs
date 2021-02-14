@@ -1,9 +1,7 @@
 ﻿using SmtpPilot.Server.Internal;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
 
 namespace SmtpPilot.Server.Conversation

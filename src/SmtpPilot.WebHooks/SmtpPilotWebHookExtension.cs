@@ -3,7 +3,6 @@ using Newtonsoft.Json.Serialization;
 using SmtpPilot.Server;
 using SmtpPilot.Server.Conversation;
 using SmtpPilot.WebHooks.Models;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -34,7 +33,7 @@ namespace SmtpPilot.WebHooks
             {
                 _webHookUrl = _webHookUrl + "/";
             }
-            
+
             _cancellationTokenSource = new CancellationTokenSource();
 
             config.ServerEvents.EmailProcessed += EmailProcessedWebHook;
@@ -74,7 +73,7 @@ namespace SmtpPilot.WebHooks
                     result = await _client.PostAsync(uri, new StringContent(data, Encoding.UTF8, "application/json"), token);
                 }
                 catch (HttpRequestException) { }
-                
+
             } while (result?.IsSuccessStatusCode != true && attemptNumber < MaxWebHookAttempts);
         }
     }

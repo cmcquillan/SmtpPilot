@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SmtpPilot.Server
+﻿namespace SmtpPilot.Server
 {
     /// <summary>
     /// Delegate that plugs into <see cref="SMTPServer"/> that fires when a new client connects to the server.

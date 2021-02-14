@@ -1,11 +1,6 @@
 ﻿using NUnit.Framework;
 using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.IO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmtpPilot.Tests
 {
@@ -31,4 +26,4 @@ namespace SmtpPilot.Tests
             Assert.AreEqual(SmtpCommand.HELO, cmd);
         }
     }
-} 
+}

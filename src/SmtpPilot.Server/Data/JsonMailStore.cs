@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SmtpPilot.Server.Conversation;
-using System.Runtime.Serialization.Json;
-using System.Runtime.Serialization;
+﻿using SmtpPilot.Server.Conversation;
+using System;
 using System.IO;
+using System.Runtime.Serialization.Json;
 
 namespace SmtpPilot.Server.Data
 {

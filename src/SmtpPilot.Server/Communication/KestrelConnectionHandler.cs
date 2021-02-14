@@ -1,14 +1,8 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SmtpPilot.Server.Conversation;
-using SmtpPilot.Server.IO;
 using SmtpPilot.Server.States;
 using System;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.Communication

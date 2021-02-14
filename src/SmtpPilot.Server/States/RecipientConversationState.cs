@@ -1,7 +1,6 @@
-﻿using System;
-using SmtpPilot.Server.Conversation;
-using SmtpPilot.Server.IO;
+﻿using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
+using SmtpPilot.Server.IO;
 using System.Linq;
 
 namespace SmtpPilot.Server.States

@@ -1,5 +1,5 @@
-﻿using System;
-using SmtpPilot.Server.Conversation;
+﻿using SmtpPilot.Server.Conversation;
+using System;
 
 namespace SmtpPilot.Server.States
 {

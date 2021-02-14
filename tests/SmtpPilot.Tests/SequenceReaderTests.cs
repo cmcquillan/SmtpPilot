@@ -1,9 +1,5 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmtpPilot.Tests
 {
