@@ -9,7 +9,6 @@ namespace SmtpPilot.Server.Conversation
 {
     public class SmtpReply : ConversationElement
     {
-        #region Static Properties for general replies.  
         public static SmtpReply OK
         {
             get
@@ -33,7 +32,6 @@ namespace SmtpPilot.Server.Conversation
                 return new SmtpReply(SmtpReplyCode.Code354, Constants.BeginDataText);
             }
         }
-        #endregion
 
         private readonly SmtpReplyCode _code;
         private string _text;

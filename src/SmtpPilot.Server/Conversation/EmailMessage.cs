@@ -1,5 +1,6 @@
 ﻿using SmtpPilot.Server.Internal;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -70,6 +71,11 @@ namespace SmtpPilot.Server.Conversation
         public void Complete()
         {
             _complete = true;
+        }
+
+        public void Append(ReadOnlySpan<char> data)
+        {
+            _data.Append(data);
         }
     }
 }

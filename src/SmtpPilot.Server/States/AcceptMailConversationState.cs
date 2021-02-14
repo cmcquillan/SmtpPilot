@@ -1,5 +1,7 @@
-﻿using SmtpPilot.Server.Conversation;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
+using SmtpPilot.Server.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,44 +12,45 @@ namespace SmtpPilot.Server.States
 {
     public class AcceptMailConversationState : MinimalConversationState
     {
-        public override void LeaveState(ISmtpStateContext context)
+        public override void EnterState(SmtpStateContext context)
         {
-            if (!context.HasError)
-                context.Reply(SmtpReply.OK);
+
         }
 
-        public override SmtpCommand AllowedCommands
+        public override IConversationState Advance(SmtpStateContext context)
         {
-            get { return base.AllowedCommands | SmtpCommand.MAIL | SmtpCommand.VRFY; }
-        }
-
-
-        public override void EnterState(ISmtpStateContext context)
-        {
-            
-        }
-
-        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
-        {
-            switch(cmd.Command)
+            var buffer = context.GetBufferSegment(1024);
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer.Span, 0, out var count))
             {
-                case SmtpCommand.MAIL:
-                    string[] matches = IO.IOHelper.ParseEmails(cmd.Args);
-                    if (matches.Length != 1)
-                        return ConversationStates.Error;
+                var command = IOHelper.GetCommand(buffer.Span[0..4].ToArray());
+                var line = buffer[5..].ToString();
+                context.AdvanceBuffer(count);
 
-                    string from = matches[0];
-                    context.NewMessage();
-                    context.SetFrom(from);
+                switch (command)
+                {
+                    case SmtpCommand.MAIL:
+                        string[] matches = IOHelper.ParseEmails(line);
+                        if (matches.Length != 1)
+                            return ConversationStates.Error;
 
-                    return ConversationStates.Recipient;
-                case SmtpCommand.VRFY:
-                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Format("{0} <{0}@{1}>", cmd.Args, context.Configuration.HostName)));
-                    return this;
-                default:
-                    return base.ProcessData(context, cmd, line);
+                        string from = matches[0];
+
+                        var messageFactory = context.ServiceProvider.GetRequiredService<IEmailMessageFactory>();
+                        context.Conversation.NewMessage(messageFactory.CreateNewMessage());
+
+                        context.Conversation.CurrentMessage.FromAddress = new EmailAddress(from, AddressType.From);
+                        context.Reply(SmtpReply.OK);
+                        return ConversationStates.Recipient;
+                    case SmtpCommand.VRFY:
+                        context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Format("{0} <{0}@{1}>", line, context.Configuration.HostName)));
+                        return this;
+                    default:
+                        return ProcessBaseCommands(command, context);
+                }
+
             }
-            
+
+            return this;
         }
 
         internal override string HandleHelp()

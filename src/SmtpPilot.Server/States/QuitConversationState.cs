@@ -5,29 +5,17 @@ namespace SmtpPilot.Server.States
 {
     public class QuitConversationState : IConversationState
     {
-        public SmtpCommand AllowedCommands
+        public bool ShouldDisconnect => true;
+
+        public IConversationState Advance(SmtpStateContext context)
         {
-            get
-            {
-                return SmtpCommand.NonCommand;
-            }
+            throw new NotImplementedException();
         }
 
-        public bool AcceptingCommands => false;
-
-        public void EnterState(ISmtpStateContext context)
+        public void EnterState(SmtpStateContext context)
         {
             context.Reply(SmtpReply.ServerClosing);
             context.Configuration.ServerEvents.OnClientDisconnected(this, new MailClientDisconnectedEventArgs(context.Client, DisconnectReason.TransactionCompleted));
-        }
-
-        public void LeaveState(ISmtpStateContext context)
-        {
-        }
-
-        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
-        {
-            return this;
         }
     }
 }

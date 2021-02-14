@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using SmtpPilot.Server.Communication;
 using SmtpPilot.Server.Conversation;
-using SmtpPilot.Server.IO;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.States
@@ -15,32 +16,31 @@ namespace SmtpPilot.Server.States
         internal const int MinimumBufferSize = 4096;
 
         private readonly ArrayPool<char> _arrayPool = ArrayPool<char>.Shared;
-        private readonly SmtpConversation _conversation;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IMailClient _client;
         private IConversationState _currentState;
-        private readonly ISmtpStateContext _context;
-        private readonly SmtpCommand _currentCommand = SmtpCommand.NonCommand;
+        private readonly SmtpStateContext _context;
         private readonly EmailStatistics _emailStats;
         private readonly SmtpPilotConfiguration _configuration;
         private readonly ILogger<SmtpStateMachine> _logger;
 
         internal SmtpStateMachine(
-            IMailClient client, 
-            SmtpConversation conversation, 
-            EmailStatistics statistics, 
+            IServiceProvider serviceProvider,
+            IMailClient client,
+            EmailStatistics statistics,
             SmtpPilotConfiguration configuration,
             ILogger<SmtpStateMachine> logger)
         {
             _configuration = configuration;
             _logger = logger;
             _emailStats = statistics;
+            _serviceProvider = serviceProvider;
             _client = client;
-            _conversation = conversation;
-            _context = new SmtpStateContext(Client, Conversation, _currentCommand, _emailStats, _configuration);
+            _context = new SmtpStateContext(_serviceProvider, _configuration, _client, _emailStats, _configuration.ServerEvents);
             CurrentState = ConversationStates.OpenConnection;
         }
 
-        internal ISmtpStateContext Context { get { return _context; } }
+        internal SmtpStateContext Context { get { return _context; } }
 
         internal IConversationState CurrentState
         {
@@ -53,27 +53,15 @@ namespace SmtpPilot.Server.States
                 if (IConversationState.ReferenceEquals(CurrentState, value))
                     return;
 
-                if (_currentState != null)
-                {
-                    _logger.LogDebug("Leaving State {state}", _currentState);
-                    _currentState.LeaveState(_context);
-                    _logger.LogDebug("Left State {state}", _currentState);
-                }
-                    
                 _currentState = value;
 
                 _logger.LogDebug("Entering State {state}", _currentState);
-                _currentState.EnterState(_context);
+                _currentState.EnterState(Context);
                 _logger.LogDebug("Entered State {state}", _currentState);
             }
         }
 
-        internal SmtpConversation Conversation
-        {
-            get { return _conversation; }
-        }
-
-        internal async Task ProcessData()
+        internal void ProcessData()
         {
             /* Steps:
              * 1) Grab a line, exit if null received.
@@ -85,67 +73,23 @@ namespace SmtpPilot.Server.States
              * 3) Read a line of conversation element and run ProcessData() on CurrentState.
              * 4) Set new state according to return value of ProcessData().
              */
-            char[] buffer = null;
 
             try
             {
-                buffer = _arrayPool.Rent(MinimumBufferSize);
-                Memory<char> memory = buffer.AsMemory();
-                var read = Client.ReadLine(memory.Span);
-
-                //var line = await Client.ReadLine();
-
-                if (read > 0)
-                {
-                    SmtpCmd command = null;
-
-                    if (CurrentState.AcceptingCommands)
-                    {
-                        command = GetCommandFromLine(memory.Span.Slice(0, read));
-                        (_context as SmtpStateContext).Command = command.Command;
-                        Conversation.AddElement(command);
-
-                        if (!CurrentState.AllowedCommands.HasFlag(command.Command))
-                        {
-                            CurrentState = new ErrorConversationState();
-                            return;
-                        }
-
-                        if (!(CurrentState is ErrorConversationState))
-                            _emailStats.AddCommandProcessed();
-                    }
-                    else
-                    {
-                        (Conversation.LastElement as IAppendable)?.Append(memory.Span.Slice(0, read).ToString());
-                    }
-
-                    CurrentState = CurrentState.ProcessData(_context, command, memory.Span.Slice(0, read));
-                }
-            } 
-            finally
+                var next = CurrentState.Advance(_context);
+                TransitionTo(next);
+            }
+            catch (Exception ex)
             {
-                _arrayPool.Return(buffer, true);
+                _logger.LogCritical(ex, "Critical path exception");
+                throw;
             }
         }
 
-        private SmtpCmd GetCommandFromLine(Span<char> line)
-        {
-            SmtpCmd command;
-            string commandString = (line.Length >= 4) ? line.Slice(0, 4).ToString() : String.Empty;
-            Enum.TryParse(commandString, out SmtpCommand cmd);
-
-            if (!Enum.IsDefined(typeof(SmtpCommand), cmd))
-                cmd = SmtpCommand.NonCommand;
-
-            _logger.LogDebug("Received {command}", cmd);
-
-            command = new SmtpCmd(cmd, line.ToString());
-            return command;
-        }
+        private void TransitionTo(IConversationState newState) => CurrentState = newState;
 
         internal IMailClient Client { get { return _client; } }
 
         internal bool IsInQuitState { get { return _currentState is QuitConversationState; } }
-
     }
 }

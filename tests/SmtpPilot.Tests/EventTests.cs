@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using NUnit.Framework;
 using SmtpPilot.Server;
-using SmtpPilot.Server.IO;
+using SmtpPilot.Server.Communication;
 using System;
 using System.Collections.Generic;
 using System.IO.Pipelines;
@@ -72,22 +72,6 @@ namespace SmtpPilot.Tests
             await SendAndRunThenDisconnect(BasicMessage, Server, _cts.Token);
 
             Assert.True(disconnected);
-        }
-
-        [Test]
-        public async Task MailSentEventPassesClientAsSender()
-        {
-            IMailClient theClient = null;
-            Server.Events.EmailProcessed += (s, e) =>
-            {
-                theClient = s as IMailClient;
-                _cts.Cancel();
-            };
-
-            await SendAndRun(BasicMessage, Server, _cts.Token);
-
-            Assert.IsNotNull(theClient);
-            Assert.IsInstanceOf<IMailClient>(theClient);
         }
 
         [Test]

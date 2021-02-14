@@ -39,6 +39,16 @@ namespace SmtpPilot
                 })
                 .ConfigureServices(services =>
                 {
+                    if (configuration.MailStore != null)
+                    {
+                        services.AddSingleton(configuration.MailStore);
+                        configuration.ServerEvents.EmailProcessed += (o, e) =>
+                        {
+                            configuration.MailStore.SaveMessage(e.Message);
+                        };
+                    }
+
+                    services.AddSmtpPilotCore();
                     services.AddSingleton(configuration);
                     services.AddSingleton<EmailStatistics>();
                 })
@@ -48,7 +58,7 @@ namespace SmtpPilot
                 })
                 .UseKestrel(options =>
                 {
-                    foreach(var item in configuration.ListenParameters)
+                    foreach (var item in configuration.ListenParameters)
                     {
                         options.Listen(item.Address, item.Port, builder =>
                         {
@@ -56,10 +66,10 @@ namespace SmtpPilot
                         });
                     }
                 }).UseStartup<Startup>();
-            
+
             var host = builder.Build();
             var stats = host.Services.GetRequiredService<EmailStatistics>();
-            
+
             return new SMTPServer(host, configuration.ServerEvents, stats);
         }
 

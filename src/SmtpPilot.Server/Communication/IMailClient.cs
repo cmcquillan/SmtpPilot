@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SmtpPilot.Server.IO
+namespace SmtpPilot.Server.Communication
 {
     public interface IMailClient
     {
@@ -15,10 +15,12 @@ namespace SmtpPilot.Server.IO
 
         void Disconnect();
 
-        bool Disconnected { get; }
-
         int SecondsClientHasBeenSilent { get; }
 
         int ReadLine(Span<char> buffer);
+
+        bool ReadUntil(byte[] marker, Span<char> buffer, int startIndex, out int count);
+
+        bool Read(int count, Span<char> buffer);
     }
 }

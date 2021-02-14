@@ -31,16 +31,14 @@ namespace SmtpPilot.Server.Communication
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
         {
-            var conversation = new SmtpConversation();
-            var mailClient = new KestrelMailClient(connection, _loggerFactory.CreateLogger<KestrelMailClient>());
-            var machine = new SmtpStateMachine(mailClient, conversation, _statistics, _configuration, _loggerFactory.CreateLogger<SmtpStateMachine>());
+            var factory = _serviceProvider.GetRequiredService<IMailClientFactory>();
+            var mailClient = factory.CreateClient(connection.Transport, _loggerFactory);
 
-            while (!mailClient.Disconnected)
+            var machine = new SmtpStateMachine(_serviceProvider, mailClient, _statistics, _configuration, _loggerFactory.CreateLogger<SmtpStateMachine>());
+
+            while (!machine.IsInQuitState && !connection.ConnectionClosed.IsCancellationRequested)
             {
-                await machine.ProcessData();
-
-                if (mailClient.Disconnected)
-                    break;
+                machine.ProcessData();
 
                 if (mailClient.SecondsClientHasBeenSilent > _configuration.ClientTimeoutSeconds)
                     break;

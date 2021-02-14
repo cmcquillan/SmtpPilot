@@ -1,50 +1,44 @@
-﻿using SmtpPilot.Server.Conversation;
-using SmtpPilot.Server.IO;
+﻿using SmtpPilot.Server.Communication;
+using SmtpPilot.Server.Conversation;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmtpPilot.Server.States
 {
-    public class SmtpStateContext : ISmtpStateContext
+    public class SmtpStateContext : IDisposable
     {
-        internal SmtpStateContext(IMailClient client, SmtpConversation conversation, SmtpCommand command, EmailStatistics stats, SmtpPilotConfiguration configuration)
+        private readonly char[] _buffer = new char[1024 * 32];
+        private readonly ArrayPool<char> _arrayPool = ArrayPool<char>.Shared;
+        private int _bufferPosition = 0;
+
+        public SmtpStateContext(
+            IServiceProvider serviceProvider,
+            SmtpPilotConfiguration configuration,
+            IMailClient client, 
+            EmailStatistics emailStats, 
+            SmtpServerEvents events)
         {
+            ServiceProvider = serviceProvider;
             Configuration = configuration;
-            Statistics = stats;
             Client = client;
-            Conversation = conversation;
-            Command = command;
-            Items = new Dictionary<object, object>();
+            EmailStats = emailStats;
+            Events = events;
+            Conversation = new SmtpConversation();
         }
 
-        public EmailStatistics Statistics { get; }
-
-        public IMailClient Client { get; }
+        public EmailStatistics EmailStats { get; }
 
         public SmtpConversation Conversation { get; }
 
-        public SmtpCommand Command { get;
+        public IMailClient Client { get; }
 
-            /* Has a setter, which is more than the Interface contains.
-             * This is done to hide the setter from the IConversationState
-             * objects and make clear the read-only intent when operating
-             * in that context.
-             */
-            set; }
+        public SmtpServerEvents Events { get; }
 
-        public bool HasError => Conversation.HasError;
+        public SmtpPilotConfiguration Configuration { get; }
 
-        public ISmtpPilotConfiguration Configuration { get; }
-
-        public IDictionary<object, object> Items { get; }
-
-        public void AddHeader(SmtpHeader header)
-        {
-            Conversation.CurrentMessage.AddHeader(header);
-        }
+        public IServiceProvider ServiceProvider { get; }
 
         public void Reply(SmtpReply reply)
         {
@@ -52,46 +46,19 @@ namespace SmtpPilot.Server.States
             Client.Write(reply.FullText);
         }
 
-        public void SetFrom(string from)
+        public Memory<char> GetBufferSegment(int size)
         {
-            Conversation.CurrentMessage.FromAddress = new EmailAddress(from, AddressType.From);
+            return _buffer.AsMemory().Slice(_bufferPosition, size);
         }
 
-        public void AddTo(string[] emails)
+        public void AdvanceBuffer(int amount)
         {
-            InternalAddAddresses(emails, AddressType.To);
+            _bufferPosition += amount;
         }
 
-        public void AddCc(string[] emails)
+        public void Dispose()
         {
-            InternalAddAddresses(emails, AddressType.Cc);
-        }
-
-        public void AddBcc(string[] emails)
-        {
-            InternalAddAddresses(emails, AddressType.Bcc);
-        }
-
-        private void InternalAddAddresses(string[] emails, AddressType type)
-        {
-            IAddress[] addresses = new IAddress[emails.Length];
-
-            for (int i = 0; i < emails.Length; i++)
-                addresses[i] = new EmailAddress(emails[i], type);
-
-            Conversation.CurrentMessage.AddAddresses(addresses);
-        }
-
-        public void CompleteMessage()
-        {
-            Conversation.CurrentMessage.Complete();
-            Configuration.ServerEvents.OnEmailProcessed(Client, new EmailProcessedEventArgs(Client, Conversation.CurrentMessage, Statistics));
-            Statistics.AddEmailReceived();
-        }
-
-        public void NewMessage()
-        {
-            Conversation.NewMessage();
+            _arrayPool.Return(_buffer);
         }
     }
 }

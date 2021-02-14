@@ -2,41 +2,40 @@
 using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.IO;
 using SmtpPilot.Server.Internal;
+using System.Linq;
 
 namespace SmtpPilot.Server.States
 {
     public class RecipientConversationState : MinimalConversationState
     {
-        public override SmtpCommand AllowedCommands
+        public override IConversationState Advance(SmtpStateContext context)
         {
-            get
+            var buffer = context.GetBufferSegment(1024);
+
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer.Span, 0, out var count))
             {
-                return base.AllowedCommands | SmtpCommand.RCPT | SmtpCommand.DATA;
+                var command = IOHelper.GetCommand(buffer.Span[0..4].ToArray());
+                var line = buffer[5..].ToString();
+
+                switch (command)
+                {
+                    case SmtpCommand.RCPT:
+                        string[] emails = IOHelper.ParseEmails(line);
+                        context.Conversation.CurrentMessage.AddAddresses(emails.Select(p => new EmailAddress(p, AddressType.To)).Cast<IAddress>().ToArray());
+                        context.Reply(SmtpReply.OK);
+                        return this;
+                    case SmtpCommand.DATA:
+                        return ConversationStates.DataRead;
+                    default:
+                        return ProcessBaseCommands(command, context);
+                }
             }
+
+            return this;
         }
 
-        public override void EnterState(ISmtpStateContext context)
+        public override void EnterState(SmtpStateContext context)
         {
-        }
-
-        public override void LeaveState(ISmtpStateContext context)
-        {
-        }
-
-        public override IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
-        {
-            switch(cmd.Command)
-            {
-                case SmtpCommand.RCPT:
-                    string[] emails = IOHelper.ParseEmails(cmd.Args);
-                    context.AddTo(emails);
-                    context.Reply(SmtpReply.OK);
-                    return this;
-                case SmtpCommand.DATA:
-                    return ConversationStates.DataRead;
-                default:
-                    return base.ProcessData(context, cmd, line);
-            }
         }
 
         internal override string HandleHelp()

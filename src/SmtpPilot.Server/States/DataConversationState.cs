@@ -6,71 +6,41 @@ namespace SmtpPilot.Server.States
 {
     public class DataConversationState : IConversationState
     {
-        private readonly object _headersCompleteKey = new object();
-        private readonly object _headersCompleteValue = new object();
+        public bool ShouldDisconnect => false;
 
-        public SmtpCommand AllowedCommands
-        {
-            get
-            {
-                return SmtpCommand.NonCommand;
-            }
-        }
-
-        public bool AcceptingCommands => false;
-
-        public void EnterState(ISmtpStateContext context)
+        public void EnterState(SmtpStateContext context)
         {
             context.Reply(SmtpReply.BeginData);
             context.Conversation.AddElement(new SmtpData());
         }
 
-        public void LeaveState(ISmtpStateContext context)
+        public IConversationState Advance(SmtpStateContext context)
         {
-            context.Reply(SmtpReply.OK);
-        }
+            var buffer = context.GetBufferSegment(1024);
 
-        public IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
-        {
-            if (line.SequenceEqual(Constants.CarriageReturnLineFeed.AsSpan()))
-                return this;
-
-            var index = line.LastIndexOf(Constants.CarriageReturnLineFeed.AsSpan());
-            var lengthWithoutNewLine = index != -1 ? index : line.Length;
-            ReadOnlySpan<char> choppedLine = line.Slice(0, lengthWithoutNewLine);
-
-            if (!HeadersAreComplete(context))
+            // First attempt to read until <CR><LF>.<CR><LR>
+            if (context.Client.ReadUntil(Markers.EndOfDataSegment, buffer.Span, 0, out var count))
             {
-                if (IO.IOHelper.LooksLikeHeader(line))
-                {
-                    context.AddHeader(SmtpHeader.Parse(choppedLine));
-                }
-                else
-                {
-                    SetHeadersComplete(context, true);
-                }
-            }
-            
-            context.Conversation.CurrentMessage.AppendLine(choppedLine);
+                context.AdvanceBuffer(count);
 
-            if (HeadersAreComplete(context) && line.SequenceEqual(Constants.EndOfDataElement.AsSpan()))
-            {
-                context.CompleteMessage();
-                SetHeadersComplete(context, false);
+                context.Conversation.CurrentMessage.Append(buffer.Span.Slice(0, count));
+                context.Conversation.CurrentMessage.Complete();
+
+                context.Events.OnEmailProcessed(this, new EmailProcessedEventArgs(context.Client, context.Conversation.CurrentMessage, context.EmailStats));
+                context.EmailStats.AddEmailReceived();
+
+                context.Reply(SmtpReply.OK);
+
                 return ConversationStates.Accept;
+            }
+            // Otherwise just fill the buffer and append. We'll cycle back through this method.
+            else if (context.Client.Read(1024, buffer.Span))
+            {
+                context.AdvanceBuffer(1024);
+                context.Conversation.CurrentMessage.Append(buffer.Span);
             }
 
             return this;
-        }
-
-        private void SetHeadersComplete(ISmtpStateContext context, bool value)
-        {
-            context.Items[_headersCompleteKey] = value ? _headersCompleteValue : null;
-        }
-
-        private bool HeadersAreComplete(ISmtpStateContext context)
-        {
-            return context.Items.ContainsKey(_headersCompleteKey) && context.Items[_headersCompleteKey] == _headersCompleteValue;
         }
     }
 }

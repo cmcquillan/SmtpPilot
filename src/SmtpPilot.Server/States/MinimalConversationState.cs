@@ -9,29 +9,13 @@ namespace SmtpPilot.Server.States
 {
     public abstract class MinimalConversationState : IConversationState
     {
-        public virtual SmtpCommand AllowedCommands
+        public bool ShouldDisconnect => true;
+
+        public abstract IConversationState Advance(SmtpStateContext context);
+
+        public IConversationState ProcessBaseCommands(SmtpCommand smtpCommand, SmtpStateContext context)
         {
-            get
-            {
-                return SmtpCommand.NOOP | SmtpCommand.RSET | SmtpCommand.QUIT | SmtpCommand.HELP;
-            }
-        }
-
-        public virtual bool AcceptingCommands => true;
-
-        public virtual void EnterState(ISmtpStateContext context)
-        {
-
-        }
-
-        public virtual void LeaveState(ISmtpStateContext context)
-        {
-            
-        }
-
-        public virtual IConversationState ProcessData(ISmtpStateContext context, SmtpCmd cmd, ReadOnlySpan<char> line)
-        {
-            switch(cmd.Command)
+            switch (smtpCommand)
             {
                 case SmtpCommand.NOOP:
                     context.Reply(SmtpReply.OK);
@@ -48,6 +32,11 @@ namespace SmtpPilot.Server.States
                 default:
                     return ConversationStates.Error;
             }
+        }
+
+        public virtual void EnterState(SmtpStateContext context)
+        {
+
         }
 
         internal abstract string HandleHelp();
