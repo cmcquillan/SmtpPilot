@@ -63,17 +63,6 @@ namespace SmtpPilot.Server.States
 
         internal void ProcessData()
         {
-            /* Steps:
-             * 1) Grab a line, exit if null received.
-             * 2) If line has a command:
-             *     a) Create a new conversation element.
-             *     b) Append to conversation.
-             *     c) Check if new command is allowed.
-             *     d) If yes, continue to 3.
-             * 3) Read a line of conversation element and run ProcessData() on CurrentState.
-             * 4) Set new state according to return value of ProcessData().
-             */
-
             try
             {
                 var next = CurrentState.Advance(_context);
