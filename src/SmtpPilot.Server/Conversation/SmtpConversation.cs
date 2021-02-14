@@ -21,63 +21,11 @@ namespace SmtpPilot.Server.Conversation
                 _messages.Pop();
         }
 
-        public ReadOnlyCollection<ConversationElement> Elements
-        {
-            get
-            {
-                return _elements.AsReadOnly();
-            }
-        }
-
         public IMessage CurrentMessage
         {
             get
             {
                 return _messages.Peek();
-            }
-        }
-
-        public ConversationElement LastElement
-        {
-            get
-            {
-                if (_elements.Count == 0)
-                    return null;
-
-                return _elements.Last();
-            }
-        }
-
-        public bool HasError
-        {
-            get
-            {
-                //CONSIDER: Linq performance vs loop performance.
-                return _elements.Select(p => p as SmtpReply)
-                  .Where(p => p != null && p.IsError)
-                  .Any();
-            }
-        }
-
-        public SmtpCmd LastCommand
-        {
-            get
-            {
-                var q = _elements.Where(p => p is SmtpCmd);
-                if (!q.Any())
-                    return null;
-                return q.Last() as SmtpCmd;
-            }
-        }
-
-        public SmtpReply LastReply
-        {
-            get
-            {
-                var q = _elements.Where(p => p is SmtpReply);
-                if (q.Any())
-                    return null;
-                return q.Last() as SmtpReply;
             }
         }
 
