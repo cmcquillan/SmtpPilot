@@ -10,7 +10,7 @@ namespace SmtpPilot.WebHooks.Models
         public AddressType Type { get; set; }
         public string User { get; set; }
 
-        internal static EmailAddressModel Create(IAddress fromAddress)
+        internal static EmailAddressModel Create(EmailAddress fromAddress)
         {
             return new EmailAddressModel
             {

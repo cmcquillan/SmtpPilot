@@ -19,7 +19,7 @@ namespace SmtpPilot.WebHooks.Models
             return new EmailMessageModel
             {
                 Headers = msg?.Headers?.Select(p => EmailHeaderModel.Create(p))?.ToArray(),
-                From = EmailAddressModel.Create(msg?.FromAddress),
+                From = EmailAddressModel.Create(msg.FromAddress),
                 To = msg?.ToAddresses?.Select(p => EmailAddressModel.Create(p))?.ToArray(),
                 Message = rdr.ReadToEnd(),
             };

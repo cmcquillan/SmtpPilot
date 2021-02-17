@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SmtpPilot.Server.Conversation
 {
-    public struct EmailAddress : IAddress, IEquatable<EmailAddress>
+    public struct EmailAddress : IEquatable<EmailAddress>
     {
         private readonly string _address;
         private readonly AddressType _addressType;
