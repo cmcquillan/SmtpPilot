@@ -4,7 +4,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.IO.Pipelines;
 using System.Linq;
 
 namespace SmtpPilot.Server.Conversation
@@ -16,8 +15,8 @@ namespace SmtpPilot.Server.Conversation
         private readonly Memory<char> _fromSegment;
         private readonly IEnumerable<Memory<char>> _recipientSegments;
         private readonly IEnumerable<Memory<char>> _bodySegments;
-        private MaterializedAddress? _fromAddress;
-        private ReadOnlyCollection<IAddress> _addresses;
+        private EmailAddress? _fromAddress;
+        private ReadOnlyCollection<EmailAddress> _addresses;
 
         public LazilyMaterializedEmailMessage(
             IEnumerable<IMemoryOwner<char>> owners,
@@ -38,23 +37,23 @@ namespace SmtpPilot.Server.Conversation
             throw new NotImplementedException();
         }
 
-        public IAddress FromAddress => MaterializeFromAddress();
+        public EmailAddress FromAddress => MaterializeFromAddress();
 
-        private IAddress MaterializeFromAddress()
+        private EmailAddress MaterializeFromAddress()
         {
             if (_fromAddress is null)
             {
                 _fromAddress = BuildMaterializedAddress(_fromSegment, AddressType.From);
             }
 
-            return _fromAddress.Value.GetAddress();
+            return _fromAddress.Value;
         }
 
-        private MaterializedAddress BuildMaterializedAddress(Memory<char> segment, AddressType type)
+        private EmailAddress BuildMaterializedAddress(Memory<char> segment, AddressType type)
         {
             var addressString = segment.Span.ToString();
             var email = IOHelper.ParseEmails(addressString).FirstOrDefault();
-            var addr = new MaterializedAddress(email, type);
+            var addr = new EmailAddress(email, type);
             return addr;
         }
 
@@ -65,16 +64,16 @@ namespace SmtpPilot.Server.Conversation
             throw new NotImplementedException();
         }
 
-        public ReadOnlyCollection<IAddress> ToAddresses => MaterializeToAddresses();
+        public ReadOnlyCollection<EmailAddress> ToAddresses => MaterializeToAddresses();
 
-        private ReadOnlyCollection<IAddress> MaterializeToAddresses()
+        private ReadOnlyCollection<EmailAddress> MaterializeToAddresses()
         {
             if (_addresses is null)
             {
-                var list = new List<IAddress>();
+                var list = new List<EmailAddress>();
                 foreach (var item in _recipientSegments)
                 {
-                    list.Add(BuildMaterializedAddress(item, AddressType.To).GetAddress());
+                    list.Add(BuildMaterializedAddress(item, AddressType.To));
                 }
 
                 _addresses = list.AsReadOnly();
@@ -101,20 +100,6 @@ namespace SmtpPilot.Server.Conversation
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
-        }
-
-        private struct MaterializedAddress
-        {
-            private readonly string _addressString;
-            private readonly IAddress _address;
-
-            internal MaterializedAddress(string address, AddressType type)
-            {
-                _addressString = address;
-                _address = new EmailAddress(_addressString, type);
-            }
-
-            internal IAddress GetAddress() => _address;
         }
     }
 }
