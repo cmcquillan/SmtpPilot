@@ -3,7 +3,7 @@ using System.Text;
 
 namespace SmtpPilot.Server.Conversation
 {
-    public class SmtpCmd : ConversationElement, IAppendable
+    public class SmtpCmd : ConversationElement
     {
         private readonly SmtpCommand _cmd;
         private readonly StringBuilder _lines;

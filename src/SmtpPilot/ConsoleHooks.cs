@@ -1,5 +1,6 @@
 ﻿using SmtpPilot.Server;
 using System;
+using System.Linq;
 
 namespace SmtpPilot
 {
@@ -7,7 +8,11 @@ namespace SmtpPilot
     {
         internal static void Server_EmailProcessed(object sender, EmailProcessedEventArgs eventArgs)
         {
-            LogInfo($"Client processed mail.{Environment.NewLine}\tId: {eventArgs.ClientId} {Environment.NewLine}\tFrom: {eventArgs.Message.FromAddress}");
+            LogInfo(
+                $"Client processed mail.{Environment.NewLine}" + 
+                $"\tId: {eventArgs.ClientId} {Environment.NewLine}" +
+                $"\tFrom: {eventArgs?.Message?.FromAddress} {Environment.NewLine}" + 
+                $"\tTo: {eventArgs.Message?.ToAddresses?.FirstOrDefault()}");
         }
 
         internal static void Server_ClientDisconnected(object sender, MailClientDisconnectedEventArgs eventArgs)

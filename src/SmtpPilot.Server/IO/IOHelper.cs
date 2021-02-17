@@ -17,16 +17,16 @@ namespace SmtpPilot.Server.IO
         private const char _space = (char)0x20;
         private static readonly Regex _mailFromRegex;
 
-        public static SmtpCommand GetCommand(IEnumerable<char> input)
+        public static SmtpCommand GetCommand(ReadOnlySpan<char> input)
         {
             char[] cmd = new char[4];
 
-            for (int i = 0; i < Math.Min(4, input.Count()); i++)
+            for (int i = 0; i < Math.Min(4, input.Length); i++)
             {
-                if (input.ElementAt(i) == _space)
+                if (input[i] == _space)
                     break;
 
-                cmd[i] = input.ElementAt(i);
+                cmd[i] = input[i];
             }
 
             string commandText = new string(cmd);

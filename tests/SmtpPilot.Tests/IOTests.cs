@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.IO;
+using System;
 
 namespace SmtpPilot.Tests
 {
@@ -22,7 +23,7 @@ namespace SmtpPilot.Tests
         public void GetCommandParsesSmtpCommands()
         {
             string testString = "HELO Ord-Mantell";
-            SmtpCommand cmd = IOHelper.GetCommand(testString);
+            SmtpCommand cmd = IOHelper.GetCommand(testString.AsSpan().Slice(0, 4));
             Assert.AreEqual(SmtpCommand.HELO, cmd);
         }
     }

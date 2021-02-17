@@ -15,7 +15,7 @@ namespace SmtpPilot.Client
 
             var tasks = new List<Task>();
 
-            const int threadCount = 10;
+            const int threadCount = 1;
 
             for (int i = 0; i < threadCount; i++)
             {

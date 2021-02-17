@@ -16,7 +16,7 @@ namespace SmtpPilot.Server.States
                     context.Reply(SmtpReply.OK);
                     return this;
                 case SmtpCommand.RSET:
-                    context.Conversation.Reset();
+                    context.ContextBuilder.ResetState();
                     context.Reply(SmtpReply.OK);
                     return ConversationStates.Accept;
                 case SmtpCommand.QUIT:

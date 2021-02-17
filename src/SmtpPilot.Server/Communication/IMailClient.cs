@@ -17,5 +17,7 @@ namespace SmtpPilot.Server.Communication
         bool ReadUntil(byte[] marker, Span<char> buffer, int startIndex, out int count);
 
         bool Read(int count, Span<char> buffer);
+
+        bool Peek(int count, Span<char> buffer);
     }
 }

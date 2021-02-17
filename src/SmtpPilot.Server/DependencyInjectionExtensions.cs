@@ -9,7 +9,6 @@ namespace SmtpPilot.Server
         public static IServiceCollection AddSmtpPilotCore(this IServiceCollection services)
         {
             services.AddSingleton<IMailClientFactory, KestrelMailClientFactory>();
-            services.AddSingleton<IEmailMessageFactory, EmailMessageFactory>();
 
             return services;
         }

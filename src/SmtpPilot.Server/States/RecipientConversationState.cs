@@ -1,26 +1,36 @@
 ﻿using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.IO;
+using System;
 using System.Linq;
 
 namespace SmtpPilot.Server.States
 {
     public class RecipientConversationState : MinimalConversationState
     {
+        public override void EnterState(SmtpStateContext context)
+        {
+        }
+
         public override IConversationState Advance(SmtpStateContext context)
         {
-            var buffer = context.GetBufferSegment(1024);
+            var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
 
-            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer.Span, 0, out var count))
+            if (!context.Client.Read(4, temp))
             {
-                var command = IOHelper.GetCommand(buffer.Span[0..4].ToArray());
-                var line = buffer[5..].ToString();
+                return this;
+            }
 
+            var command = IOHelper.GetCommand(temp);
+            var buffer = context.ContextBuilder.GetBuffer(1024);
+
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 0, out var count))
+            {
                 switch (command)
                 {
                     case SmtpCommand.RCPT:
-                        string[] emails = IOHelper.ParseEmails(line);
-                        context.Conversation.CurrentMessage.AddAddresses(emails.Select(p => new EmailAddress(p, AddressType.To)).Cast<IAddress>().ToArray());
+                        var start = buffer.IndexOf(':') + 1;
+                        context.ContextBuilder.AddAddressSegment(start, count - start);
                         context.Reply(SmtpReply.OK);
                         return this;
                     case SmtpCommand.DATA:
@@ -31,10 +41,6 @@ namespace SmtpPilot.Server.States
             }
 
             return this;
-        }
-
-        public override void EnterState(SmtpStateContext context)
-        {
         }
 
         internal override string HandleHelp()

@@ -5,12 +5,8 @@ using System.Buffers;
 
 namespace SmtpPilot.Server.States
 {
-    public class SmtpStateContext : IDisposable
+    public class SmtpStateContext
     {
-        private readonly char[] _buffer = new char[1024 * 32];
-        private readonly ArrayPool<char> _arrayPool = ArrayPool<char>.Shared;
-        private int _bufferPosition = 0;
-
         public SmtpStateContext(
             IServiceProvider serviceProvider,
             SmtpPilotConfiguration configuration,
@@ -23,12 +19,12 @@ namespace SmtpPilot.Server.States
             Client = client;
             EmailStats = emailStats;
             Events = events;
-            Conversation = new SmtpConversation();
+            ContextBuilder = new EmailMessageBuilder();
         }
 
         public EmailStatistics EmailStats { get; }
 
-        public SmtpConversation Conversation { get; }
+        internal EmailMessageBuilder ContextBuilder { get; }
 
         public IMailClient Client { get; }
 
@@ -40,23 +36,7 @@ namespace SmtpPilot.Server.States
 
         public void Reply(SmtpReply reply)
         {
-            Conversation.AddElement(reply);
             Client.Write(reply.FullText);
-        }
-
-        public Memory<char> GetBufferSegment(int size)
-        {
-            return _buffer.AsMemory().Slice(_bufferPosition, size);
-        }
-
-        public void AdvanceBuffer(int amount)
-        {
-            _bufferPosition += amount;
-        }
-
-        public void Dispose()
-        {
-            _arrayPool.Return(_buffer);
         }
     }
 }

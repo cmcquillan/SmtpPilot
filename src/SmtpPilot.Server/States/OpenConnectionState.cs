@@ -18,21 +18,36 @@ namespace SmtpPilot.Server.States
 
         public override IConversationState Advance(SmtpStateContext context)
         {
-            var line = context.GetBufferSegment(1024);
-            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, line.Span, 0, out var count))
+            var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
+
+            if (!context.Client.Read(4, temp))
             {
-                context.AdvanceBuffer(count);
-                var command = IOHelper.GetCommand(line.Slice(0, 4).ToArray());
-                context.Conversation.AddElement(new SmtpCmd(command, line.ToString()));
-                if (command == SmtpCommand.HELO)
+                return this;
+            }
+
+            var command = IOHelper.GetCommand(temp);
+            var buffer = context.ContextBuilder.GetBuffer(1024);
+
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 0, out var count))
+            {
+                try
                 {
-                    context.Events.OnClientConnected(this, new MailClientConnectedEventArgs(context.Client));
-                    context.Reply(new SmtpReply(SmtpReplyCode.Code250, context.Configuration.HostName));
-                    return ConversationStates.Accept;
+                    if (command == SmtpCommand.HELO)
+                    {
+                        context.Events.OnClientConnected(this, new MailClientConnectedEventArgs(context.Client));
+                        context.Reply(new SmtpReply(SmtpReplyCode.Code250, context.Configuration.HostName));
+
+                        return ConversationStates.Accept;
+                    }
+                    else
+                    {
+                        return ProcessBaseCommands(command, context);
+                    }
                 }
-                else
+                finally
                 {
-                    return ProcessBaseCommands(command, context);
+                    // Discard the rest
+                    buffer.Slice(0, count).Clear();
                 }
             }
 

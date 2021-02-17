@@ -160,12 +160,19 @@ namespace SmtpPilot.Server.Communication
 
         public bool Read(int count, Span<char> buffer)
         {
+            return ReadInternal(count, buffer, true);
+        }
+
+        private bool ReadInternal(int count, Span<char> buffer, bool advance)
+        {
             if (_reader.TryRead(out var result))
             {
                 if (result.Buffer.Length >= count)
                 {
                     FillCount(result.Buffer, buffer, count);
-                    _reader.AdvanceTo(result.Buffer.GetPosition(count));
+                    _reader.AdvanceTo(advance
+                        ? result.Buffer.GetPosition(count)
+                        : result.Buffer.Start);
                     return true;
                 }
 
@@ -173,6 +180,11 @@ namespace SmtpPilot.Server.Communication
             }
 
             return false;
+        }
+
+        public bool Peek(int count, Span<char> buffer)
+        {
+            return ReadInternal(count, buffer, false);
         }
     }
 }
