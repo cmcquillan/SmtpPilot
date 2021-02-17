@@ -4,8 +4,10 @@ using SmtpPilot.Server.IO;
 
 namespace SmtpPilot.Server.States
 {
-    public class OpenConnectionState : MinimalConversationState
+    internal class OpenConnectionState : MinimalConversationState
     {
+        public override ConversationStateKey ThisKey => ConversationStates.OpenConnection;
+
         public override void EnterState(SmtpStateContext context)
         {
             context.Reply(new SmtpReply(SmtpReplyCode.Code220, $"{context.Configuration.HostName} Mock SMTP Server Ready"));
@@ -16,13 +18,13 @@ namespace SmtpPilot.Server.States
             return Constants.HelpTextOpenState;
         }
 
-        public override IConversationState Advance(SmtpStateContext context)
+        public override ConversationStateKey Advance(SmtpStateContext context)
         {
             var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
 
             if (!context.Client.Read(4, temp))
             {
-                return this;
+                return ThisKey;
             }
 
             var command = IOHelper.GetCommand(temp);
@@ -51,7 +53,7 @@ namespace SmtpPilot.Server.States
                 }
             }
 
-            return this;
+            return ThisKey;
         }
     }
 }

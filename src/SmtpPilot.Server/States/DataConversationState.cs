@@ -5,7 +5,7 @@ using System.Buffers;
 
 namespace SmtpPilot.Server.States
 {
-    public class DataConversationState : IConversationState
+    internal class DataConversationState : IConversationState
     {
         public bool ShouldDisconnect => false;
 
@@ -14,7 +14,7 @@ namespace SmtpPilot.Server.States
             context.Reply(SmtpReply.BeginData);
         }
 
-        public IConversationState Advance(SmtpStateContext context)
+        public ConversationStateKey Advance(SmtpStateContext context)
         {
             bool endOfData = false;
             bool dataHasPeriod = false;
@@ -22,7 +22,7 @@ namespace SmtpPilot.Server.States
 
             if (!context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 0, out var count))
             {
-                return this;
+                return ConversationStates.DataRead;
             }
 
             if (buffer[0] == '.')
@@ -54,7 +54,7 @@ namespace SmtpPilot.Server.States
                 return ConversationStates.Accept;
             }
 
-            return this;
+            return ConversationStates.DataRead;
         }
     }
 }

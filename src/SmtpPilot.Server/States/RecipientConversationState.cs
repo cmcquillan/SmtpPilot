@@ -6,19 +6,21 @@ using System.Linq;
 
 namespace SmtpPilot.Server.States
 {
-    public class RecipientConversationState : MinimalConversationState
+    internal class RecipientConversationState : MinimalConversationState
     {
+        public override ConversationStateKey ThisKey => ConversationStates.Recipient;
+
         public override void EnterState(SmtpStateContext context)
         {
         }
 
-        public override IConversationState Advance(SmtpStateContext context)
+        public override ConversationStateKey Advance(SmtpStateContext context)
         {
             var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
 
             if (!context.Client.Read(4, temp))
             {
-                return this;
+                return ThisKey;
             }
 
             var command = IOHelper.GetCommand(temp);
@@ -32,7 +34,7 @@ namespace SmtpPilot.Server.States
                         var start = buffer.IndexOf(':') + 1;
                         context.ContextBuilder.AddAddressSegment(start, count - start);
                         context.Reply(SmtpReply.OK);
-                        return this;
+                        return ThisKey;
                     case SmtpCommand.DATA:
                         return ConversationStates.DataRead;
                     default:
@@ -40,7 +42,7 @@ namespace SmtpPilot.Server.States
                 }
             }
 
-            return this;
+            return ThisKey;
         }
 
         internal override string HandleHelp()

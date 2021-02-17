@@ -6,20 +6,22 @@ using System;
 
 namespace SmtpPilot.Server.States
 {
-    public class AcceptMailConversationState : MinimalConversationState
+    internal class AcceptMailConversationState : MinimalConversationState
     {
+        public override ConversationStateKey ThisKey => ConversationStates.Accept;
+
         public override void EnterState(SmtpStateContext context)
         {
             context.ContextBuilder.ResetState();
         }
 
-        public override IConversationState Advance(SmtpStateContext context)
+        public override ConversationStateKey Advance(SmtpStateContext context)
         {
             var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
 
             if (!context.Client.Read(4, temp))
             {
-                return this;
+                return ConversationStates.Accept;
             }
 
             var command = IOHelper.GetCommand(temp);
@@ -35,17 +37,20 @@ namespace SmtpPilot.Server.States
                         var start = buffer.IndexOf(':') + 1;
                         context.ContextBuilder.StartMessage(start, count - start);
                         context.Reply(SmtpReply.OK);
+
                         return ConversationStates.Recipient;
                     case SmtpCommand.VRFY:
+
                         context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Format("{0} <{0}@{1}>", "sample", context.Configuration.HostName)));
-                        return this;
+
+                        return ConversationStates.Accept;
                     default:
                         return ProcessBaseCommands(command, context);
                 }
 
             }
 
-            return this;
+            return ConversationStates.Accept;
         }
 
         internal override string HandleHelp()

@@ -3,11 +3,11 @@ using System;
 
 namespace SmtpPilot.Server.States
 {
-    public class QuitConversationState : IConversationState
+    internal class QuitConversationState : IConversationState
     {
         public bool ShouldDisconnect => true;
 
-        public IConversationState Advance(SmtpStateContext context)
+        public ConversationStateKey Advance(SmtpStateContext context)
         {
             throw new NotImplementedException();
         }

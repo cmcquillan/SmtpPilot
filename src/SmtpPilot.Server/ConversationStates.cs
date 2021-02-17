@@ -2,18 +2,18 @@
 
 namespace SmtpPilot.Server
 {
-    public static class ConversationStates
+    internal static class ConversationStates
     {
-        public static AcceptMailConversationState Accept { get; } = new AcceptMailConversationState();
+        internal static ConversationStateKey Accept { get; } = new ConversationStateKey(typeof(AcceptMailConversationState));
 
-        public static DataConversationState DataRead { get; } = new DataConversationState();
+        internal static ConversationStateKey DataRead { get; } = new ConversationStateKey(typeof(DataConversationState));
 
-        public static ErrorConversationState Error { get; } = new ErrorConversationState();
+        internal static ConversationStateKey Error { get; } = new ConversationStateKey(typeof(ErrorConversationState));
 
-        public static OpenConnectionState OpenConnection { get; } = new OpenConnectionState();
+        internal static ConversationStateKey OpenConnection { get; } = new ConversationStateKey(typeof(OpenConnectionState));
 
-        public static QuitConversationState Quit { get; } = new QuitConversationState();
+        internal static ConversationStateKey Quit { get; } = new ConversationStateKey(typeof(QuitConversationState));
 
-        public static RecipientConversationState Recipient { get; } = new RecipientConversationState();
+        internal static ConversationStateKey Recipient { get; } = new ConversationStateKey(typeof(RecipientConversationState));
     }
 }

@@ -12,15 +12,20 @@ namespace SmtpPilot.Server.Communication
         private readonly IServiceProvider _serviceProvider;
         private readonly ILoggerFactory _loggerFactory;
         private readonly SmtpPilotConfiguration _configuration;
+        private readonly ConversationStateCollection _stateCollection;
         private readonly EmailStatistics _statistics;
 
-        public KestrelConnectionHandler(IServiceProvider serviceProvider, SmtpPilotConfiguration configuration, EmailStatistics statistics)
+        public KestrelConnectionHandler(
+            IServiceProvider serviceProvider, 
+            SmtpPilotConfiguration configuration, 
+            EmailStatistics statistics)
         {
             _serviceProvider = serviceProvider;
-            _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             _configuration = configuration;
             _statistics = statistics;
             _statistics.SetStart();
+            _stateCollection = serviceProvider.GetRequiredService<ConversationStateCollection>();
+            _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
         }
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
@@ -28,7 +33,7 @@ namespace SmtpPilot.Server.Communication
             var factory = _serviceProvider.GetRequiredService<IMailClientFactory>();
             var mailClient = factory.CreateClient(connection.Transport, _loggerFactory);
 
-            var machine = new SmtpStateMachine(_serviceProvider, mailClient, _statistics, _configuration, _loggerFactory.CreateLogger<SmtpStateMachine>());
+            var machine = new SmtpStateMachine(_serviceProvider, _stateCollection, mailClient, _statistics, _configuration, _loggerFactory.CreateLogger<SmtpStateMachine>());
 
             while (!machine.IsInQuitState && !connection.ConnectionClosed.IsCancellationRequested)
             {

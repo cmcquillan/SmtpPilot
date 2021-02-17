@@ -1,9 +1,9 @@
 ﻿namespace SmtpPilot.Server.States
 {
-    public interface IConversationState
+    internal interface IConversationState
     {
         void EnterState(SmtpStateContext context);
         bool ShouldDisconnect { get; }
-        IConversationState Advance(SmtpStateContext context);
+        ConversationStateKey Advance(SmtpStateContext context);
     }
 }
