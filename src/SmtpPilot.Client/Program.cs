@@ -2,6 +2,7 @@
 using MimeKit;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,13 +10,15 @@ namespace SmtpPilot.Client
 {
     class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
             Thread.Sleep(5000);
 
             var tasks = new List<Task>();
 
-            const int threadCount = 1;
+            Int32.TryParse(args.FirstOrDefault(), out int threads);
+
+            int threadCount = Math.Max(threads, 1);
 
             for (int i = 0; i < threadCount; i++)
             {
