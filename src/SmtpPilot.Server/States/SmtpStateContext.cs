@@ -19,12 +19,11 @@ namespace SmtpPilot.Server.States
             Client = client;
             EmailStats = emailStats;
             Events = events;
-            ContextBuilder = new EmailMessageBuilder();
         }
 
         public EmailStatistics EmailStats { get; }
 
-        internal EmailMessageBuilder ContextBuilder { get; }
+        internal EmailMessageBuilder ContextBuilder { get; } = new EmailMessageBuilder();
 
         public IMailClient Client { get; }
 

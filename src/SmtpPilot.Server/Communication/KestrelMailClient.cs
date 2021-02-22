@@ -118,18 +118,21 @@ namespace SmtpPilot.Server.Communication
             }
         }
 
-        public bool ReadUntil(byte[] marker, Span<char> buffer, int startIndex, out int count)
+        public bool ReadUntil(byte[] marker, Span<char> buffer, int readOffset, out int count)
         {
             count = 0;
             if (_reader.TryRead(out var result))
             {
                 var sr = new SequenceReader<byte>(result.Buffer);
 
+                if (readOffset > 0)
+                    sr.Advance(readOffset);
+
                 if (sr.TryReadTo(out var newSequence, marker, true))
                 {
                     if (newSequence.Length <= buffer.Length)
                     {
-                        count = DecodeAndConsume(ref newSequence, buffer[startIndex..]);
+                        count = DecodeAndConsume(ref newSequence, buffer);
                         _reader.AdvanceTo(sr.Position);
 
                         return true;

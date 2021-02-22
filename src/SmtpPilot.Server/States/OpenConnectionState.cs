@@ -22,7 +22,7 @@ namespace SmtpPilot.Server.States
         {
             var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
 
-            if (!context.Client.Read(4, temp))
+            if (!context.Client.Peek(4, temp))
             {
                 return ThisKey;
             }
@@ -30,7 +30,7 @@ namespace SmtpPilot.Server.States
             var command = IOHelper.GetCommand(temp);
             var buffer = context.ContextBuilder.GetBuffer(1024);
 
-            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 0, out var count))
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 4, out var count))
             {
                 try
                 {

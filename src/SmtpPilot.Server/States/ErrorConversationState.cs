@@ -26,6 +26,6 @@
             return ConversationStates.Error;
         }
 
-        public bool ShouldDisconnect { get; }
+        public bool ShouldDisconnect => true;
     }
 }
