@@ -13,9 +13,11 @@
         internal const string HelpTextOpenState = "A connection has been established.  You may begin a transaction with the EHLO command.";
         internal const string HelpTextRecipientState = "A piece of mail has been started and addressed.  You may add recipients with RCPT commands.  You may begin the message with the DATA command.";
 
-        internal static string OKText { get { return "OK"; } }
-        internal static string QuitText { get { return "Server closing transmission channel."; } }
-        internal static string BeginDataText { get { return "Start mail input; end with < CRLF >.< CRLF > "; } }
+        internal const string OKText = "OK";
+        internal const string QuitText = "Server closing transmission channel.";
+        internal const string BeginDataText = "Start mail input; end with < CRLF >.< CRLF > ";
+
+        internal const string ErrorSyntaxError = "Syntax error in parameters or arguments";
 
         internal const int BufferCompressionThreshold = 16384;
         internal const int BufferCompressionScanThreshold = 8192;

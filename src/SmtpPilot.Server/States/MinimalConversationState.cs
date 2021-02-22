@@ -1,4 +1,6 @@
 ﻿using SmtpPilot.Server.Conversation;
+using SmtpPilot.Server.IO;
+using System;
 
 namespace SmtpPilot.Server.States
 {
@@ -10,7 +12,7 @@ namespace SmtpPilot.Server.States
 
         public abstract ConversationStateKey Advance(SmtpStateContext context);
 
-        public ConversationStateKey ProcessBaseCommands(SmtpCommand smtpCommand, SmtpStateContext context)
+        public ConversationStateKey ProcessBaseCommands(SmtpCommand smtpCommand, ReadOnlySpan<char> buffer, SmtpStateContext context)
         {
             switch (smtpCommand)
             {
@@ -18,11 +20,27 @@ namespace SmtpPilot.Server.States
                     context.Reply(SmtpReply.OK);
                     return ThisKey;
                 case SmtpCommand.RSET:
-                    context.ContextBuilder.ResetState();
-                    context.Reply(SmtpReply.OK);
-                    return ConversationStates.Accept;
+                    if (buffer.IsEmptyOrWhitespace())
+                    {
+                        context.ContextBuilder.ResetState();
+                        context.Reply(SmtpReply.OK);
+                        return ConversationStates.Accept;
+                    }
+                    else
+                    {
+                        context.Reply(SmtpReply.SyntaxError);
+                        return ThisKey;
+                    }
                 case SmtpCommand.QUIT:
-                    return ConversationStates.Quit;
+                    if (buffer.IsEmptyOrWhitespace())
+                    {
+                        return ConversationStates.Quit;
+                    }
+                    else
+                    {
+                        context.Reply(SmtpReply.SyntaxError);
+                        return ThisKey;
+                    }
                 case SmtpCommand.HELP:
                     context.Reply(new SmtpReply(SmtpReplyCode.Code250, HandleHelp()));
                     return ThisKey;

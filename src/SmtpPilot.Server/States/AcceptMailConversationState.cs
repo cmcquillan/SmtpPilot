@@ -45,7 +45,7 @@ namespace SmtpPilot.Server.States
 
                         return ConversationStates.Accept;
                     default:
-                        return ProcessBaseCommands(command, context);
+                        return ProcessBaseCommands(command, buffer.Slice(0, count), context);
                 }
 
             }

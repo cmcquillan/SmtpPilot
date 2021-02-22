@@ -34,7 +34,7 @@ namespace SmtpPilot.Server.States
             {
                 try
                 {
-                    if (command == SmtpCommand.HELO)
+                    if (command == SmtpCommand.HELO || command == SmtpCommand.EHLO)
                     {
                         context.Events.OnClientConnected(this, new MailClientConnectedEventArgs(context.Client));
                         context.Reply(new SmtpReply(SmtpReplyCode.Code250, context.Configuration.HostName));
@@ -43,7 +43,7 @@ namespace SmtpPilot.Server.States
                     }
                     else
                     {
-                        return ProcessBaseCommands(command, context);
+                        return ProcessBaseCommands(command, buffer.Slice(0, count), context);
                     }
                 }
                 finally

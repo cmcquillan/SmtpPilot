@@ -36,9 +36,17 @@ namespace SmtpPilot.Server.States
                         context.Reply(SmtpReply.OK);
                         return ThisKey;
                     case SmtpCommand.DATA:
-                        return ConversationStates.DataRead;
+                        if (((ReadOnlySpan<char>)buffer.Slice(0, count)).IsEmptyOrWhitespace())
+                        {
+                            return ConversationStates.DataRead;
+                        }
+                        else
+                        {
+                            context.Reply(SmtpReply.SyntaxError);
+                            return ThisKey;
+                        }
                     default:
-                        return ProcessBaseCommands(command, context);
+                        return ProcessBaseCommands(command, buffer.Slice(0, count), context);
                 }
             }
 

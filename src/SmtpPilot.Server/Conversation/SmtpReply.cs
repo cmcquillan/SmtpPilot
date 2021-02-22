@@ -5,29 +5,13 @@ namespace SmtpPilot.Server.Conversation
 {
     public class SmtpReply : ConversationElement
     {
-        public static SmtpReply OK
-        {
-            get
-            {
-                return new SmtpReply(SmtpReplyCode.Code250, Constants.OKText);
-            }
-        }
+        public static SmtpReply OK { get; } = new SmtpReply(SmtpReplyCode.Code250, Constants.OKText);
 
-        public static SmtpReply ServerClosing
-        {
-            get
-            {
-                return new SmtpReply(SmtpReplyCode.Code221, Constants.QuitText);
-            }
-        }
+        public static SmtpReply ServerClosing { get; } = new SmtpReply(SmtpReplyCode.Code221, Constants.QuitText);
 
-        public static SmtpReply BeginData
-        {
-            get
-            {
-                return new SmtpReply(SmtpReplyCode.Code354, Constants.BeginDataText);
-            }
-        }
+        public static SmtpReply BeginData { get; } = new SmtpReply(SmtpReplyCode.Code354, Constants.BeginDataText);
+
+        public static SmtpReply SyntaxError { get; } = new SmtpReply(SmtpReplyCode.Code501, Constants.ErrorSyntaxError);
 
         private readonly SmtpReplyCode _code;
         private string _text;

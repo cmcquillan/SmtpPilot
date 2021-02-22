@@ -126,7 +126,9 @@ namespace SmtpPilot.Server.Communication
                 var sr = new SequenceReader<byte>(result.Buffer);
 
                 if (readOffset > 0)
+                {
                     sr.Advance(readOffset);
+                }
 
                 if (sr.TryReadTo(out var newSequence, marker, true))
                 {
