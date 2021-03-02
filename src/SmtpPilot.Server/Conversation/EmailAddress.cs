@@ -31,7 +31,7 @@ namespace SmtpPilot.Server.Conversation
             if (ampPos == 0)
                 throw new ArgumentException("Must provide a valid email address.", nameof(emailAddress));
 
-            _address = emailAddress;
+            _address = emailAddress.ToString();
 
             /*
              * Now look for indication of user name.
@@ -47,15 +47,15 @@ namespace SmtpPilot.Server.Conversation
 
             if (leftBracketPos != 0)
             {
-                _host = emailAddress.Substring(ampPos + 1, emailAddress.Length - ampPos - (emailAddress.Length - rightBracketPos + 1));
-                _displayName = emailAddress.Substring(0, leftBracketPos - 1).Trim();
-                _user = emailAddress.Substring(leftBracketPos + 1, ampPos - leftBracketPos - 1);
+                _host = _address.Substring(ampPos + 1, emailAddress.Length - ampPos - (emailAddress.Length - rightBracketPos + 1));
+                _displayName = _address.Substring(0, leftBracketPos - 1).Trim();
+                _user = _address.Substring(leftBracketPos + 1, ampPos - leftBracketPos - 1);
             }
             else
             {
-                _host = emailAddress.Substring(ampPos + 1, emailAddress.Length - ampPos - 1);
+                _host = _address.Substring(ampPos + 1, emailAddress.Length - ampPos - 1);
                 _displayName = String.Empty;
-                _user = emailAddress.Substring(0, ampPos);
+                _user = _address.Substring(0, ampPos);
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace SmtpPilot.Server.Internal
+﻿using System;
+
+namespace SmtpPilot.Server.Internal
 {
     internal static class Constants
     {
@@ -21,6 +23,8 @@
 
         internal const int BufferCompressionThreshold = 16384;
         internal const int BufferCompressionScanThreshold = 8192;
+
+        internal const string ATextCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~";
     }
 
     internal static class Markers
