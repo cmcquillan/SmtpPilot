@@ -20,7 +20,7 @@ namespace SmtpPilot.WebHooks.Models
             {
                 Headers = msg?.Headers?.Select(p => EmailHeaderModel.Create(p))?.ToArray(),
                 From = EmailAddressModel.Create(msg.FromAddress),
-                To = msg?.ToAddresses?.Select(p => EmailAddressModel.Create(p))?.ToArray(),
+                To = msg?.Recipients?.Select(p => EmailAddressModel.Create(p))?.ToArray(),
                 Message = rdr.ReadToEnd(),
             };
         }

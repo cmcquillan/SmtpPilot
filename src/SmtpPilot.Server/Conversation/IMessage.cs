@@ -7,8 +7,8 @@ namespace SmtpPilot.Server.Conversation
     public interface IMessage
     {
         Stream MessageBody { get; }
-        EmailAddress FromAddress { get; }
+        Mailbox FromAddress { get; }
         ReadOnlyCollection<SmtpHeader> Headers { get; }
-        ReadOnlyCollection<EmailAddress> ToAddresses { get; }
+        ReadOnlyCollection<Mailbox> Recipients { get; }
     }
 }

@@ -12,7 +12,7 @@ namespace SmtpPilot
                 $"Client processed mail.{Environment.NewLine}" + 
                 $"\tId: {eventArgs.ClientId} {Environment.NewLine}" +
                 $"\tFrom: {eventArgs?.Message?.FromAddress} {Environment.NewLine}" + 
-                $"\tTo: {eventArgs.Message?.ToAddresses?.FirstOrDefault()}");
+                $"\tTo: {eventArgs.Message?.Recipients?.FirstOrDefault()}");
         }
 
         internal static void Server_ClientDisconnected(object sender, MailClientDisconnectedEventArgs eventArgs)

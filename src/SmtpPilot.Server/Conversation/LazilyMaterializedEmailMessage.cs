@@ -15,8 +15,8 @@ namespace SmtpPilot.Server.Conversation
         private readonly Memory<char> _fromSegment;
         private readonly IEnumerable<Memory<char>> _recipientSegments;
         private readonly IEnumerable<Memory<char>> _bodySegments;
-        private EmailAddress? _fromAddress;
-        private ReadOnlyCollection<EmailAddress> _addresses;
+        private Mailbox? _fromAddress;
+        private ReadOnlyCollection<Mailbox> _addresses;
 
         public LazilyMaterializedEmailMessage(
             IEnumerable<IMemoryOwner<char>> owners,
@@ -37,23 +37,23 @@ namespace SmtpPilot.Server.Conversation
             throw new NotImplementedException();
         }
 
-        public EmailAddress FromAddress => MaterializeFromAddress();
+        public Mailbox FromAddress => MaterializeFromAddress();
 
-        private EmailAddress MaterializeFromAddress()
+        private Mailbox MaterializeFromAddress()
         {
             if (_fromAddress is null)
             {
-                _fromAddress = BuildMaterializedAddress(_fromSegment, AddressType.From);
+                _fromAddress = BuildMaterializedAddress(_fromSegment);
             }
 
             return _fromAddress.Value;
         }
 
-        private EmailAddress BuildMaterializedAddress(Memory<char> segment, AddressType type)
+        private Mailbox BuildMaterializedAddress(Memory<char> segment)
         {
             var addressString = segment.Span.ToString();
             var email = IOHelper.ParseEmails(addressString).FirstOrDefault();
-            var addr = new EmailAddress(email, type);
+            var addr = Mailbox.Parse(email);
             return addr;
         }
 
@@ -64,16 +64,16 @@ namespace SmtpPilot.Server.Conversation
             throw new NotImplementedException();
         }
 
-        public ReadOnlyCollection<EmailAddress> ToAddresses => MaterializeToAddresses();
+        public ReadOnlyCollection<Mailbox> Recipients => MaterializeToAddresses();
 
-        private ReadOnlyCollection<EmailAddress> MaterializeToAddresses()
+        private ReadOnlyCollection<Mailbox> MaterializeToAddresses()
         {
             if (_addresses is null)
             {
-                var list = new List<EmailAddress>();
+                var list = new List<Mailbox>();
                 foreach (var item in _recipientSegments)
                 {
-                    list.Add(BuildMaterializedAddress(item, AddressType.To));
+                    list.Add(BuildMaterializedAddress(item));
                 }
 
                 _addresses = list.AsReadOnly();
