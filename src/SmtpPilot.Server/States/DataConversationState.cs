@@ -1,45 +1,60 @@
 ﻿using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
+using System;
+using System.Buffers;
 
 namespace SmtpPilot.Server.States
 {
-    public class DataConversationState : IConversationState
+    internal class DataConversationState : IConversationState
     {
         public bool ShouldDisconnect => false;
 
         public void EnterState(SmtpStateContext context)
         {
             context.Reply(SmtpReply.BeginData);
-            context.Conversation.AddElement(new SmtpData());
         }
 
-        public IConversationState Advance(SmtpStateContext context)
+        public ConversationStateKey Advance(SmtpStateContext context)
         {
-            var buffer = context.GetBufferSegment(1024);
+            bool endOfData = false;
+            bool dataHasPeriod = false;
+            var buffer = context.ContextBuilder.GetBuffer(2048);
 
-            // First attempt to read until <CR><LF>.<CR><LR>
-            if (context.Client.ReadUntil(Markers.EndOfDataSegment, buffer.Span, 0, out var count))
+            if (!context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 0, out var count))
             {
-                context.AdvanceBuffer(count);
+                return ConversationStates.DataRead;
+            }
 
-                context.Conversation.CurrentMessage.Append(buffer.Span.Slice(0, count));
-                context.Conversation.CurrentMessage.Complete();
+            if (buffer[0] == '.')
+            {
+                if (count > 1)
+                {
+                    dataHasPeriod = true;
+                }
+                else
+                {
+                    endOfData = true;
+                }
+            }
 
-                context.Events.OnEmailProcessed(this, new EmailProcessedEventArgs(context.Client, context.Conversation.CurrentMessage, context.EmailStats));
+            context.ContextBuilder.AddDataSegment(dataHasPeriod ? 1 : 0, count);
+
+            if (endOfData)
+            {
+                context.Events.OnEmailProcessed(this,
+                    new EmailProcessedEventArgs(
+                        context.Client,
+                        context.ContextBuilder.BuildMessage(),
+                        context.EmailStats));
+
                 context.EmailStats.AddEmailReceived();
 
                 context.Reply(SmtpReply.OK);
 
                 return ConversationStates.Accept;
             }
-            // Otherwise just fill the buffer and append. We'll cycle back through this method.
-            else if (context.Client.Read(1024, buffer.Span))
-            {
-                context.AdvanceBuffer(1024);
-                context.Conversation.CurrentMessage.Append(buffer.Span);
-            }
 
-            return this;
+            return ConversationStates.DataRead;
         }
     }
 }

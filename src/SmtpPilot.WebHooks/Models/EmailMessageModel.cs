@@ -1,4 +1,5 @@
 ﻿using SmtpPilot.Server.Conversation;
+using System.IO;
 using System.Linq;
 
 namespace SmtpPilot.WebHooks.Models
@@ -14,12 +15,13 @@ namespace SmtpPilot.WebHooks.Models
 
         public static EmailMessageModel Create(IMessage msg)
         {
+            using var rdr = new StreamReader(msg.MessageBody);
             return new EmailMessageModel
             {
                 Headers = msg?.Headers?.Select(p => EmailHeaderModel.Create(p))?.ToArray(),
-                From = EmailAddressModel.Create(msg?.FromAddress),
-                To = msg?.ToAddresses?.Select(p => EmailAddressModel.Create(p))?.ToArray(),
-                Message = msg?.Data,
+                From = EmailAddressModel.Create(msg.FromAddress),
+                To = msg?.Recipients?.Select(p => EmailAddressModel.Create(p))?.ToArray(),
+                Message = rdr.ReadToEnd(),
             };
         }
     }

@@ -14,8 +14,10 @@ namespace SmtpPilot.Server.Communication
 
         int ReadLine(Span<char> buffer);
 
-        bool ReadUntil(byte[] marker, Span<char> buffer, int startIndex, out int count);
+        bool ReadUntil(byte[] marker, Span<char> buffer, int readOffset, out int count);
 
         bool Read(int count, Span<char> buffer);
+
+        bool Peek(int count, Span<char> buffer);
     }
 }

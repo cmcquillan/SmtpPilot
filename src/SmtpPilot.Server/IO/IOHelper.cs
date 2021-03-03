@@ -1,13 +1,15 @@
-﻿using SmtpPilot.Server.Conversation;
+﻿using SmtpPilot.Server.Communication;
+using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text.RegularExpressions;
 
 namespace SmtpPilot.Server.IO
 {
-    public static class IOHelper
+    internal static class IOHelper
     {
         static IOHelper()
         {
@@ -17,16 +19,16 @@ namespace SmtpPilot.Server.IO
         private const char _space = (char)0x20;
         private static readonly Regex _mailFromRegex;
 
-        public static SmtpCommand GetCommand(IEnumerable<char> input)
+        internal static SmtpCommand GetCommand(ReadOnlySpan<char> input)
         {
             char[] cmd = new char[4];
 
-            for (int i = 0; i < Math.Min(4, input.Count()); i++)
+            for (int i = 0; i < Math.Min(4, input.Length); i++)
             {
-                if (input.ElementAt(i) == _space)
+                if (input[i] == _space)
                     break;
 
-                cmd[i] = input.ElementAt(i);
+                cmd[i] = input[i];
             }
 
             string commandText = new string(cmd);
@@ -36,7 +38,7 @@ namespace SmtpPilot.Server.IO
             return command;
         }
 
-        public static bool LooksLikeHeader(ReadOnlySpan<char> line)
+        internal static bool LooksLikeHeader(ReadOnlySpan<char> line)
         {
             /*
              * Looking for a space or a colon.  If we find
@@ -57,7 +59,7 @@ namespace SmtpPilot.Server.IO
             return false;
         }
 
-        public static string[] ParseEmails(string s)
+        internal static string[] ParseEmails(string s)
         {
             var matches = _mailFromRegex.Matches(s);
             string[] emails = new string[matches.Count];
@@ -70,6 +72,23 @@ namespace SmtpPilot.Server.IO
             return emails;
         }
 
+        internal static bool IsEmptyOrWhitespace(this ReadOnlySpan<char> span)
+        {
+            if (span.IsEmpty)
+                return true;
 
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] == '\0')
+                    return true;
+
+                if (!Char.IsWhiteSpace(span[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

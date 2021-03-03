@@ -1,40 +1,56 @@
 ﻿using SmtpPilot.Server.Conversation;
 using SmtpPilot.Server.Internal;
 using SmtpPilot.Server.IO;
+using System;
 using System.Linq;
 
 namespace SmtpPilot.Server.States
 {
-    public class RecipientConversationState : MinimalConversationState
+    internal class RecipientConversationState : MinimalConversationState
     {
-        public override IConversationState Advance(SmtpStateContext context)
-        {
-            var buffer = context.GetBufferSegment(1024);
-
-            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer.Span, 0, out var count))
-            {
-                var command = IOHelper.GetCommand(buffer.Span[0..4].ToArray());
-                var line = buffer[5..].ToString();
-
-                switch (command)
-                {
-                    case SmtpCommand.RCPT:
-                        string[] emails = IOHelper.ParseEmails(line);
-                        context.Conversation.CurrentMessage.AddAddresses(emails.Select(p => new EmailAddress(p, AddressType.To)).Cast<IAddress>().ToArray());
-                        context.Reply(SmtpReply.OK);
-                        return this;
-                    case SmtpCommand.DATA:
-                        return ConversationStates.DataRead;
-                    default:
-                        return ProcessBaseCommands(command, context);
-                }
-            }
-
-            return this;
-        }
+        public override ConversationStateKey ThisKey => ConversationStates.Recipient;
 
         public override void EnterState(SmtpStateContext context)
         {
+        }
+
+        public override ConversationStateKey Advance(SmtpStateContext context)
+        {
+            var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
+
+            if (!context.Client.Peek(4, temp))
+            {
+                return ThisKey;
+            }
+
+            var command = IOHelper.GetCommand(temp);
+            var buffer = context.ContextBuilder.GetBuffer(1024);
+
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 4, out var count))
+            {
+                switch (command)
+                {
+                    case SmtpCommand.RCPT:
+                        var start = buffer.IndexOf(':') + 1;
+                        context.ContextBuilder.AddAddressSegment(start, count - start);
+                        context.Reply(SmtpReply.OK);
+                        return ThisKey;
+                    case SmtpCommand.DATA:
+                        if (((ReadOnlySpan<char>)buffer.Slice(0, count)).IsEmptyOrWhitespace())
+                        {
+                            return ConversationStates.DataRead;
+                        }
+                        else
+                        {
+                            context.Reply(SmtpReply.SyntaxError);
+                            return ThisKey;
+                        }
+                    default:
+                        return ProcessBaseCommands(command, buffer.Slice(0, count), context);
+                }
+            }
+
+            return ThisKey;
         }
 
         internal override string HandleHelp()

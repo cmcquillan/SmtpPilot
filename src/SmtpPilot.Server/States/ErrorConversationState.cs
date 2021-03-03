@@ -1,6 +1,6 @@
 ﻿namespace SmtpPilot.Server.States
 {
-    public class ErrorConversationState : IConversationState
+    internal class ErrorConversationState : IConversationState
     {
         private readonly string _errorMessage;
 
@@ -21,11 +21,11 @@
             context.Reply(new Conversation.SmtpReply(Conversation.SmtpReplyCode.Code503, _errorMessage));
         }
 
-        public IConversationState Advance(SmtpStateContext context)
+        public ConversationStateKey Advance(SmtpStateContext context)
         {
-            return this;
+            return ConversationStates.Error;
         }
 
-        public bool ShouldDisconnect { get; }
+        public bool ShouldDisconnect => true;
     }
 }

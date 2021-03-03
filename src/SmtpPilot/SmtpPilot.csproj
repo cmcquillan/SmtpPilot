@@ -7,6 +7,8 @@
     <Company>Quill Technologies, LLC</Company>
     <Authors>Casey McQuillan</Authors>
     <Copyright>Copyright © 2015</Copyright>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,12 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SmtpPilot.Server\SmtpPilot.Server.csproj" />
     <ProjectReference Include="..\SmtpPilot.WebHooks\SmtpPilot.WebHooks.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Dockerfile">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   
 </Project>

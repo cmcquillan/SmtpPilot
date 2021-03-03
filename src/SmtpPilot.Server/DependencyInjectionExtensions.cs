@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SmtpPilot.Server.Communication;
 using SmtpPilot.Server.Conversation;
+using SmtpPilot.Server.Internal;
+using SmtpPilot.Server.States;
 
 namespace SmtpPilot.Server
 {
@@ -8,8 +10,16 @@ namespace SmtpPilot.Server
     {
         public static IServiceCollection AddSmtpPilotCore(this IServiceCollection services)
         {
+            services.AddSingleton<IClock, Clock>();
             services.AddSingleton<IMailClientFactory, KestrelMailClientFactory>();
-            services.AddSingleton<IEmailMessageFactory, EmailMessageFactory>();
+
+            services.AddSingleton<ConversationStateCollection>();
+            services.AddSingleton<IConversationState, AcceptMailConversationState>();
+            services.AddSingleton<IConversationState, DataConversationState>();
+            services.AddSingleton<IConversationState, ErrorConversationState>();
+            services.AddSingleton<IConversationState, OpenConnectionState>();
+            services.AddSingleton<IConversationState, QuitConversationState>();
+            services.AddSingleton<IConversationState, RecipientConversationState>();
 
             return services;
         }

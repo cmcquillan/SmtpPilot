@@ -118,18 +118,23 @@ namespace SmtpPilot.Server.Communication
             }
         }
 
-        public bool ReadUntil(byte[] marker, Span<char> buffer, int startIndex, out int count)
+        public bool ReadUntil(byte[] marker, Span<char> buffer, int readOffset, out int count)
         {
             count = 0;
             if (_reader.TryRead(out var result))
             {
                 var sr = new SequenceReader<byte>(result.Buffer);
 
+                if (readOffset > 0)
+                {
+                    sr.Advance(readOffset);
+                }
+
                 if (sr.TryReadTo(out var newSequence, marker, true))
                 {
                     if (newSequence.Length <= buffer.Length)
                     {
-                        count = DecodeAndConsume(ref newSequence, buffer[startIndex..]);
+                        count = DecodeAndConsume(ref newSequence, buffer);
                         _reader.AdvanceTo(sr.Position);
 
                         return true;
@@ -160,12 +165,19 @@ namespace SmtpPilot.Server.Communication
 
         public bool Read(int count, Span<char> buffer)
         {
+            return ReadInternal(count, buffer, true);
+        }
+
+        private bool ReadInternal(int count, Span<char> buffer, bool advance)
+        {
             if (_reader.TryRead(out var result))
             {
                 if (result.Buffer.Length >= count)
                 {
                     FillCount(result.Buffer, buffer, count);
-                    _reader.AdvanceTo(result.Buffer.GetPosition(count));
+                    _reader.AdvanceTo(advance
+                        ? result.Buffer.GetPosition(count)
+                        : result.Buffer.Start);
                     return true;
                 }
 
@@ -173,6 +185,11 @@ namespace SmtpPilot.Server.Communication
             }
 
             return false;
+        }
+
+        public bool Peek(int count, Span<char> buffer)
+        {
+            return ReadInternal(count, buffer, false);
         }
     }
 }

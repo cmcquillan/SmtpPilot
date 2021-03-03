@@ -6,47 +6,51 @@ using System;
 
 namespace SmtpPilot.Server.States
 {
-    public class AcceptMailConversationState : MinimalConversationState
+    internal class AcceptMailConversationState : MinimalConversationState
     {
+        public override ConversationStateKey ThisKey => ConversationStates.Accept;
+
         public override void EnterState(SmtpStateContext context)
         {
-
+            context.ContextBuilder.ResetState();
         }
 
-        public override IConversationState Advance(SmtpStateContext context)
+        public override ConversationStateKey Advance(SmtpStateContext context)
         {
-            var buffer = context.GetBufferSegment(1024);
-            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer.Span, 0, out var count))
-            {
-                var command = IOHelper.GetCommand(buffer.Span[0..4].ToArray());
-                var line = buffer[5..].ToString();
-                context.AdvanceBuffer(count);
+            var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
 
+            if (!context.Client.Peek(4, temp))
+            {
+                return ConversationStates.Accept;
+            }
+
+            var command = IOHelper.GetCommand(temp);
+            var buffer = context.ContextBuilder.GetBuffer(1024);
+
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 4, out var count))
+            {
                 switch (command)
                 {
                     case SmtpCommand.MAIL:
-                        string[] matches = IOHelper.ParseEmails(line);
-                        if (matches.Length != 1)
-                            return ConversationStates.Error;
 
-                        string from = matches[0];
-
-                        var messageFactory = context.ServiceProvider.GetRequiredService<IEmailMessageFactory>();
-                        context.Conversation.NewMessage(messageFactory.CreateNewMessage());
-
-                        context.Conversation.CurrentMessage.FromAddress = new EmailAddress(from, AddressType.From);
+                        // Look for the ':' in MAIL FROM:
+                        var start = buffer.IndexOf(':') + 1;
+                        context.ContextBuilder.StartMessage(start, count - start);
                         context.Reply(SmtpReply.OK);
+
                         return ConversationStates.Recipient;
                     case SmtpCommand.VRFY:
-                        context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Format("{0} <{0}@{1}>", line, context.Configuration.HostName)));
-                        return this;
+
+                        context.Reply(new SmtpReply(SmtpReplyCode.Code250, String.Format("{0} <{0}@{1}>", "sample", context.Configuration.HostName)));
+
+                        return ConversationStates.Accept;
                     default:
-                        return ProcessBaseCommands(command, context);
+                        return ProcessBaseCommands(command, buffer.Slice(0, count), context);
                 }
 
             }
 
-            return this;
+            return ConversationStates.Accept;
         }
 
         internal override string HandleHelp()

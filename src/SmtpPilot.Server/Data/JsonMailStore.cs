@@ -33,6 +33,9 @@ namespace SmtpPilot.Server.Data
 
         public void SaveMessage(IMessage message)
         {
+            if (message is null)
+                return;
+
             string fileName = Path.Combine(_path, String.Format("{0}-{1}.json", DateTime.Now.ToString("yyyy-dd-MM"), Guid.NewGuid()));
             var msg = XmlMailMessage.FromMessage(message);
 

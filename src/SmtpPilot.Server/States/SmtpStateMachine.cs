@@ -9,6 +9,7 @@ namespace SmtpPilot.Server.States
         internal const int MinimumBufferSize = 4096;
 
         private readonly IServiceProvider _serviceProvider;
+        private readonly ConversationStateCollection _stateCollection;
         private readonly IMailClient _client;
         private IConversationState _currentState;
         private readonly SmtpStateContext _context;
@@ -18,6 +19,7 @@ namespace SmtpPilot.Server.States
 
         internal SmtpStateMachine(
             IServiceProvider serviceProvider,
+            ConversationStateCollection stateCollection,
             IMailClient client,
             EmailStatistics statistics,
             SmtpPilotConfiguration configuration,
@@ -27,9 +29,10 @@ namespace SmtpPilot.Server.States
             _logger = logger;
             _emailStats = statistics;
             _serviceProvider = serviceProvider;
+            _stateCollection = stateCollection;
             _client = client;
             _context = new SmtpStateContext(_serviceProvider, _configuration, _client, _emailStats, _configuration.ServerEvents);
-            CurrentState = ConversationStates.OpenConnection;
+            CurrentState = _stateCollection.Get<OpenConnectionState>();
         }
 
         internal SmtpStateContext Context { get { return _context; } }
@@ -58,7 +61,7 @@ namespace SmtpPilot.Server.States
             try
             {
                 var next = CurrentState.Advance(_context);
-                TransitionTo(next);
+                TransitionTo(_stateCollection.Get(next));
             }
             catch (Exception ex)
             {
