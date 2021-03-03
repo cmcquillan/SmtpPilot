@@ -33,7 +33,7 @@ namespace SmtpPilot.Client
             using var client = new SmtpClient
             {
                 LocalDomain = "localhost",
-
+                
                 Timeout = Int32.MaxValue
             };
 
