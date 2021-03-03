@@ -28,7 +28,7 @@ jobs:
         with:
           push: true
           file: src/SmtpPilot/Dockerfile
-          tags: smtppilot:latest
+          tags: ${{ secrets.REGISTRY }}/smtppilot:latest
 
       -
         name: Image digest
