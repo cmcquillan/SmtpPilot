@@ -22,9 +22,9 @@ jobs:
           push: true
           file: src/SmtpPilot/Dockerfile
           tags: smtppilot:latest
+          username: ${{ secrets.REGISTRY_TOKEN }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
           registry: ${{ secrets.REGISTRY }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.REGISTRY_TOKEN }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
