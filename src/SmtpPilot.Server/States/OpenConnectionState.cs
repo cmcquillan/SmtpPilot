@@ -20,17 +20,17 @@ namespace SmtpPilot.Server.States
 
         public override ConversationStateKey Advance(SmtpStateContext context)
         {
-            var temp = context.ContextBuilder.GetTemporaryBuffer().Slice(0, 4);
+            var temp = context.ContextBuilder.GetTemporaryBuffer();
 
-            if (!context.Client.Peek(4, temp))
+            if (!context.Client.PeekUntil(Markers.Space, temp, out var spaceIx))
             {
                 return ThisKey;
             }
 
-            var command = IOHelper.GetCommand(temp);
+            var command = IOHelper.GetCommand(temp.Slice(0, spaceIx));
             var buffer = context.ContextBuilder.GetBuffer(1024);
 
-            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, 4, out var count))
+            if (context.Client.ReadUntil(Markers.CarriageReturnLineFeed, buffer, spaceIx, out var count))
             {
                 try
                 {

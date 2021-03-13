@@ -22,13 +22,6 @@ namespace SmtpPilot.Server.Communication
             _logger = logger;
         }
 
-        public KestrelMailClient(TcpClient client)
-        {
-            var stream = client.GetStream();
-            _reader = PipeReader.Create(stream);
-            _writer = PipeWriter.Create(stream);
-        }
-
         public Guid ClientId { get; } = Guid.NewGuid();
 
         public int SecondsClientHasBeenSilent => 1;
@@ -39,64 +32,11 @@ namespace SmtpPilot.Server.Communication
             _writer.Complete();
         }
 
-        private bool TryReadLine(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> line)
-        {
-            var position = buffer.PositionOf((byte)'\n');
-
-            if (position == null)
-            {
-                line = default;
-                return false;
-            }
-
-            var slicePosition = buffer.GetPosition(1, position.Value);
-
-            line = buffer.Slice(0, slicePosition);
-            buffer = buffer.Slice(slicePosition);
-            _logger.LogTrace("Read to {byteCount} from socket", line.Length);
-            return true;
-        }
-
         public void Write(string message)
         {
             var newlines = Encoding.ASCII.GetBytes(Constants.CarriageReturnLineFeed);
             _writer.WriteAsync(Encoding.ASCII.GetBytes(message)).GetAwaiter().GetResult();
             _writer.WriteAsync(newlines).GetAwaiter().GetResult();
-        }
-
-        public int ReadLine(Span<char> outBuffer)
-        {
-            if (_reader.TryRead(out var read))
-            {
-                var inBuffer = read.Buffer;
-                if (TryReadLine(ref inBuffer, out var line))
-                {
-                    FillLine(line, outBuffer, out _, out var written);
-                    _reader.AdvanceTo(inBuffer.Start);
-                    return written;
-                }
-            }
-
-            return 0;
-        }
-
-        private void FillLine(ReadOnlySequence<byte> line, Span<char> buffer, out int processed, out int written)
-        {
-            var decoder = Encoding.ASCII.GetDecoder();
-            var length = buffer.Length;
-            processed = 0;
-            written = 0;
-
-            foreach (var bytes in line)
-            {
-                processed += bytes.Length;
-                var last = processed == length;
-                var span = bytes.Span;
-                var chars = decoder.GetChars(span, buffer, last);
-                buffer = buffer[(chars + 1)..];
-                written += chars;
-            }
-
         }
 
         private void FillCount(ReadOnlySequence<byte> read, Span<char> buffer, int count)
@@ -120,6 +60,11 @@ namespace SmtpPilot.Server.Communication
 
         public bool ReadUntil(byte[] marker, Span<char> buffer, int readOffset, out int count)
         {
+            return ReadUntilInternal(marker, buffer, readOffset, out count, true);
+        }
+
+        private bool ReadUntilInternal(byte[] marker, Span<char> buffer, int readOffset, out int count, bool advance)
+        {
             count = 0;
             if (_reader.TryRead(out var result))
             {
@@ -135,7 +80,10 @@ namespace SmtpPilot.Server.Communication
                     if (newSequence.Length <= buffer.Length)
                     {
                         count = DecodeAndConsume(ref newSequence, buffer);
-                        _reader.AdvanceTo(sr.Position);
+
+                        _reader.AdvanceTo(advance 
+                            ? sr.Position 
+                            : result.Buffer.Start);
 
                         return true;
                     }
@@ -178,6 +126,7 @@ namespace SmtpPilot.Server.Communication
                     _reader.AdvanceTo(advance
                         ? result.Buffer.GetPosition(count)
                         : result.Buffer.Start);
+
                     return true;
                 }
 
@@ -190,6 +139,11 @@ namespace SmtpPilot.Server.Communication
         public bool Peek(int count, Span<char> buffer)
         {
             return ReadInternal(count, buffer, false);
+        }
+
+        public bool PeekUntil(byte[] marker, Span<char> buffer, out int count)
+        {
+            return ReadUntilInternal(marker, buffer, 0, out count, false);
         }
     }
 }
