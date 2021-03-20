@@ -12,11 +12,11 @@ namespace SmtpPilot.Server.Communication
 
         int SecondsClientHasBeenSilent { get; }
 
-        int ReadLine(Span<char> buffer);
-
         bool ReadUntil(byte[] marker, Span<char> buffer, int readOffset, out int count);
 
         bool Read(int count, Span<char> buffer);
+
+        bool PeekUntil(byte[] marker, Span<char> buffer, out int count);
 
         bool Peek(int count, Span<char> buffer);
     }

@@ -31,6 +31,7 @@ namespace SmtpPilot.Server.Internal
     {
         internal static readonly byte[] Space = new[] { (byte)' ' };
         internal static readonly byte[] CarriageReturnLineFeed = new[] { (byte)'\r', (byte)'\n' };
+        internal static readonly byte[] DataCommand = new[] { (byte)'D', (byte)'A', (byte)'T', (byte)'A' };
         internal static readonly byte[] EndOfDataSegmentWithoutFirstNewline = new[] { (byte)'.', (byte)'\r', (byte)'\n' };
         internal static readonly byte[] EndOfDataSegment = new[] { (byte)'\r', (byte)'\n', (byte)'.', (byte)'\r', (byte)'\n' };
     }
